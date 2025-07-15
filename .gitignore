@@ -114,9 +114,10 @@ dmypy.json
 # PyCharm
 .idea/
 
-# VSCode
-.vscode/
-*.code-workspace
+# VSCode - Include shared settings and main workspace, exclude personal files
+.vscode/settings_personal.json
+*_personal.code-workspace
+workspace_*.code-workspace
 
 # ML specific
 # Model outputs
@@ -132,10 +133,19 @@ models/*/outputs/
 # Data files (comment out if you want to track small datasets)
 *.csv
 *.parquet
-*.json
 *.jsonl
 *.feather
 *.tfrecord
+
+# JSON data files (but not VS Code config files)
+/data/**/*.json
+/datasets/**/*.json
+/dataset/**/*.json
+/raw_data/**/*.json
+**/data/*.json
+**/datasets/*.json
+**/dataset/*.json
+**/raw_data/*.json
 
 # Large data directories
 data/

@@ -1,7 +1,65 @@
 # **AI Development Guide**
-## **Quick Start for AI Assistants**
 
-This guide consolidates all essential information needed to develop the "AI From Scratch to Scale" project. Use this as your primary reference when implementing new models or working on shared infrastructure.
+> **How to Use This Guide**
+>
+> This is the main entry point for all development in the "AI From Scratch to Scale" project. Use it as your primary reference for workflows, standards, and best practices. For deeper dives, troubleshooting, or templates, follow the cross-references to other documentation throughout this guide. See the [docs/README.md](README.md) for a full documentation map.
+>
+> **AI Assistant Guidance:**
+> This document is designed to be machine-readable and AI-assistant-friendly. If you are an AI assistant, always follow cross-references and check the most specific document for implementation details.
+
+---
+
+## **🚦 Quick Links**
+
+| Document | Description |
+|---|---|
+| [Project Charter](strategy/Project_Charter.md) | Vision, roadmap, and guiding principles |
+| [Codebase Architecture](technical/Codebase_Architecture.md) | Directory structure, shared infrastructure |
+| [Coding Standards](technical/Coding_Standards.md) | Naming, style, and documentation |
+| [Development Checklist](Development_Checklist.md) | Step-by-step for new models |
+| [Quick Reference](Quick_Reference.md) | Directory and command patterns |
+| [Dataset Strategy](strategy/Dataset_Strategy.md) | Dataset selection and experimental design |
+| [Notebook Strategy](strategy/Notebook_Strategy.md) | Jupyter analysis approach |
+| [Testing Strategy](strategy/Testing_Strategy.md) | Comprehensive testing philosophy |
+| [Development FAQ](Development_FAQ.md) | Troubleshooting and common issues |
+| [Templates](templates/) | Model, training, config, constants, requirements |
+| [Validation System](validation/README.md) | Project and model validation |
+| [CI/CD Guide](CI_CD_Guide.md) | Continuous integration and deployment |
+| [Example Implementation](examples/01_perceptron_complete_example/README.md) | Complete model example |
+
+---
+
+## **Template Usage**
+
+When starting a new model, always copy the latest templates from [docs/templates/](templates/):
+- `model.py`, `train.py`, `config.py`, `constants.py`, `requirements.txt`
+- Follow the [Development Checklist](Development_Checklist.md) for the correct order and customization steps.
+- Templates ensure consistency and reduce errors—do not start from scratch or copy from other models unless updating for improvements.
+- See the [Example Implementation](examples/01_perceptron_complete_example/README.md) for a fully worked-out model using these templates.
+
+---
+
+## **Troubleshooting & Getting Help**
+
+- If you encounter an error or unexpected behavior:
+  1. Check the [Development FAQ](Development_FAQ.md) for common issues and solutions.
+  2. Review the relevant section of this guide (see Quick Links above).
+  3. If the issue persists, consult the detailed document for that topic (e.g., Dataset Strategy, Testing Strategy).
+  4. For validation errors, use the [Validation System](validation/README.md).
+- For new contributors: see the [CONTRIBUTING.md](../.github/CONTRIBUTING.md) if available, or ask in the project’s main communication channel.
+
+---
+
+## **Glossary**
+
+- **Keystone Model**: A model that introduced a fundamental paradigm shift; receives full implementation and analysis.
+- **Strength/Weakness Dataset**: Datasets chosen to highlight where a model excels (strength) and where it fails (weakness), motivating the next model.
+- **Three-Notebook Model**: For each major model, three Jupyter notebooks are created: Theory & Intuition, Code Walkthrough, and Empirical Analysis.
+- **Templates**: Standardized starter files for model code, configuration, and scripts, found in [docs/templates/](templates/).
+- **Validation System**: Scripts and checklists to ensure project and model structure correctness ([validation/README.md](validation/README.md)).
+- **Shared Infrastructure**: Code in `data_utils`, `engine`, `plotting`, and `utils` used by all models.
+- **Model-Specific Code**: Code unique to each model, found in its own directory under `models/`.
+- **CI/CD**: Continuous Integration/Continuous Deployment; see [CI_CD_Guide.md](CI_CD_Guide.md).
 
 ---
 
@@ -12,6 +70,9 @@ This guide consolidates all essential information needed to develop the "AI From
 **Philosophy**: "Learning by building" - prioritize clarity and educational value over optimization.
 
 **Approach**: Separate shared infrastructure from model-specific code, progress from NumPy implementations to framework-based solutions.
+
+> **See Also:**
+> - [Project Charter](strategy/Project_Charter.md) — Vision, roadmap, and guiding principles
 
 ---
 
@@ -39,6 +100,11 @@ ai-from-scratch-to-scale\
 │   └── 02_adaline\
 └── requirements-dev.txt    # Development dependencies
 ```
+
+> **For more details:**
+> - [Codebase Architecture](technical/Codebase_Architecture.md) — Directory structure, shared infrastructure
+> - [Coding Standards](technical/Coding_Standards.md) — Naming, style, and documentation
+> - [Quick Reference](Quick_Reference.md) — Directory and command patterns
 
 ---
 
@@ -86,6 +152,12 @@ black src\
 flake8 src\
 ```
 
+> **For more details:**
+> - [Development Checklist](Development_Checklist.md) — Step-by-step for new models
+> - [Quick Reference](Quick_Reference.md) — Command patterns
+> - [CI/CD Guide](CI_CD_Guide.md) — Automation and deployment
+> - [Example Implementation](examples/01_perceptron_complete_example/README.md) — See a complete model build
+
 ---
 
 ## **📝 Coding Standards**
@@ -122,6 +194,10 @@ flake8 src\
 - **README.md** for each model with setup instructions and key findings
 - **Inline comments** explaining complex logic (the "why", not the "what")
 
+> **For more details:**
+> - [Coding Standards](technical/Coding_Standards.md)
+> - [Codebase Architecture](technical/Codebase_Architecture.md)
+
 ---
 
 ## **🗂️ Configuration Management**
@@ -145,6 +221,10 @@ flake8 src\
 - **Easy experimentation** by adding new experiment configurations
 - **Historical accuracy** - use parameters close to original implementations where possible
 
+> **For more details:**
+> - [Templates: config.py, constants.py](templates/)
+> - [Quick Reference](Quick_Reference.md)
+
 ---
 
 ## **📊 Dataset Strategy**
@@ -165,6 +245,9 @@ flake8 src\
 - **Classic Datasets**: Iris, MNIST for historical accuracy and comparison
 - **Modern Datasets**: CIFAR-10, ImageNet subsets for complex models
 - **Task-Specific**: Segmentation masks, text corpora based on model purpose
+
+> **For more details:**
+> - [Dataset Strategy](strategy/Dataset_Strategy.md)
 
 ---
 
@@ -187,6 +270,11 @@ flake8 src\
 - **Pytest Framework**: Use pytest for all testing with appropriate fixtures
 - **CI Integration**: Tests run automatically on pull requests
 
+> **For more details:**
+> - [Testing Strategy](strategy/Testing_Strategy.md)
+> - [Development Checklist](Development_Checklist.md)
+> - [Validation System](validation/README.md)
+
 ---
 
 ## **📈 Visualization & Logging**
@@ -207,6 +295,10 @@ flake8 src\
 - **Separation of Concerns**: Generate plots separate from training logic
 - **Standard Locations**: Save to `outputs\visualizations\` directory
 - **Educational Focus**: Visualizations should support learning objectives
+
+> **For more details:**
+> - [Codebase Architecture](technical/Codebase_Architecture.md)
+> - [Notebook Strategy](strategy/Notebook_Strategy.md)
 
 ---
 
@@ -280,6 +372,10 @@ pytest ..\..\tests\test_modelname.py
 black src\
 flake8 src\
 ```
+
+> **For more details:**
+> - [Quick Reference](Quick_Reference.md)
+> - [Development Checklist](Development_Checklist.md)
 
 ---
 

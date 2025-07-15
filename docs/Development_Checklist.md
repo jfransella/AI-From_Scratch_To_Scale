@@ -10,26 +10,68 @@ Use this checklist when implementing any new model. Each section builds upon the
 **Difficulty:** Intermediate to Advanced  
 **Prerequisites:** Familiarity with PyTorch, Python, and the project structure
 
+## **🏠 Workspace Usage Notes**
+
+This project uses a VS Code workspace file (`ai-from-scratch-to-scale.code-workspace`) that provides:
+- **Organized folder structure** with emoji names for easy navigation
+- **Integrated debugging** configurations for model training
+- **File nesting** patterns for cleaner explorer view
+- **Recommended extensions** for Python development
+
+### **Key Workspace Benefits:**
+- Navigate directly to "🧠 Models" or "01️⃣ Perceptron" folders
+- Use integrated terminal from any folder context
+- Leverage debugging configurations for training scripts
+- Cross-platform compatibility (Windows/macOS/Linux)
+
+### **Command Adaptations:**
+- Commands show both PowerShell and bash alternatives
+- Path separators adjusted for cross-platform use
+- Virtual environment options for both isolated and shared approaches
+
 ---
 
 ## **🚀 Phase 1: Project Setup**
 
 ### **1.1 Environment Preparation**
-- [ ] **Navigate to project root**
+- [ ] **Navigate to project root (if not using workspace)**
   ```powershell
-  Set-Location C:\Users\[username]\Cursor\AI-From_Scratch_To_Scale
+  # Navigate to wherever you cloned the repository
+  Set-Location path\to\your\AI-From_Scratch_To_Scale
   ```
+  ```bash
+  # Navigate to wherever you cloned the repository
+  cd path/to/your/AI-From_Scratch_To_Scale
+  ```
+  **Alternative methods to find your project root:**
+  - Use `pwd` (bash) or `Get-Location` (PowerShell) to see current directory
+  - Look for the `ai-from-scratch-to-scale.code-workspace` file
+  - Ensure you can see `docs/`, `models/`, `engine/` folders
+  
+  **Note:** If using the VS Code workspace file, you're already in the correct context.
+
 - [ ] **Check project structure**
   ```powershell
   python docs\validation\quick_validate.py check-structure
   ```
+  ```bash
+  python docs/validation/quick_validate.py check-structure
+  ```
+
 - [ ] **Verify templates are available**
   ```powershell
   Get-ChildItem docs\templates\ -Name
   ```
+  ```bash
+  ls docs/templates/
+  ```
+
 - [ ] **Confirm validation system works**
   ```powershell
   python docs\validation\quick_validate.py check-all
+  ```
+  ```bash
+  python docs/validation/quick_validate.py check-all
   ```
 
 ### **1.2 Model Planning**
@@ -52,13 +94,24 @@ Use this checklist when implementing any new model. Each section builds upon the
   ```powershell
   python docs\validation\quick_validate.py fix-structure XX_modelname
   ```
+  ```bash
+  python docs/validation/quick_validate.py fix-structure XX_modelname
+  ```
+
 - [ ] **Verify directory creation**
   ```powershell
   tree models\XX_modelname /F
   ```
+  ```bash
+  find models/XX_modelname -type f
+  ```
+
 - [ ] **Check initial structure**
   ```powershell
   python docs\validation\quick_validate.py check-model XX_modelname
+  ```
+  ```bash
+  python docs/validation/quick_validate.py check-model XX_modelname
   ```
 
 **✅ Phase 1 Validation:**
@@ -66,16 +119,25 @@ Use this checklist when implementing any new model. Each section builds upon the
 # Should show newly created structure
 python docs\validation\validate_project.py --model models\XX_modelname
 ```
+```bash
+# Should show newly created structure  
+python docs/validation/validate_project.py --model models/XX_modelname
+```
 
 ---
 
 ## **🔧 Phase 2: Core Implementation**
 
 ### **2.1 Constants Implementation**
-- [ ] **Navigate to model directory**
+- [ ] **Navigate to model directory (if not using workspace)**
   ```powershell
   Set-Location models\XX_modelname
   ```
+  ```bash
+  cd models/XX_modelname
+  ```
+  **Note:** In VS Code workspace, you can work directly in the "🧠 Models" or specific model folder view.
+
 - [ ] **Edit `src/constants.py`**
   - [ ] **Model Metadata**
     - [ ] `MODEL_NAME` - Proper model name
@@ -185,6 +247,10 @@ python docs\validation\validate_project.py --model models\XX_modelname
     ```powershell
     python src\train.py --experiment debug_small --epochs 2 --debug
     ```
+    ```bash
+    python src/train.py --experiment debug_small --epochs 2 --debug
+    ```
+    **Workspace Alternative:** Use the "Current Model Training" debug configuration in VS Code for interactive debugging.
 
 ### **2.5 Evaluation Script Implementation**
 - [ ] **Edit `src/evaluate.py`**
@@ -523,19 +589,44 @@ python docs\validation\validate_project.py --model models\XX_modelname
 ## **🚀 Phase 8: Deployment & Integration**
 
 ### **8.1 Virtual Environment Setup**
-- [ ] **Create model-specific environment**
+- [ ] **Create model-specific environment (Optional - for isolation)**
   ```powershell
+  # From the model directory
   python -m venv .venv
   .venv\Scripts\activate
   ```
+  ```bash
+  # From the model directory
+  python -m venv .venv
+  source .venv/bin/activate
+  ```
+  **Note:** When using the workspace, you may prefer a single project-level virtual environment.
+
 - [ ] **Install dependencies**
   ```powershell
+  # Model-specific approach
   pip install -r requirements.txt
   pip install -r ..\..\requirements-dev.txt
   pip install -e ..\..
   ```
+  ```bash
+  # Model-specific approach
+  pip install -r requirements.txt
+  pip install -r ../../requirements-dev.txt
+  pip install -e ../..
+  ```
+  **Alternative - Project-level approach:**
+  ```powershell
+  # From project root
+  pip install -r requirements.txt
+  pip install -e .
+  ```
+
 - [ ] **Test environment**
   ```powershell
+  python -c "from src.model import *; print('Import successful')"
+  ```
+  ```bash
   python -c "from src.model import *; print('Import successful')"
   ```
 
@@ -629,6 +720,22 @@ python docs\validation\quick_validate.py check-all
 ImportError: No module named 'src'
 ```
 **Solution:** Ensure virtual environment is activated and project is installed with `pip install -e ../..`
+
+#### **Workspace-Specific Issues**
+```
+Path not found when using workspace folders
+```
+**Solution:** Commands are relative to project root. In workspace, ensure terminal is opened from correct folder context or use absolute paths.
+
+```
+Debugging configuration not working
+```
+**Solution:** Ensure you're using the workspace file and that Python interpreter is correctly set for the model's virtual environment.
+
+```
+File nesting hiding important files
+```
+**Solution:** Expand file nesting groups in Explorer or disable file nesting in workspace settings.
 
 #### **Configuration Errors**
 ```

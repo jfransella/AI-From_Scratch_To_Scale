@@ -1,5 +1,6 @@
 {
-    // Python Configuration
+    // Python Configuration - Model-specific environments for dependency isolation
+    // Default to Foundation models, but manually select interpreter per model
     "python.defaultInterpreterPath": "./models/01_perceptron/.venv",
     "python.terminal.activateEnvironment": true,
     // Linting Configuration

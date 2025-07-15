@@ -80,7 +80,7 @@
         "version": "0.2.0",
         "configurations": [
             {
-                "name": "Current Model Training",
+                "name": "01 - Perceptron Training",
                 "type": "python",
                 "request": "launch",
                 "program": "${workspaceFolder}/models/01_perceptron/src/train.py",
@@ -92,7 +92,82 @@
                 ],
                 "console": "integratedTerminal",
                 "cwd": "${workspaceFolder}",
-                "python": "${workspaceFolder}/models/01_perceptron/.venv"
+                "python": "${workspaceFolder}/models/01_perceptron/.venv/Scripts/python.exe"
+            },
+            {
+                "name": "02 - ADALINE Training",
+                "type": "python",
+                "request": "launch",
+                "program": "${workspaceFolder}/models/02_adaline/src/train.py",
+                "args": [
+                    "--experiment",
+                    "debug_small",
+                    "--epochs",
+                    "10"
+                ],
+                "console": "integratedTerminal",
+                "cwd": "${workspaceFolder}",
+                "python": "${workspaceFolder}/models/02_adaline/.venv/Scripts/python.exe"
+            },
+            {
+                "name": "03 - MLP Training",
+                "type": "python",
+                "request": "launch",
+                "program": "${workspaceFolder}/models/03_mlp/src/train.py",
+                "args": [
+                    "--experiment",
+                    "debug_small",
+                    "--epochs",
+                    "10"
+                ],
+                "console": "integratedTerminal",
+                "cwd": "${workspaceFolder}",
+                "python": "${workspaceFolder}/models/03_mlp/.venv/Scripts/python.exe"
+            },
+            {
+                "name": "🖼️ LeNet-5 Training",
+                "type": "python",
+                "request": "launch",
+                "program": "${workspaceFolder}/models/05_lenet5/src/train.py",
+                "args": [
+                    "--experiment",
+                    "mnist",
+                    "--epochs",
+                    "5"
+                ],
+                "console": "integratedTerminal",
+                "cwd": "${workspaceFolder}",
+                "python": "${workspaceFolder}/models/05_lenet5/.venv/Scripts/python.exe"
+            },
+            {
+                "name": "🚀 Transformer Training",
+                "type": "python",
+                "request": "launch",
+                "program": "${workspaceFolder}/models/12_transformer/src/train.py",
+                "args": [
+                    "--experiment",
+                    "translation",
+                    "--epochs",
+                    "3"
+                ],
+                "console": "integratedTerminal",
+                "cwd": "${workspaceFolder}",
+                "python": "${workspaceFolder}/models/12_transformer/.venv/Scripts/python.exe"
+            },
+            {
+                "name": "🧠 BERT Fine-tuning",
+                "type": "python",
+                "request": "launch",
+                "program": "${workspaceFolder}/models/24_bert/src/train.py",
+                "args": [
+                    "--experiment",
+                    "imdb",
+                    "--epochs",
+                    "2"
+                ],
+                "console": "integratedTerminal",
+                "cwd": "${workspaceFolder}",
+                "python": "${workspaceFolder}/models/24_bert/.venv/Scripts/python.exe"
             }
         ]
     },
@@ -100,11 +175,56 @@
         "version": "2.0.0",
         "tasks": [
             {
-                "label": "Setup Development Environment",
+                "label": "Setup Foundation Models Environment (01-04)",
                 "type": "shell",
                 "command": "${workspaceFolder}/models/01_perceptron/.venv/bin/activate",
                 "windows": {
                     "command": "${workspaceFolder}/models/01_perceptron/.venv/Scripts/activate.bat"
+                },
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "panel": "new"
+                },
+                "problemMatcher": []
+            },
+            {
+                "label": "Setup CNN Models Environment (05-07)",
+                "type": "shell",
+                "command": "${workspaceFolder}/models/05_lenet5/.venv/bin/activate",
+                "windows": {
+                    "command": "${workspaceFolder}/models/05_lenet5/.venv/Scripts/activate.bat"
+                },
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "panel": "new"
+                },
+                "problemMatcher": []
+            },
+            {
+                "label": "Setup Sequence Models Environment (08-12)",
+                "type": "shell",
+                "command": "${workspaceFolder}/models/12_transformer/.venv/bin/activate",
+                "windows": {
+                    "command": "${workspaceFolder}/models/12_transformer/.venv/Scripts/activate.bat"
+                },
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "panel": "new"
+                },
+                "problemMatcher": []
+            },
+            {
+                "label": "Setup Modern Models Environment (24-25)",
+                "type": "shell",
+                "command": "${workspaceFolder}/models/24_bert/.venv/bin/activate",
+                "windows": {
+                    "command": "${workspaceFolder}/models/24_bert/.venv/Scripts/activate.bat"
                 },
                 "group": "build",
                 "presentation": {

@@ -36,7 +36,7 @@
             ],
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}/models/01_perceptron",
-            "python": "${workspaceFolder}/models/01_perceptron/.venv/Scripts/python.exe",
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             },

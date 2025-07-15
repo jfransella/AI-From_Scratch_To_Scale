@@ -1,0 +1,96 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Perceptron Training",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/models/01_perceptron/src/train.py",
+            "args": [
+                "--experiment",
+                "debug_small",
+                "--epochs",
+                "5",
+                "--debug"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/models/01_perceptron",
+            "python": "${workspaceFolder}/models/01_perceptron/.venv/Scripts/python.exe",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "justMyCode": false,
+            "stopOnEntry": false
+        },
+        {
+            "name": "Debug Perceptron Evaluation",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/models/01_perceptron/src/evaluate.py",
+            "args": [
+                "--checkpoint",
+                "${workspaceFolder}/models/01_perceptron/outputs/models/debug_small_model.pth",
+                "--experiment",
+                "debug_small",
+                "--visualize"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/models/01_perceptron",
+            "python": "${workspaceFolder}/models/01_perceptron/.venv/Scripts/python.exe",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "justMyCode": false,
+            "stopOnEntry": false
+        },
+        {
+            "name": "Debug Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "python": "${workspaceFolder}/models/01_perceptron/.venv/Scripts/python.exe",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "justMyCode": true,
+            "stopOnEntry": false
+        },
+        {
+            "name": "Debug Tests",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "${workspaceFolder}/tests",
+                "-v",
+                "--tb=short"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/models/01_perceptron/.venv/Scripts/python.exe",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "justMyCode": false,
+            "stopOnEntry": false
+        },
+        {
+            "name": "Attach to Process",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "."
+                }
+            ],
+            "justMyCode": false
+        }
+    ]
+}

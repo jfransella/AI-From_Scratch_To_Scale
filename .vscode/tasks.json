@@ -1,0 +1,170 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Format Code",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "./scripts/format.ps1",
+                "${workspaceFolder}/models/01_perceptron/src"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Lint Code",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "./scripts/lint.ps1",
+                "${workspaceFolder}/models/01_perceptron/src"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [
+                {
+                    "owner": "flake8",
+                    "fileLocation": [
+                        "relative",
+                        "${workspaceFolder}"
+                    ],
+                    "pattern": {
+                        "regexp": "^(.*):(\\d+):(\\d+):\\s+(\\w+\\d+)\\s+(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "column": 3,
+                        "code": 4,
+                        "message": 5
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Quality Check",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "./scripts/check.ps1",
+                "${workspaceFolder}/models/01_perceptron/src"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [
+                {
+                    "owner": "flake8",
+                    "fileLocation": [
+                        "relative",
+                        "${workspaceFolder}"
+                    ],
+                    "pattern": {
+                        "regexp": "^(.*):(\\d+):(\\d+):\\s+(\\w+\\d+)\\s+(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "column": 3,
+                        "code": 4,
+                        "message": 5
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Run Tests",
+            "type": "shell",
+            "command": "pytest",
+            "args": [
+                "tests/",
+                "-v",
+                "--tb=short"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/models/01_perceptron"
+            },
+            "problemMatcher": [
+                {
+                    "owner": "pytest",
+                    "fileLocation": [
+                        "relative",
+                        "${workspaceFolder}"
+                    ],
+                    "pattern": {
+                        "regexp": "^(.*):(\\d+):\\s+(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "message": 3
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Train Perceptron",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "src/train.py",
+                "--experiment",
+                "iris_binary",
+                "--visualize"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "dedicated"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/models/01_perceptron"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Activate Virtual Environment",
+            "type": "shell",
+            "command": "${workspaceFolder}/models/01_perceptron/.venv/Scripts/activate.ps1",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

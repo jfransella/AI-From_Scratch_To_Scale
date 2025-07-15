@@ -1,0 +1,119 @@
+{
+    "folders": [
+        {
+            "name": "🏠 Project Root",
+            "path": "."
+        },
+        {
+            "name": "📊 Data Utils",
+            "path": "./data_utils"
+        },
+        {
+            "name": "⚙️ Engine",
+            "path": "./engine"
+        },
+        {
+            "name": "📈 Plotting",
+            "path": "./plotting"
+        },
+        {
+            "name": "🔧 Utils",
+            "path": "./utils"
+        },
+        {
+            "name": "🧪 Tests",
+            "path": "./tests"
+        },
+        {
+            "name": "🧠 Models",
+            "path": "./models"
+        },
+        {
+            "name": "01️⃣ Perceptron",
+            "path": "./models/01_perceptron"
+        },
+        {
+            "name": "📚 Documentation",
+            "path": "./docs"
+        }
+    ],
+    "settings": {
+        // Inherit from .vscode/settings.json but can override here
+        "files.exclude": {
+            "**/.*": false,
+            "**/.git": true,
+            "**/.vscode": false,
+            "**/__pycache__": true,
+            "**/*.pyc": true,
+            "**/wandb": true,
+            "models/*/outputs": true
+        },
+        "search.exclude": {
+            "**/node_modules": true,
+            "**/bower_components": true,
+            "**/*.code-search": true,
+            "**/wandb": true,
+            "models/*/outputs": true,
+            "**/.venv": true
+        },
+        "explorer.fileNesting.enabled": true,
+        "explorer.fileNesting.expand": false,
+        "explorer.fileNesting.patterns": {
+            "*.py": "${capture}.pyi,${capture}.pyx",
+            "requirements.txt": "requirements-*.txt",
+            "pyproject.toml": "setup.py,setup.cfg,MANIFEST.in",
+            "README.md": "README*,CHANGELOG*,CONTRIBUTING*,LICENSE*",
+            ".gitignore": ".gitattributes,.gitmodules"
+        }
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-python.python",
+            "ms-python.flake8",
+            "ms-python.black-formatter",
+            "ms-python.isort",
+            "ms-toolsai.jupyter",
+            "eamodio.gitlens"
+        ]
+    },
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Current Model Training",
+                "type": "python",
+                "request": "launch",
+                "program": "${workspaceFolder}/models/01_perceptron/src/train.py",
+                "args": [
+                    "--experiment",
+                    "debug_small",
+                    "--epochs",
+                    "10"
+                ],
+                "console": "integratedTerminal",
+                "cwd": "${workspaceFolder}",
+                "python": "${workspaceFolder}/models/01_perceptron/.venv"
+            }
+        ]
+    },
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Setup Development Environment",
+                "type": "shell",
+                "command": "${workspaceFolder}/models/01_perceptron/.venv/bin/activate",
+                "windows": {
+                    "command": "${workspaceFolder}/models/01_perceptron/.venv/Scripts/activate.bat"
+                },
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "panel": "new"
+                },
+                "problemMatcher": []
+            }
+        ]
+    }
+}

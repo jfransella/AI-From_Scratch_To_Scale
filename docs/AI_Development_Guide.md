@@ -317,11 +317,11 @@ flake8 src\
 
 ## **📚 Quick Links to Full Documentation**
 
-- **[Project Charter](Project%20Charter_%20AI%20From%20Scratch%20to%20Scale_%20A%20Hands-On%20Journey%20Through%20the%20History%20of%20Neural%20Networks%20(1).md)**: Full project scope and roadmap
-- **[Codebase Architecture](Codebase%20Architecture%20&%20Strategy.md)**: Detailed technical architecture
-- **[Coding Standards](Coding%20Standards%20Guide%20for%20'AI%20From%20Scratch%20to%20Scale'%20(1).md)**: Complete style guide
-- **[Notebook Strategy](Notebook%20Implementation%20Strategy.md)**: Jupyter notebook guidelines
-- **[Dataset Strategy](Project%20Dataset%20Strategy.md)**: Complete dataset specifications
+- **[Project Charter](strategy/Project_Charter.md)**: Full project scope and roadmap
+- **[Codebase Architecture](technical/Codebase_Architecture.md)**: Detailed technical architecture
+- **[Coding Standards](technical/Coding_Standards.md)**: Complete style guide
+- **[Notebook Strategy](strategy/Notebook_Strategy.md)**: Jupyter notebook guidelines
+- **[Dataset Strategy](strategy/Dataset_Strategy.md)**: Complete dataset specifications
 
 ---
 

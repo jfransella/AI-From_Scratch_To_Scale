@@ -1,0 +1,189 @@
+# Requirements template for AI From Scratch to Scale models
+# 
+# This template shows common dependencies needed for different types of models.
+# Copy this file to your model directory and uncomment/modify as needed.
+# 
+# Basic structure:
+# - Core dependencies (always needed)
+# - Framework dependencies (based on model complexity)
+# - Visualization dependencies (for plotting)
+# - Data dependencies (for dataset handling)
+# - Optional dependencies (for specific features)
+
+# =============================================================================
+# CORE DEPENDENCIES (Always needed)
+# =============================================================================
+
+# Core Python packages
+numpy>=1.21.0
+matplotlib>=3.5.0
+scipy>=1.7.0
+
+# Progress bars and utilities
+tqdm>=4.64.0
+
+# =============================================================================
+# FRAMEWORK DEPENDENCIES (Uncomment based on model complexity)
+# =============================================================================
+
+# For early models (NumPy-based implementations)
+# No additional dependencies needed - use only numpy
+
+# For intermediate and modern models (Framework-based)
+# Uncomment ONE of the following:
+
+# PyTorch (recommended)
+# torch>=1.9.0
+# torchvision>=0.10.0
+# torchtext>=0.10.0
+
+# TensorFlow (alternative)
+# tensorflow>=2.6.0
+# tensorflow-datasets>=4.4.0
+
+# =============================================================================
+# VISUALIZATION DEPENDENCIES (For plotting and analysis)
+# =============================================================================
+
+# Enhanced plotting
+seaborn>=0.11.0
+plotly>=5.0.0
+
+# Jupyter notebook support (if using notebooks)
+# jupyter>=1.0.0
+# ipywidgets>=7.6.0
+
+# =============================================================================
+# DATA DEPENDENCIES (For dataset handling)
+# =============================================================================
+
+# Data manipulation
+pandas>=1.3.0
+
+# Dataset libraries
+scikit-learn>=1.0.0
+
+# Image processing (for vision models)
+# pillow>=8.0.0
+# opencv-python>=4.5.0
+
+# =============================================================================
+# MONITORING AND LOGGING (Optional but recommended)
+# =============================================================================
+
+# Weights & Biases for experiment tracking
+# wandb>=0.12.0
+
+# TensorBoard for visualization
+# tensorboard>=2.7.0
+
+# =============================================================================
+# DEVELOPMENT DEPENDENCIES (For development and testing)
+# =============================================================================
+# These are typically in requirements-dev.txt at project root, but can be
+# included here if needed for this specific model
+
+# Testing
+# pytest>=6.0.0
+# pytest-cov>=2.0.0
+
+# Code formatting
+# black>=21.0.0
+# flake8>=4.0.0
+
+# Type checking
+# mypy>=0.910
+
+# =============================================================================
+# MODEL-SPECIFIC DEPENDENCIES
+# =============================================================================
+# Add any dependencies specific to your model here
+# Examples:
+
+# For NLP models
+# transformers>=4.0.0
+# tokenizers>=0.10.0
+
+# For computer vision models
+# albumentations>=1.0.0
+# timm>=0.4.0
+
+# For graph neural networks
+# torch-geometric>=2.0.0
+# networkx>=2.6.0
+
+# For reinforcement learning
+# gym>=0.21.0
+
+# =============================================================================
+# EXAMPLE CONFIGURATIONS BY MODEL TYPE
+# =============================================================================
+
+# Example 1: Simple NumPy-based model (Perceptron, ADALINE)
+# numpy>=1.21.0
+# matplotlib>=3.5.0
+# scipy>=1.7.0
+# seaborn>=0.11.0
+# pandas>=1.3.0
+# scikit-learn>=1.0.0
+# tqdm>=4.64.0
+
+# Example 2: PyTorch-based model (MLP, CNN, RNN)
+# numpy>=1.21.0
+# torch>=1.9.0
+# torchvision>=0.10.0
+# matplotlib>=3.5.0
+# seaborn>=0.11.0
+# pandas>=1.3.0
+# scikit-learn>=1.0.0
+# tqdm>=4.64.0
+# wandb>=0.12.0
+
+# Example 3: Advanced PyTorch model (Transformer, GAN)
+# numpy>=1.21.0
+# torch>=1.9.0
+# torchvision>=0.10.0
+# torchtext>=0.10.0
+# transformers>=4.0.0
+# matplotlib>=3.5.0
+# seaborn>=0.11.0
+# plotly>=5.0.0
+# pandas>=1.3.0
+# scikit-learn>=1.0.0
+# pillow>=8.0.0
+# tqdm>=4.64.0
+# wandb>=0.12.0
+
+# =============================================================================
+# NOTES
+# =============================================================================
+# 
+# 1. Version pinning strategy:
+#    - Use >= for minimum versions to allow updates
+#    - Pin exact versions (==) if reproducibility is critical
+#    - Test with latest versions periodically
+# 
+# 2. Platform considerations:
+#    - Some packages have different names on different platforms
+#    - CUDA versions need to match PyTorch versions
+#    - Consider using conda for complex dependencies
+# 
+# 3. Virtual environment:
+#    - Always use a virtual environment for each model
+#    - Consider using conda for complex scientific packages
+#    - Document the Python version used
+# 
+# 4. Installation order:
+#    - Install PyTorch first if using GPU
+#    - Install other packages after framework
+#    - Use pip install -r requirements.txt
+# 
+# 5. Common issues:
+#    - CUDA version mismatches with PyTorch
+#    - Conflicting package versions
+#    - Missing system dependencies (especially on Linux)
+# 
+# 6. Updating dependencies:
+#    - Check for security updates regularly
+#    - Test thoroughly after updates
+#    - Document any breaking changes 

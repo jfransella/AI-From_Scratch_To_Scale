@@ -1,0 +1,47 @@
+# Development Dependencies for AI From Scratch to Scale Project
+# Shared infrastructure requirements for all models
+
+# Core ML Libraries
+torch>=1.12.0
+torchvision>=0.13.0
+numpy>=1.21.0
+scikit-learn>=1.1.0
+
+# Data Processing
+pandas>=1.4.0
+scipy>=1.8.0
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.11.0
+plotly>=5.8.0
+
+# Experiment Tracking
+wandb>=0.13.0
+
+# Development Tools
+black>=22.0.0
+flake8>=4.0.0
+isort>=5.10.0
+pylint>=3.0.0
+mypy>=1.0.0
+pytest>=7.0.0
+pytest-cov>=3.0.0
+
+# Jupyter
+jupyter>=1.0.0
+ipykernel>=6.9.0
+nbformat>=5.3.0
+
+# Utilities
+tqdm>=4.64.0
+pyyaml>=6.0
+python-dotenv>=0.20.0
+
+# Memory and Performance
+memory-profiler>=0.60.0
+line-profiler>=3.5.0
+
+# Documentation
+sphinx>=4.5.0
+sphinx-rtd-theme>=1.0.0 

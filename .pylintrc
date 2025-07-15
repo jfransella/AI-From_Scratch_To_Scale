@@ -1,0 +1,196 @@
+[MASTER]
+# Add files or directories to the blacklist
+ignore=.git,__pycache__,.venv,venv,env,.env,build,dist,*.egg-info,.tox,.pytest_cache,wandb,mlruns,.vscode
+
+# Patterns for paths to ignore (regex patterns)
+ignore-paths=docs[\\/]templates,docs[\\/]examples,docs[\\/]validation
+
+# Use multiple processes to speed up Pylint
+jobs=0
+
+# Allow loading of arbitrary C extensions
+unsafe-load-any-extension=no
+
+# Extension imports
+extension-pkg-whitelist=torch,numpy,cv2,matplotlib
+
+[MESSAGES CONTROL]
+# Disable specific warnings that conflict with ML/research code patterns
+disable=
+    # Docstring warnings (handled by flake8)
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    
+    # Design warnings common in ML code
+    too-few-public-methods,
+    too-many-arguments,
+    too-many-instance-attributes,
+    too-many-locals,
+    too-many-branches,
+    too-many-statements,
+    
+    # Import warnings
+    import-outside-toplevel,
+    import-error,
+    
+    # Naming conventions (we prefer descriptive ML names)
+    invalid-name,
+    
+    # Common ML patterns
+    unused-argument,
+    broad-except,
+    
+    # Jupyter notebook patterns
+    pointless-string-statement,
+    
+    # Research code patterns
+    fixme
+
+[REPORTS]
+# Set the output format
+output-format=text
+
+# Include message's id in output  
+# Note: include-ids is deprecated, using msg-template instead
+
+# Reports
+reports=no
+
+[REFACTORING]
+# Maximum number of nested blocks
+max-nested-blocks=5
+
+[BASIC]
+# Good variable names which should always be accepted
+good-names=i,j,k,x,y,z,lr,df,np,ax,fig,_,X,Y
+
+# Bad variable names which should always be refused
+bad-names=foo,bar,baz
+
+# Regular expression for acceptable variable names
+variable-rgx=[a-z_][a-z0-9_]{0,30}$
+
+# Regular expression for acceptable argument names  
+argument-rgx=[a-z_][a-z0-9_]{0,30}$
+
+# Regular expression for acceptable attribute names
+attr-rgx=[a-z_][a-z0-9_]{0,30}$
+
+# Regular expression for acceptable method names
+method-rgx=[a-z_][a-z0-9_]{0,30}$
+
+# Regular expression for acceptable function names
+function-rgx=[a-z_][a-z0-9_]{0,30}$
+
+# Regular expression for acceptable class names
+class-rgx=[A-Z_][a-zA-Z0-9]+$
+
+# Regular expression for acceptable module names
+module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
+
+# Regular expression for acceptable constant names
+const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$
+
+[FORMAT]
+# Maximum number of characters on a single line (compatible with black)
+max-line-length=88
+
+# Maximum number of lines in a module
+max-module-lines=1000
+
+# String used as indentation unit (compatible with black)
+indent-string='    '
+
+# Number of spaces of indent required inside a hanging or continued line
+indent-after-paren=4
+
+[LOGGING]
+# Logging modules to check that the string format arguments are in logging function parameter format
+logging-modules=logging
+
+[MISCELLANEOUS]
+# List of note tags to take in consideration
+notes=FIXME,XXX,TODO
+
+[SIMILARITIES]
+# Minimum lines number of a similarity
+min-similarity-lines=4
+
+# Ignore comments when computing similarities
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities  
+ignore-docstrings=yes
+
+# Ignore imports when computing similarities
+ignore-imports=no
+
+[SPELLING]
+# Spelling dictionary name
+spelling-dict=
+
+# List of comma separated words that should not be checked
+spelling-ignore-words=
+
+[TYPECHECK]
+# List of module names for which member attributes should not be checked
+ignored-modules=torch,numpy,cv2,matplotlib,sklearn,pandas,scipy
+
+# List of classes names for which member attributes should not be checked
+ignored-classes=torch.nn.Module,torch.optim.Optimizer
+
+# List of members which are set dynamically and missed by pylint inference
+generated-members=torch.*,numpy.*,cv2.*
+
+[VARIABLES]
+# Tells whether we should check for unused import in __init__ files
+init-import=no
+
+# A regular expression matching the name of dummy variables
+dummy-variables-rgx=_$|dummy
+
+[CLASSES]
+# List of method names used to declare (i.e. assign) instance attributes
+defining-attr-methods=__init__,__new__,setUp
+
+# List of valid names for the first argument in a class method
+valid-classmethod-first-arg=cls
+
+# List of valid names for the first argument in a metaclass class method
+valid-metaclass-classmethod-first-arg=mcs
+
+[DESIGN] 
+# Maximum number of arguments for function / method
+max-args=10
+
+# Maximum number of attributes for a class
+max-attributes=15
+
+# Maximum number of boolean expressions in a if statement
+max-bool-expr=5
+
+# Maximum number of branch for function / method body
+max-branches=12
+
+# Maximum number of locals for function / method body
+max-locals=25
+
+# Maximum number of parents for a class
+max-parents=7
+
+# Maximum number of public methods for a class
+max-public-methods=20
+
+# Maximum number of return / yield for function / method body
+max-returns=6
+
+# Maximum number of statements in function / method body
+max-statements=50
+
+# Minimum number of public methods for a class
+min-public-methods=1
+
+[EXCEPTIONS]
+# Exceptions that will emit a warning when being caught
+overgeneral-exceptions=builtins.Exception 

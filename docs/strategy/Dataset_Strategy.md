@@ -1,6 +1,242 @@
 # **Project Dataset Strategy**
 
-This contains a list of all the models we are going to build, which datasets we want the training runs to be able to process, and why. 
+This document contains the experimental design for all 25 neural network models, specifying which datasets demonstrate each model's strengths and weaknesses, plus the technical implementation standards for data preprocessing, loading, and management.
+
+## **Table of Contents**
+1. [Dataset Categories & Technical Requirements](#dataset-categories--technical-requirements)
+2. [Data Preprocessing Standards](#data-preprocessing-standards)
+3. [Dataset Loading Infrastructure](#dataset-loading-infrastructure)
+4. [File Organization & Storage](#file-organization--storage)
+5. [Performance & Optimization](#performance--optimization)
+6. [Experimental Design by Model](#experimental-design-by-model)
+7. [Data Validation & Quality Checks](#data-validation--quality-checks)
+
+---
+
+## **Dataset Categories & Technical Requirements**
+
+### **1. Synthetic/Generated Data**
+- **Examples**: XOR, AND gates, concentric circles, moons, binary patterns
+- **Storage**: JSON/CSV for structured data, NPZ for arrays
+- **Preprocessing**: Minimal - normalize to [0,1] or [-1,1] range
+- **Loading**: Generate on-demand or cache in `data\generated\`
+- **Validation**: Verify mathematical properties (e.g., XOR non-linearity)
+
+### **2. Classic ML Datasets**
+- **Examples**: Iris, Wine, Boston Housing
+- **Storage**: CSV with metadata JSON
+- **Preprocessing**: Standard normalization, categorical encoding
+- **Loading**: Scikit-learn compatibility layer
+- **Validation**: Cross-reference with sklearn versions
+
+### **3. Image Classification**
+- **Examples**: MNIST, CIFAR-10/100, Fashion-MNIST, ImageNet subsets
+- **Storage**: HDF5 for large datasets, PNG/JPG for inspection
+- **Preprocessing**: Resize, normalize, augmentation pipelines
+- **Loading**: Batch-optimized with DataLoader
+- **Validation**: Shape consistency, pixel range verification
+
+### **4. Object Detection**
+- **Examples**: Oxford-IIIT Pet Dataset, COCO subsets
+- **Storage**: Images + JSON annotations (COCO format)
+- **Preprocessing**: Bounding box normalization, augmentation
+- **Loading**: Custom collate functions for variable batch sizes
+- **Validation**: Box coordinate validity, class label consistency
+
+### **5. Sequence Data**
+- **Examples**: Shakespeare text, IMDb reviews, translation pairs
+- **Storage**: TXT files with tokenizer metadata
+- **Preprocessing**: Tokenization, padding, sequence length management
+- **Loading**: Bucket sampling for efficient batching
+- **Validation**: Vocabulary consistency, sequence length distribution
+
+### **6. Graph Data**
+- **Examples**: Cora citation network, social networks
+- **Storage**: Adjacency matrices + node features (NPZ/HDF5)
+- **Preprocessing**: Graph normalization, feature scaling
+- **Loading**: Sparse tensor handling, neighbor sampling
+- **Validation**: Graph connectivity, feature matrix alignment
+
+---
+
+## **Data Preprocessing Standards**
+
+### **Image Preprocessing Pipeline**
+```python
+# Standard transformations by dataset type
+MNIST_TRANSFORMS = {
+    'train': [ToTensor(), Normalize((0.1307,), (0.3081,))],
+    'test': [ToTensor(), Normalize((0.1307,), (0.3081,))]
+}
+
+CIFAR10_TRANSFORMS = {
+    'train': [
+        RandomHorizontalFlip(p=0.5),
+        RandomCrop(32, padding=4),
+        ToTensor(),
+        Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
+    ],
+    'test': [
+        ToTensor(),
+        Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
+    ]
+}
+```
+
+### **Text Preprocessing Standards**
+```python
+# Tokenization and encoding patterns
+TEXT_PREPROCESSING = {
+    'character_level': {
+        'vocab_size': 256,  # Extended ASCII
+        'sequence_length': 100,
+        'padding': 'post'
+    },
+    'word_level': {
+        'vocab_size': 10000,
+        'sequence_length': 512,
+        'padding': 'post',
+        'oov_token': '<UNK>'
+    }
+}
+```
+
+### **Normalization Standards**
+- **Images**: [0, 1] range with dataset-specific mean/std
+- **Tabular**: StandardScaler for continuous, OneHot for categorical
+- **Text**: Vocabulary-based integer encoding
+- **Graph**: Row-normalized adjacency matrices
+
+---
+
+## **Dataset Loading Infrastructure**
+
+### **Base Dataset Class Structure**
+```python
+class BaseDataset:
+    def __init__(self, data_dir, split='train', transform=None):
+        self.data_dir = Path(data_dir)
+        self.split = split
+        self.transform = transform
+        self.data = self._load_data()
+        
+    def _load_data(self):
+        """Load data from storage - implement in subclasses"""
+        raise NotImplementedError
+        
+    def __len__(self):
+        return len(self.data)
+        
+    def __getitem__(self, idx):
+        sample = self.data[idx]
+        if self.transform:
+            sample = self.transform(sample)
+        return sample
+```
+
+### **DataLoader Configuration Standards**
+```python
+DATALOADER_CONFIGS = {
+    'small_datasets': {  # < 10K samples
+        'batch_size': 64,
+        'shuffle': True,
+        'num_workers': 2,
+        'pin_memory': True
+    },
+    'medium_datasets': {  # 10K - 100K samples
+        'batch_size': 128,
+        'shuffle': True,
+        'num_workers': 4,
+        'pin_memory': True
+    },
+    'large_datasets': {  # > 100K samples
+        'batch_size': 256,
+        'shuffle': True,
+        'num_workers': 8,
+        'pin_memory': True,
+        'persistent_workers': True
+    }
+}
+```
+
+### **Caching Strategy**
+- **Generated Data**: Cache in `data\cache\` with timestamp validation
+- **Processed Data**: HDF5 files for large datasets, pickle for small
+- **Intermediate Results**: Use joblib for sklearn-compatible caching
+- **Cache Invalidation**: Version-based cache keys
+
+---
+
+## **File Organization & Storage**
+
+### **Directory Structure**
+```
+data\
+├── raw\                    # Original, unprocessed data
+│   ├── cifar10\
+│   ├── mnist\
+│   └── text\
+├── processed\              # Preprocessed, ready-to-use data
+│   ├── cifar10\
+│   │   ├── train.h5
+│   │   ├── test.h5
+│   │   └── metadata.json
+│   └── mnist\
+├── generated\              # Synthetic datasets
+│   ├── xor_data.npz
+│   ├── circles_data.npz
+│   └── generation_params.json
+├── cache\                  # Temporary cached data
+├── external\               # External dataset downloads
+└── validation\             # Dataset validation reports
+```
+
+### **File Naming Conventions**
+- **Raw Data**: `{dataset_name}_raw.{ext}`
+- **Processed Data**: `{dataset_name}_{split}.{ext}`
+- **Generated Data**: `{pattern_type}_{params_hash}.npz`
+- **Metadata**: `{dataset_name}_metadata.json`
+
+### **Metadata Schema**
+```json
+{
+    "dataset_name": "cifar10",
+    "version": "1.0.0",
+    "splits": {
+        "train": {"samples": 50000, "path": "train.h5"},
+        "test": {"samples": 10000, "path": "test.h5"}
+    },
+    "preprocessing": {
+        "normalization": "imagenet_stats",
+        "augmentation": ["horizontal_flip", "random_crop"]
+    },
+    "created_at": "2024-01-01T00:00:00Z",
+    "checksum": "abc123def456"
+}
+```
+
+---
+
+## **Performance & Optimization**
+
+### **Memory Management**
+- **Large Datasets**: Use HDF5 with chunking for partial loading
+- **Batch Processing**: Implement lazy loading with generators
+- **Memory Monitoring**: Track peak memory usage during loading
+
+### **I/O Optimization**
+- **SSD Storage**: Store frequently accessed data on fastest available storage
+- **Prefetching**: Use DataLoader prefetch_factor for pipeline optimization
+- **Compression**: Use LZ4 compression for intermediate files
+
+### **Parallel Processing**
+- **Data Generation**: Use joblib for embarrassingly parallel tasks
+- **Preprocessing**: Multiprocessing for CPU-intensive transformations
+- **Loading**: Optimized num_workers based on dataset size
+
+---
+
+## **Experimental Design by Model**
 
 ### 
 
@@ -142,3 +378,105 @@ This contains a list of all the models we are going to build, which datasets we 
     * **Why**: To demonstrate the massive **efficiency gains** (memory, speed) of 1.58-bit quantization by a full-precision model.  
   * **Weakness Dataset**: Accuracy vs. Efficiency Analysis.  
     * **Why**: To analyze the fundamental **trade-off between extreme efficiency and a potential drop in accuracy**, a key challenge in modern AI.
+
+---
+
+## **Data Validation & Quality Checks**
+
+### **Automated Validation Pipeline**
+```python
+def validate_dataset(dataset_path, expected_schema):
+    """Comprehensive dataset validation"""
+    checks = {
+        'file_integrity': verify_file_checksums(dataset_path),
+        'schema_compliance': validate_schema(dataset_path, expected_schema),
+        'data_quality': check_data_quality(dataset_path),
+        'split_consistency': verify_split_integrity(dataset_path),
+        'preprocessing_validity': validate_preprocessing(dataset_path)
+    }
+    return checks
+```
+
+### **Quality Metrics**
+- **Completeness**: No missing values in required fields
+- **Consistency**: Uniform data types and ranges across splits
+- **Accuracy**: Correctness of labels and annotations
+- **Timeliness**: Data freshness and version tracking
+
+### **Validation Reports**
+- **Daily**: Automated checks on frequently used datasets
+- **Pre-training**: Validation before model training begins
+- **Post-processing**: Verification after preprocessing steps
+- **Manual**: Periodic human inspection of sample data
+
+### **Error Handling**
+- **Graceful Degradation**: Fallback to cached versions on corruption
+- **Automatic Retry**: Retry failed downloads with exponential backoff
+- **Data Recovery**: Strategies for handling partial data loss
+- **Alerting**: Notifications for critical data quality issues
+
+---
+
+## **Implementation Examples**
+
+### **Loading CIFAR-10 with Proper Preprocessing**
+```python
+def load_cifar10(data_dir, split='train', batch_size=128):
+    """Standard CIFAR-10 loading with proper preprocessing"""
+    transform = CIFAR10_TRANSFORMS[split]
+    dataset = CIFAR10Dataset(data_dir, split=split, transform=transform)
+    
+    dataloader = DataLoader(
+        dataset, 
+        batch_size=batch_size,
+        shuffle=(split == 'train'),
+        num_workers=4,
+        pin_memory=True
+    )
+    
+    return dataloader
+```
+
+### **Generating XOR Dataset**
+```python
+def generate_xor_data(n_samples=1000, noise_level=0.1):
+    """Generate XOR dataset with controlled noise"""
+    X = np.random.rand(n_samples, 2)
+    y = (X[:, 0] > 0.5) ^ (X[:, 1] > 0.5)  # XOR logic
+    
+    # Add noise
+    X += np.random.normal(0, noise_level, X.shape)
+    
+    return X.astype(np.float32), y.astype(np.int64)
+```
+
+### **Text Dataset with Tokenization**
+```python
+def prepare_text_dataset(text_file, vocab_size=10000, seq_length=512):
+    """Prepare text dataset with proper tokenization"""
+    with open(text_file, 'r', encoding='utf-8') as f:
+        text = f.read()
+    
+    # Tokenization
+    tokenizer = build_tokenizer(text, vocab_size=vocab_size)
+    
+    # Sequence creation
+    sequences = create_sequences(tokenizer.encode(text), seq_length)
+    
+    return sequences, tokenizer
+```
+
+---
+
+## **Best Practices Summary**
+
+1. **Always validate data** before training begins
+2. **Use appropriate batch sizes** based on dataset size and memory constraints
+3. **Implement proper error handling** for data loading failures
+4. **Cache preprocessed data** to avoid repeated computation
+5. **Monitor memory usage** during data loading and preprocessing
+6. **Use version control** for datasets and preprocessing pipelines
+7. **Document all preprocessing steps** for reproducibility
+8. **Test data loading** on small samples before full dataset processing
+9. **Use appropriate data types** (float32 vs float64) for memory efficiency
+10. **Implement dataset-specific validation** beyond generic checks

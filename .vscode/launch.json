@@ -3,7 +3,7 @@
     "configurations": [
         {
             "name": "Debug Perceptron Training",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/models/01_perceptron/src/train.py",
             "args": [
@@ -24,7 +24,7 @@
         },
         {
             "name": "Debug Perceptron Evaluation",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/models/01_perceptron/src/evaluate.py",
             "args": [
@@ -45,7 +45,7 @@
         },
         {
             "name": "Debug Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
@@ -59,7 +59,7 @@
         },
         {
             "name": "Debug Tests",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "pytest",
             "args": [
@@ -78,7 +78,7 @@
         },
         {
             "name": "Attach to Process",
-            "type": "python",
+            "type": "debugpy",
             "request": "attach",
             "connect": {
                 "host": "localhost",

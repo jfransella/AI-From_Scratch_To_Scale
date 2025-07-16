@@ -186,5 +186,20 @@
     "cursorpyright.analysis.inlayHints.functionReturnTypes": true,
     "cursorpyright.analysis.inlayHints.variableTypes": true,
     "cursorpyright.analysis.stubPath": "./typings",
-    "cursorpyright.analysis.typeCheckingMode": "basic"
+    "cursorpyright.analysis.typeCheckingMode": "basic",
+    // PowerShell Execution Policy Settings
+    "terminal.integrated.shellArgs.windows": [
+        "-ExecutionPolicy",
+        "Bypass"
+    ],
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass"
+            ]
+        }
+    },
+    "terminal.integrated.defaultProfile.windows": "PowerShell"
 }

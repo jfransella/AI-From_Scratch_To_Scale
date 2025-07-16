@@ -6,11 +6,12 @@ the first artificial neural network capable of learning. This implementation
 uses the shared infrastructure from the AI From Scratch to Scale project.
 """
 
-import torch
-import torch.nn as nn
+
 from typing import Dict, Any, Optional
 from pathlib import Path
 import sys
+import torch
+import torch.nn as nn
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent.parent
@@ -22,7 +23,7 @@ from constants import (
     MODEL_NAME,
     MODEL_VERSION,
     YEAR_INTRODUCED,
-    ORIGINAL_AUTHOR,
+    AUTHORS,
     DEFAULT_LEARNING_RATE,
     DEFAULT_MAX_EPOCHS,
     DEFAULT_TOLERANCE,
@@ -239,7 +240,7 @@ class Perceptron(nn.Module, BaseModel):
             "model_name": MODEL_NAME,
             "model_version": MODEL_VERSION,
             "year_introduced": YEAR_INTRODUCED,
-            "original_author": ORIGINAL_AUTHOR,
+            "original_author": AUTHORS[0],
             # Architecture
             "input_size": self.input_size,
             "output_size": 1,

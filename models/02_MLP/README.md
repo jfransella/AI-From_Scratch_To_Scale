@@ -15,7 +15,7 @@ The XOR (exclusive OR) problem became the symbolic test of neural network capabi
 - **Perceptron Limitation**: Demonstrated in our 01_perceptron model with ~53% accuracy
 - **MLP Solution**: Hidden layers create new feature spaces where XOR becomes linearly separable
 
-```
+```text
 Input Pattern → XOR Output
 [0, 0] → 0
 [0, 1] → 1  
@@ -107,6 +107,7 @@ python src/train.py --educational-sequence
 ### XOR Breakthrough Results
 
 **Experiment**: `xor_breakthrough`
+
 - **Architecture**: 2 → [2] → 1 (minimal MLP)
 - **Dataset**: Classic 4-sample XOR
 - **Training**: 1000 epochs, learning rate 0.5
@@ -175,7 +176,7 @@ This implementation demonstrates:
 
 ## File Structure
 
-```
+```text
 02_MLP/
 ├── src/
 │   ├── constants.py      # Historical metadata and configurations
@@ -191,15 +192,19 @@ This implementation demonstrates:
 ## 📊 Visualizations
 
 The following visualizations are required for the MLP model (see Visualization Playbooks in `docs/visualization/Playbooks.md`):
+
 - **Learning Curves** (training/validation loss and accuracy)
 - **Confusion Matrix** (for classification tasks)
 - **Decision Boundary Plot** (for 2D datasets)
 
 **How to Generate:**
+
 - Add the `--visualize` flag to your training or evaluation command, e.g.:
+
   ```bash
   python src/train.py --experiment xor_breakthrough --visualize
   ```
+
 - All plots will be saved to `outputs/visualizations/`.
 - For detailed analysis, see the analysis notebook in `notebooks/`.
 
@@ -216,12 +221,14 @@ For more details and best practices, refer to the Visualization Playbooks and Im
 ## Next Steps
 
 ### Immediate Improvements
+
 - **Hyperparameter Tuning**: Achieve 100% XOR accuracy
 - **Additional Datasets**: Implement moons and spirals datasets
 - **Visualization**: Add decision boundary plotting
 - **Advanced Optimizers**: Add Adam, RMSprop optimizers
 
 ### Future Extensions
+
 - **Regularization**: Dropout, weight decay, batch normalization
 - **Advanced Architectures**: Residual connections, attention mechanisms
 - **Comparative Studies**: Detailed analysis vs other models in the project
@@ -242,4 +249,4 @@ This Multi-Layer Perceptron implementation successfully demonstrates the histori
 
 **The breakthrough is clear**: From random performance (~53%) on XOR with perceptrons to systematic learning (75%+) with MLPs, this implementation captures the essence of one of the most important moments in AI history.
 
-This foundation now enables the exploration of deeper architectures, modern optimizers, and the journey toward contemporary deep learning systems. 
+This foundation now enables the exploration of deeper architectures, modern optimizers, and the journey toward contemporary deep learning systems.

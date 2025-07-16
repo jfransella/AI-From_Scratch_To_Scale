@@ -67,12 +67,14 @@ Each model type uses different combinations of shared packages. This matrix show
 | **Specialized Models** (GAN, VAE, etc.) | ✓ | ✓ | ✓ | ✓ | PyTorch + domain libs |
 
 **Package Responsibilities:**
-- **data_utils**: Dataset loading, preprocessing, DataLoader creation
-- **engine**: Training loops, evaluation, checkpointing, wandb integration
-- **plotting**: Visualization generation, plot saving, wandb image logging
-- **utils**: Logging setup, random seed setting, device management
+
+* **data_utils**: Dataset loading, preprocessing, DataLoader creation
+* **engine**: Training loops, evaluation, checkpointing, wandb integration
+* **plotting**: Visualization generation, plot saving, wandb image logging
+* **utils**: Logging setup, random seed setting, device management
 
 **Import Patterns by Model Type:**
+
 ```python
 # NumPy-based models
 from data_utils import load_dataset, create_data_loaders
@@ -109,12 +111,12 @@ To capture both a human-readable narrative and structured metrics, we will use t
 
 Visualization is a first-class citizen in this project, serving as both a diagnostic and interpretive tool for all models. The following guidelines ensure that visualization is systematically integrated into the workflow:
 
-- **Centralized Utilities:** All reusable plotting and visualization utilities must reside in the shared `/plotting` package. This includes functions for generating learning curves, confusion matrices, decision boundaries, feature maps, Grad-CAM, t-SNE/UMAP projections, and more. Model-specific visualizations should be implemented in the model’s notebook or in a dedicated script within the model’s directory, but should leverage shared utilities whenever possible.
-- **Activation:** Visualization generation is triggered by the `--visualize` command-line flag in training and evaluation scripts. This flag should be supported in all model scripts, and its logic should be handled in accordance with the selection logic described above.
-- **Outputs:** All generated figures must be saved to the standardized `outputs/visualizations/` directory within each model’s project. This ensures reproducibility and easy access for analysis and reporting.
-- **Documentation:** Every model’s README and analysis notebook must include a section on visualizations, listing required plots and referencing the Visualization Playbooks (see `docs/visualization/Playbooks.md`).
-- **Extensibility:** When new visualization types are needed, they should be added to the `/plotting` package with clear, reusable APIs and documented in the Implementation Guide (`docs/visualization/Implementation_Guide.md`).
-- **Best Practices:** Visualization code should follow the standards outlined in `Coding_Standards.md`, including naming conventions, docstrings, and reproducibility (e.g., setting random seeds for t-SNE/UMAP).
+* **Centralized Utilities:** All reusable plotting and visualization utilities must reside in the shared `/plotting` package. This includes functions for generating learning curves, confusion matrices, decision boundaries, feature maps, Grad-CAM, t-SNE/UMAP projections, and more. Model-specific visualizations should be implemented in the model’s notebook or in a dedicated script within the model’s directory, but should leverage shared utilities whenever possible.
+* **Activation:** Visualization generation is triggered by the `--visualize` command-line flag in training and evaluation scripts. This flag should be supported in all model scripts, and its logic should be handled in accordance with the selection logic described above.
+* **Outputs:** All generated figures must be saved to the standardized `outputs/visualizations/` directory within each model’s project. This ensures reproducibility and easy access for analysis and reporting.
+* **Documentation:** Every model’s README and analysis notebook must include a section on visualizations, listing required plots and referencing the Visualization Playbooks (see `docs/visualization/Playbooks.md`).
+* **Extensibility:** When new visualization types are needed, they should be added to the `/plotting` package with clear, reusable APIs and documented in the Implementation Guide (`docs/visualization/Implementation_Guide.md`).
+* **Best Practices:** Visualization code should follow the standards outlined in `Coding_Standards.md`, including naming conventions, docstrings, and reproducibility (e.g., setting random seeds for t-SNE/UMAP).
 
 This approach ensures that visualization is not an afterthought, but a systematic, reproducible, and extensible part of the project’s architecture, supporting both automated and interactive analysis workflows.
 
@@ -140,7 +142,7 @@ To cleanly separate the act of training from analysis, each model will have a de
 
 Each model's directory is a self-contained project with its own environment and dependencies.
 
-```
+```text
 models\01_perceptron\  
 |-- docs\  
 |-- notebooks\  
@@ -165,15 +167,17 @@ models\01_perceptron\
 To ensure consistency across all model implementations, comprehensive templates are provided in `docs\templates\`. These templates should be copied to each new model directory and customized.
 
 **Template Files Available:**
-- **[model.py](../templates/model.py)**: Complete neural network model template with PyTorch structure
-- **[train.py](../templates/train.py)**: Training script with argument parsing and shared infrastructure integration
-- **[config.py](../templates/config.py)**: Configuration management with experiment-specific overrides
-- **[constants.py](../templates/constants.py)**: Model metadata, file paths, and validation constants
-- **[requirements.txt](../templates/requirements.txt)**: Dependency template with examples for different model types
+
+* **[model.py](../templates/model.py)**: Complete neural network model template with PyTorch structure
+* **[train.py](../templates/train.py)**: Training script with argument parsing and shared infrastructure integration
+* **[config.py](../templates/config.py)**: Configuration management with experiment-specific overrides
+* **[constants.py](../templates/constants.py)**: Model metadata, file paths, and validation constants
+* **[requirements.txt](../templates/requirements.txt)**: Dependency template with examples for different model types
 
 **Expected File Structure and Imports:**
 
 **constants.py** - Model metadata and paths:
+
 ```python
 # Model metadata
 MODEL_NAME = "YourModelName"
@@ -188,6 +192,7 @@ VISUALIZATIONS_DIR = OUTPUT_DIR / "visualizations"
 ```
 
 **config.py** - Experiment configuration:
+
 ```python
 def get_config(experiment_name: str) -> dict:
     base_config = {
@@ -210,6 +215,7 @@ def get_config(experiment_name: str) -> dict:
 ```
 
 **model.py** - Neural network implementation:
+
 ```python
 import torch
 import torch.nn as nn
@@ -231,6 +237,7 @@ class YourModel(nn.Module):
 ```
 
 **train.py** - Training script:
+
 ```python
 import argparse
 from engine import Trainer
@@ -258,6 +265,7 @@ To ensure robust and maintainable code across all models, standardized error han
 ### **9.1. Exception Hierarchy**
 
 **Custom Exceptions:**
+
 ```python
 # In utils/exceptions.py
 class AIFromScratchError(Exception):
@@ -284,6 +292,7 @@ class TrainingError(AIFromScratchError):
 ### **9.2. Error Handling by Component**
 
 **Model Implementation (model.py):**
+
 ```python
 def forward(self, x):
     try:
@@ -306,6 +315,7 @@ def forward(self, x):
 ```
 
 **Configuration Management (config.py):**
+
 ```python
 def get_config(experiment_name: str) -> dict:
     try:
@@ -328,6 +338,7 @@ def get_config(experiment_name: str) -> dict:
 ```
 
 **Training Script (train.py):**
+
 ```python
 def main():
     try:
@@ -372,6 +383,7 @@ def main():
 ### **9.3. Graceful Degradation Patterns**
 
 **Data Loading Fallbacks:**
+
 ```python
 def load_dataset(dataset_name, **kwargs):
     try:
@@ -388,6 +400,7 @@ def load_dataset(dataset_name, **kwargs):
 ```
 
 **Device Fallbacks:**
+
 ```python
 def setup_device(device_arg='auto'):
     try:
@@ -416,6 +429,7 @@ def setup_device(device_arg='auto'):
 ### **9.4. Recovery and Cleanup Patterns**
 
 **Checkpoint Recovery:**
+
 ```python
 def resume_training(checkpoint_path, model, optimizer):
     try:
@@ -432,6 +446,7 @@ def resume_training(checkpoint_path, model, optimizer):
 ```
 
 **Resource Cleanup:**
+
 ```python
 def cleanup_resources():
     """Cleanup function for graceful shutdown"""
@@ -472,6 +487,7 @@ The train.py script is the "Execution Interface" for a run, configured via comma
 | `--device` | Specifies the device to use (auto, cpu, cuda, mps). | `--device cuda` |
 
 **Example Training Commands:**
+
 ```powershell
 # Basic training
 python src\train.py --experiment xor
@@ -486,6 +502,7 @@ python src\train.py --experiment xor --load-checkpoint outputs\models\xor_checkp
 ## **11\. The End-to-End Workflow in Practice**
 
 ### **11.1. Initial Setup**
+
 1. **Copy Templates**: Copy files from `docs\templates\` to your model directory
 2. **Customize Templates**: Replace placeholders (e.g., `[MODEL_NAME]`, `[YEAR]`) with actual values
 3. **Create Environment**: Navigate to model directory, create virtual environment, activate it
@@ -493,34 +510,37 @@ python src\train.py --experiment xor --load-checkpoint outputs\models\xor_checkp
 5. **Setup Development**: Run `pip install -r ..\..\requirements-dev.txt` and `pip install -e ..\..` for shared packages
 
 ### **11.2. Development Workflow**
+
 1. **Implement Model**: Follow the template structure in `model.py` with proper error handling
 2. **Configure Experiments**: Define experiments in `config.py` following the template patterns
 3. **Test Implementation**: Use the provided validation functions in `constants.py`
 4. **Validate Setup**: Run basic import tests to ensure shared packages work correctly
 
 ### **11.3. Training Workflow**
+
 1. **Training**: Run `python src\train.py --experiment experiment_name --visualize`
-   - The script uses error handling patterns from section 9
-   - Calls helpers from `utils\`, fetches data from `data_utils\`
-   - Instantiates the model and passes everything to the Trainer in `engine\`
-   - The Trainer runs the training loop with automatic checkpointing
+   * The script uses error handling patterns from section 9
+   * Calls helpers from `utils\`, fetches data from `data_utils\`
+   * Instantiates the model and passes everything to the Trainer in `engine\`
+   * The Trainer runs the training loop with automatic checkpointing
 2. **Monitoring**: Watch logs and wandb dashboard for training progress
 3. **Error Recovery**: If training fails, use checkpoint recovery patterns from section 9.4
 
 ### **11.4. Evaluation Workflow**
+
 1. **Evaluation**: Run `python src\evaluate.py --checkpoint path\to\checkpoint.pth --experiment experiment_name`
-   - Loads the model using the checkpoint recovery patterns
-   - Uses the Evaluator from `engine\` to compute test metrics
-   - Applies the same error handling patterns as training
+   * Loads the model using the checkpoint recovery patterns
+   * Uses the Evaluator from `engine\` to compute test metrics
+   * Applies the same error handling patterns as training
 2. **Analysis**: Generated logs, visualizations, and metrics are available:
-   - Local files: `outputs\logs\`, `outputs\visualizations\`, `outputs\models\`
-   - Wandb dashboard: For structured metrics and experiment comparison
-   - Notebooks: For detailed analysis using the three-notebook approach
+   * Local files: `outputs\logs\`, `outputs\visualizations\`, `outputs\models\`
+   * Wandb dashboard: For structured metrics and experiment comparison
+   * Notebooks: For detailed analysis using the three-notebook approach
 
 ### **11.5. Troubleshooting**
-- **Import Errors**: Ensure `pip install -e ..\..` was run from model directory
-- **Configuration Errors**: Check experiment name against available options in `config.py`
-- **Training Failures**: Review error logs and use checkpoint recovery if needed
-- **Device Issues**: The code automatically falls back to CPU if GPU setup fails
-- **Data Issues**: Check dataset loading with fallback mechanisms in place
 
+* **Import Errors**: Ensure `pip install -e ..\..` was run from model directory
+* **Configuration Errors**: Check experiment name against available options in `config.py`
+* **Training Failures**: Review error logs and use checkpoint recovery if needed
+* **Device Issues**: The code automatically falls back to CPU if GPU setup fails
+* **Data Issues**: Check dataset loading with fallback mechanisms in place

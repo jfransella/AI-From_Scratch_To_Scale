@@ -104,7 +104,7 @@ class Trainer:
             config: Training configuration
         """
         self.config = config
-        self.logger = get_logger(__name__)
+        self.logger = get_logger("ai_from_scratch")
         
         # Setup random seed if specified
         if config.random_seed is not None:
@@ -232,7 +232,7 @@ class Trainer:
         """Log metrics to console and wandb."""
         if self.config.verbose and epoch % self.config.log_freq == 0:
             metric_str = ", ".join(f"{k}: {v:.4f}" for k, v in metrics.items())
-            print(f"Epoch {epoch:4d}: {metric_str}")
+            self.logger.info(f"Epoch {epoch:4d}: {metric_str}")
         
         if self.config.use_wandb and self.wandb_run:
             self.wandb_run.log(metrics, step=epoch)
@@ -345,7 +345,7 @@ class Trainer:
                 result.converged = True
                 result.convergence_epoch = epoch
                 if self.config.verbose:
-                    print(f"Converged at epoch {epoch} with loss {loss.item():.6f}")
+                    self.logger.info(f"Converged at epoch {epoch} with loss {loss.item():.6f}")
                 break
             
             # Early stopping
@@ -363,7 +363,7 @@ class Trainer:
                     patience_counter += 1
                     if patience_counter >= self.config.patience:
                         if self.config.verbose:
-                            print(f"Early stopping at epoch {epoch}")
+                            self.logger.info(f"Early stopping at epoch {epoch}")
                         break
         
         # Final evaluation
@@ -386,14 +386,14 @@ class Trainer:
         
         # Final logging
         if self.config.verbose:
-            print("\nTraining completed!")
-            print(f"Total time: {result.total_training_time:.2f} seconds")
-            print(f"Final loss: {result.final_loss:.6f}")
-            print(f"Final train accuracy: {result.final_train_accuracy:.4f}")
+            self.logger.info("\nTraining completed!")
+            self.logger.info(f"Total time: {result.total_training_time:.2f} seconds")
+            self.logger.info(f"Final loss: {result.final_loss:.6f}")
+            self.logger.info(f"Final train accuracy: {result.final_train_accuracy:.4f}")
             if result.final_val_accuracy:
-                print(f"Final validation accuracy: {result.final_val_accuracy:.4f}")
+                self.logger.info(f"Final validation accuracy: {result.final_val_accuracy:.4f}")
             if result.final_test_accuracy:
-                print(f"Final test accuracy: {result.final_test_accuracy:.4f}")
+                self.logger.info(f"Final test accuracy: {result.final_test_accuracy:.4f}")
         
         # Cleanup wandb
         if self.config.use_wandb and self.wandb_run:

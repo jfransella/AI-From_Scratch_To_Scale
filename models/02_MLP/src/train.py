@@ -18,7 +18,14 @@ import torch
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from utils import setup_logging, setup_device, set_random_seed
+# Optional plotting imports
+try:
+    from plotting import plot_training_history, plot_decision_boundary
+except ImportError:
+    plot_training_history = None
+    plot_decision_boundary = None
+
+from utils import setup_logging, setup_device, set_random_seed, get_logger
 from data_utils import generate_xor_dataset, generate_circles_dataset
 
 from config import (
@@ -93,20 +100,22 @@ def train_experiment(config, device="cpu"):
     Returns:
         Tuple of (model, results)
     """
-    print(f"\n{'='*60}")
-    print(f"Starting experiment: {config.name}")
-    print(f"Description: {config.description}")
-    print(f"{'='*60}")
+    logger = get_logger("ai_from_scratch")
+    
+    logger.info(f"\n{'='*60}")
+    logger.info(f"Starting experiment: {config.name}")
+    logger.info(f"Description: {config.description}")
+    logger.info(f"{'='*60}")
     
     # Set random seed for reproducibility
     set_random_seed(config.random_seed)
     
     # Create dataset
-    print(f"Creating {config.dataset_type} dataset...")
+    logger.info(f"Creating {config.dataset_type} dataset...")
     x_train, y_train, x_test, y_test = create_dataset(config)
     
-    print(f"Train set: {x_train.shape[0]} samples")
-    print(f"Test set: {x_test.shape[0]} samples")
+    logger.info(f"Train set: {x_train.shape[0]} samples")
+    logger.info(f"Test set: {x_test.shape[0]} samples")
     
     # Move data to device
     x_train = x_train.to(device)
@@ -115,7 +124,7 @@ def train_experiment(config, device="cpu"):
     y_test = y_test.to(device)
     
     # Create model
-    print(f"\nCreating MLP: {config.input_size} -> {config.hidden_layers} -> {config.output_size}")
+    logger.info(f"\nCreating MLP: {config.input_size} -> {config.hidden_layers} -> {config.output_size}")
     model = MLP(
         input_size=config.input_size,
         hidden_layers=config.hidden_layers,
@@ -126,10 +135,10 @@ def train_experiment(config, device="cpu"):
     )
     
     # Train model
-    print("\nStarting training...")
-    print(f"Learning rate: {config.learning_rate}")
-    print(f"Max epochs: {config.max_epochs}")
-    print(f"Convergence threshold: {config.convergence_threshold}")
+    logger.info("\nStarting training...")
+    logger.info(f"Learning rate: {config.learning_rate}")
+    logger.info(f"Max epochs: {config.max_epochs}")
+    logger.info(f"Convergence threshold: {config.convergence_threshold}")
     
     start_time = time.time()
     
@@ -148,27 +157,27 @@ def train_experiment(config, device="cpu"):
     training_time = time.time() - start_time
     results["training_time"] = training_time
     
-    # Print final results
-    print(f"\n{'='*60}")
-    print(f"Experiment completed: {config.name}")
-    print(f"Training time: {training_time:.2f} seconds")
-    print(f"Final loss: {results['final_loss']:.6f}")
-    print(f"Final train accuracy: {results['final_train_accuracy']:.4f}")
+    # Log final results
+    logger.info(f"\n{'='*60}")
+    logger.info(f"Experiment completed: {config.name}")
+    logger.info(f"Training time: {training_time:.2f} seconds")
+    logger.info(f"Final loss: {results['final_loss']:.6f}")
+    logger.info(f"Final train accuracy: {results['final_train_accuracy']:.4f}")
     if "final_test_accuracy" in results:
-        print(f"Final test accuracy: {results['final_test_accuracy']:.4f}")
+        logger.info(f"Final test accuracy: {results['final_test_accuracy']:.4f}")
     
     if results["converged"]:
-        print(f"✅ Converged at epoch {results['convergence_epoch']}")
+        logger.info(f"✅ Converged at epoch {results['convergence_epoch']}")
     else:
-        print(f"⚠️  Did not converge within {config.max_epochs} epochs")
+        logger.info(f"⚠️  Did not converge within {config.max_epochs} epochs")
     
     # XOR-specific success message
     if config.dataset_type == "xor" and results["final_train_accuracy"] >= 0.99:
-        print("🎉 Successfully solved the XOR problem!")
-        print("   This demonstrates MLP's ability to learn non-linear patterns")
-        print("   that single-layer perceptrons cannot handle.")
+        logger.info("🎉 Successfully solved the XOR problem!")
+        logger.info("   This demonstrates MLP's ability to learn non-linear patterns")
+        logger.info("   that single-layer perceptrons cannot handle.")
     
-    print(f"{'='*60}")
+    logger.info(f"{'='*60}")
     
     # Save model and results if requested
     if config.save_model:
@@ -208,15 +217,18 @@ def save_experiment_results(config, model, results):
     with open(results_path, 'w') as f:
         json.dump(full_results, f, indent=2)
     
-    print(f"Results saved to: {output_dir}")
+    logger = get_logger("ai_from_scratch")
+    logger.info(f"Results saved to: {output_dir}")
 
 
 def run_educational_sequence():
     """Run a sequence of experiments for educational purposes."""
     from config import get_educational_sequence
     
-    print("🎓 Running educational experiment sequence...")
-    print("This demonstrates the progression from basic to advanced MLP capabilities.\n")
+    logger = get_logger("ai_from_scratch")
+    
+    logger.info("🎓 Running educational experiment sequence...")
+    logger.info("This demonstrates the progression from basic to advanced MLP capabilities.\n")
     
     sequence = get_educational_sequence()
     results = {}
@@ -235,22 +247,22 @@ def run_educational_sequence():
             time.sleep(1)
             
         except Exception as e:
-            print(f"❌ Error in experiment {exp_name}: {e}")
+            logger.error(f"❌ Error in experiment {exp_name}: {e}")
             continue
     
     # Summary
-    print(f"\n{'='*80}")
-    print("📊 EDUCATIONAL SEQUENCE SUMMARY")
-    print(f"{'='*80}")
+    logger.info(f"\n{'='*80}")
+    logger.info("📊 EDUCATIONAL SEQUENCE SUMMARY")
+    logger.info(f"{'='*80}")
     
     for exp_name, exp_results in results.items():
         status = "✅ Solved" if exp_results.get("final_train_accuracy", 0) >= 0.99 else "⚠️  Partial"
         accuracy = exp_results.get("final_train_accuracy", 0)
         epochs = exp_results.get("epochs_trained", 0)
         
-        print(f"{exp_name:20} | {status} | Accuracy: {accuracy:.3f} | Epochs: {epochs:4d}")
+        logger.info(f"{exp_name:20} | {status} | Accuracy: {accuracy:.3f} | Epochs: {epochs:4d}")
     
-    print(f"{'='*80}")
+    logger.info(f"{'='*80}")
 
 
 def main():
@@ -313,10 +325,22 @@ Examples:
         help="Logging level"
     )
     
+    parser.add_argument(
+        "--visualize",
+        action="store_true",
+        help="Generate visualizations after training"
+    )
+    
     args = parser.parse_args()
     
-    # Setup logging
-    setup_logging(level=args.log_level)
+    # Setup logging with file output
+    setup_logging(
+        level=args.log_level,
+        log_dir="outputs/logs",
+        file_output=True,
+        console_output=True
+    )
+    logger = get_logger("ai_from_scratch")
     
     # Get device
     if args.device == "auto":
@@ -324,28 +348,28 @@ Examples:
     else:
         device = args.device
     
-    print(f"Using device: {device}")
+    logger.info(f"Using device: {device}")
     
     # Handle different commands
     if args.list_experiments:
-        print("Available experiments:")
+        logger.info("Available experiments:")
         for exp_name in list_available_experiments():
             info = get_experiment_info(exp_name)
-            print(f"  {exp_name:20} - {info['description']}")
+            logger.info(f"  {exp_name:20} - {info['description']}")
         return
     
     if args.experiment_info:
         try:
             info = get_experiment_info(args.experiment_info)
-            print(f"Experiment: {info['name']}")
-            print(f"Description: {info['description']}")
-            print(f"Architecture: {info['architecture']}")
-            print(f"Dataset: {info['dataset']}")
-            print(f"Max epochs: {info['max_epochs']}")
-            print(f"Learning rate: {info['learning_rate']}")
+            logger.info(f"Experiment: {info['name']}")
+            logger.info(f"Description: {info['description']}")
+            logger.info(f"Architecture: {info['architecture']}")
+            logger.info(f"Dataset: {info['dataset']}")
+            logger.info(f"Max epochs: {info['max_epochs']}")
+            logger.info(f"Learning rate: {info['learning_rate']}")
         except KeyError:
-            print(f"Unknown experiment: {args.experiment_info}")
-            print("Use --list-experiments to see available options")
+            logger.error(f"Unknown experiment: {args.experiment_info}")
+            logger.error("Use --list-experiments to see available options")
         return
     
     if args.educational_sequence:
@@ -358,25 +382,59 @@ Examples:
             config = get_experiment_config(args.experiment)
             config = apply_environment_overrides(config, args.environment)
             
-            # Run experiment
+            # Train experiment
+            x_train, y_train, x_test, y_test = create_dataset(config)
             model, results = train_experiment(config, device)
             
             # Special message for XOR breakthrough
             if args.experiment == "xor_breakthrough" and results["final_train_accuracy"] >= 0.99:
-                print("\n🎉 BREAKTHROUGH ACHIEVED! 🎉")
-                print("You have successfully demonstrated that MLPs can solve")
-                print("the XOR problem that stumped single-layer perceptrons!")
-                print("This is a historic moment in neural network development.")
+                logger.info("\n🎉 BREAKTHROUGH ACHIEVED! 🎉")
+                logger.info("You have successfully demonstrated that MLPs can solve")
+                logger.info("the XOR problem that stumped single-layer perceptrons!")
+                logger.info("This is a historic moment in neural network development.")
+            
+            # Visualization integration
+            if args.visualize:
+                logger.info("\nGenerating visualizations...")
+                plots_dir = Path(config.output_dir) / "visualizations"
+                plots_dir.mkdir(exist_ok=True)
+                if plot_training_history is not None:
+                    plot_path = plots_dir / f"{config.name}_training_history.png"
+                    plot_training_history(
+                        loss_history=model.training_history["loss"],
+                        accuracy_history=model.training_history["accuracy"],
+                        title="MLP Training History",
+                        save_path=str(plot_path),
+                    )
+                    logger.info(f"Training history plot saved: {plot_path}")
+                else:
+                    logger.warning("plot_training_history not available")
+                # Plot decision boundary if input is 2D
+                if plot_decision_boundary is not None and config.input_size == 2:
+                    boundary_path = plots_dir / f"{config.name}_decision_boundary.png"
+                    plot_decision_boundary(
+                        model,
+                        x_train.numpy() if hasattr(x_train, 'numpy') else x_train,
+                        y_train.numpy() if hasattr(y_train, 'numpy') else y_train,
+                        title="MLP Decision Boundary",
+                        save_path=str(boundary_path),
+                    )
+                    logger.info(f"Decision boundary plot saved: {boundary_path}")
+                elif config.input_size == 2:
+                    logger.warning("plot_decision_boundary not available")
+                # Clean exit after visualization
+                import sys
+                sys.exit(0)
             
         except KeyError:
-            print(f"Unknown experiment: {args.experiment}")
-            print("Use --list-experiments to see available options")
+            logger.error(f"Unknown experiment: {args.experiment}")
+            logger.error("Use --list-experiments to see available options")
             return 1
         except Exception as e:
-            print(f"Error running experiment: {e}")
+            logger.error(f"Error running experiment: {e}")
             return 1
     else:
-        print("Please specify an experiment with --experiment or use --help for options")
+        logger.error("Please specify an experiment with --experiment or use --help for options")
         return 1
     
     return 0

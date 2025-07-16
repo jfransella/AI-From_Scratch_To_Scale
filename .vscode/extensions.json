@@ -13,15 +13,15 @@
         "ms-toolsai.jupyter-keymap",
         "ms-toolsai.jupyter-renderers",
         // Code quality
-        "streetsidesoftware.code-spell-checker",
-        "editorconfig.editorconfig",
+        //"streetsidesoftware.code-spell-checker",
+        //"editorconfig.editorconfig",
         // Markdown support (for documentation)
-        "yzhang.markdown-all-in-one",
+        //"yzhang.markdown-all-in-one",
         "davidanson.vscode-markdownlint",
         // YAML support (for configs)
         "redhat.vscode-yaml",
         // TOML support (for pyproject.toml)
-        "tamasfe.even-better-toml",
+        //"tamasfe.even-better-toml",
         // PowerShell support (for our scripts)
         "ms-vscode.powershell",
         // Remote development (if needed)

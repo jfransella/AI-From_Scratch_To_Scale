@@ -35,3 +35,8 @@ typing-extensions>=3.7.4;python_version<"3.8"  # Type hints compatibility
 # black>=22.0.0
 # flake8>=4.0.0
 # mypy>=0.910 
+
+-e ../../plotting
+-e ../../engine
+-e ../../data_utils
+-e ../../utils 

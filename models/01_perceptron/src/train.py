@@ -11,9 +11,8 @@ import sys
 import argparse
 import torch
 from pathlib import Path
-import warnings
 
-# Add project root to path for imports
+# Add project root to path for imports (must be first)
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -29,6 +28,13 @@ from config import (
 )
 from model import create_perceptron
 from constants import MODEL_NAME, ALL_EXPERIMENTS
+
+# Optional plotting imports (handled gracefully if not installed)
+try:
+    from plotting import plot_training_history, plot_decision_boundary
+except ImportError:
+    plot_training_history = None
+    plot_decision_boundary = None
 
 
 def create_data_split(
@@ -183,7 +189,12 @@ def main():
         dataset_config = get_dataset_config(args.experiment)
 
         # Setup logging
-        setup_logging(level="DEBUG" if args.debug else "INFO")
+        setup_logging(
+            level="DEBUG" if args.debug else "INFO",
+            log_dir="outputs/logs",
+            file_output=True,
+            console_output=True
+        )
         logger = get_logger(__name__)
 
         # Set random seed
@@ -242,41 +253,41 @@ def main():
 
         # Train model
         logger.info("Starting training...")
-        print(f"\nTraining {MODEL_NAME} on {args.experiment}")
-        print(
+        logger.info(f"Training {MODEL_NAME} on {args.experiment}")
+        logger.info(
             f"Dataset: {dataset_config['dataset_name']} ({dataset_config['difficulty']})"
         )
-        print(
+        logger.info(
             f"Samples: {split_info['train_size']} train, {split_info.get('val_size', 0)} val"
         )
-        print(f"Learning rate: {training_config.learning_rate}")
-        print(f"Max epochs: {training_config.max_epochs}")
-        print(f"Device: {training_config.device}")
-        print("-" * 60)
+        logger.info(f"Learning rate: {training_config.learning_rate}")
+        logger.info(f"Max epochs: {training_config.max_epochs}")
+        logger.info(f"Device: {training_config.device}")
+        logger.info("-" * 60)
 
         # Train the model
         training_result = trainer.train(model, data_split)
 
-        # Print results
-        print("\n" + "=" * 60)
-        print("TRAINING COMPLETED")
-        print("=" * 60)
-        print(f"Experiment: {args.experiment}")
-        print(f"Model: {MODEL_NAME}")
-        print(f"Dataset: {dataset_config['dataset_name']}")
-        print("-" * 60)
-        print(f"Epochs trained: {training_result.epochs_trained}")
-        print(f"Training time: {training_result.total_training_time:.2f} seconds")
-        print(f"Converged: {'✓' if training_result.converged else '✗'}")
-        print(f"Final train accuracy: {training_result.final_train_accuracy:.4f}")
+        # Log results
+        logger.info("\n" + "=" * 60)
+        logger.info("TRAINING COMPLETED")
+        logger.info("=" * 60)
+        logger.info(f"Experiment: {args.experiment}")
+        logger.info(f"Model: {MODEL_NAME}")
+        logger.info(f"Dataset: {dataset_config['dataset_name']}")
+        logger.info("-" * 60)
+        logger.info(f"Epochs trained: {training_result.epochs_trained}")
+        logger.info(f"Training time: {training_result.total_training_time:.2f} seconds")
+        logger.info(f"Converged: {'✓' if training_result.converged else '✗'}")
+        logger.info(f"Final train accuracy: {training_result.final_train_accuracy:.4f}")
 
         if training_result.final_val_accuracy is not None:
-            print(
+            logger.info(
                 f"Final validation accuracy: {training_result.final_val_accuracy:.4f}"
             )
 
         if training_result.final_test_accuracy is not None:
-            print(f"Final test accuracy: {training_result.final_test_accuracy:.4f}")
+            logger.info(f"Final test accuracy: {training_result.final_test_accuracy:.4f}")
 
         # Performance vs expectation
         expected_acc = dataset_config["expected_accuracy"]
@@ -289,9 +300,9 @@ def main():
         else:
             performance = "✗ POOR PERFORMANCE"
 
-        print(f"Expected accuracy: {expected_acc:.3f}")
-        print(f"Performance: {performance}")
-        print("=" * 60)
+        logger.info(f"Expected accuracy: {expected_acc:.3f}")
+        logger.info(f"Performance: {performance}")
+        logger.info("=" * 60)
 
         # Save additional information
         if training_result.best_model_path:
@@ -301,41 +312,39 @@ def main():
 
         # Generate visualizations if requested
         if args.visualize:
-            logger.info("Generating visualizations...")
-            try:
-                from plotting import generate_training_plots
+            logger.info("\nGenerating visualizations...")
+            plots_dir = Path(training_config.output_dir) / "visualizations"
+            plots_dir.mkdir(exist_ok=True)
 
-                plots_dir = Path(training_config.output_dir) / "visualizations"
-                plots_dir.mkdir(exist_ok=True)
+            if plot_training_history is not None:
+                # Plot training history (loss and accuracy)
+                plot_path = plots_dir / f"{args.experiment}_training_history.png"
+                plot_training_history(
+                    loss_history=training_result.loss_history,
+                    accuracy_history=training_result.train_accuracy_history,
+                    title=f"{MODEL_NAME} Training History",
+                    save_path=str(plot_path),
+                )
+                logger.info(f"Training history plot saved: {plot_path}")
+            else:
+                logger.warning("plot_training_history not available")
 
-                # Generate training plots
-                plot_path = plots_dir / f"{args.experiment}_training.png"
-                generate_training_plots(training_result, str(plot_path))
-                logger.info(f"Training plots saved: {plot_path}")
-
-                # Generate decision boundary if 2D data
-                if model_config["input_size"] == 2:
-                    from plotting import plot_decision_boundary
-
-                    boundary_path = (
-                        plots_dir / f"{args.experiment}_decision_boundary.png"
-                    )
-                    plot_decision_boundary(
-                        model,
-                        data_split.x_train,
-                        data_split.y_train,
-                        str(boundary_path),
-                    )
-                    logger.info(f"Decision boundary plot saved: {boundary_path}")
-
-            except ImportError:
-                logger.warning("Plotting functions not available")
-            except Exception as e:
-                logger.error(f"Error generating visualizations: {e}")
+            if plot_decision_boundary is not None and model_config["input_size"] == 2:
+                boundary_path = plots_dir / f"{args.experiment}_decision_boundary.png"
+                plot_decision_boundary(
+                    model,
+                    data_split.x_train,
+                    data_split.y_train,
+                    title=f"{MODEL_NAME} Decision Boundary",
+                    save_path=str(boundary_path),
+                )
+                logger.info(f"Decision boundary plot saved: {boundary_path}")
+            elif model_config["input_size"] == 2:
+                logger.warning("plot_decision_boundary not available")
 
         # Educational summary
-        print(f"\nEducational Summary:")
-        print(f"Description: {dataset_config['description']}")
+        logger.info(f"\nEducational Summary:")
+        logger.info(f"Description: {dataset_config['description']}")
 
         if args.experiment in [
             "iris_binary",
@@ -343,14 +352,14 @@ def main():
             "debug_small",
             "debug_linear",
         ]:
-            print(
+            logger.info(
                 "✓ This experiment demonstrates Perceptron strengths on linearly separable data"
             )
         elif args.experiment in ["xor_problem", "circles_dataset", "mnist_subset"]:
-            print(
+            logger.info(
                 "⚠ This experiment exposes Perceptron limitations on non-linearly separable data"
             )
-            print(
+            logger.info(
                 "💡 These limitations motivated the development of multi-layer perceptrons (MLPs)"
             )
 
@@ -360,11 +369,11 @@ def main():
         logger.info("Training interrupted by user")
         return 1
     except Exception as e:
+        import traceback
         logger.error(f"Training failed: {e}")
-        if args.debug:
-            import traceback
-
-            logger.debug(traceback.format_exc())
+        print(f"ERROR: {e}")
+        print(traceback.format_exc())
+        logger.debug(traceback.format_exc())
         return 1
 
 

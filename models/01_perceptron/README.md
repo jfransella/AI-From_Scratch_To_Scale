@@ -5,13 +5,16 @@
 ## **📋 Overview**
 
 ### **What is the Perceptron?**
+
 The Perceptron is a linear binary classifier that learns to separate data into two classes using a simple learning rule. It consists of:
+
 - **Input layer**: Receives feature vectors
 - **Linear transformation**: Weighted sum of inputs plus bias
 - **Activation function**: Step function for binary decisions
 - **Learning rule**: Updates weights based on prediction errors
 
 ### **Historical Context**
+
 - **Introduced**: 1957 by Frank Rosenblatt at Cornell University
 - **Innovation**: First learning algorithm for artificial neural networks
 - **Impact**: Sparked the first wave of AI research and optimism
@@ -19,8 +22,10 @@ The Perceptron is a linear binary classifier that learns to separate data into t
 - **Legacy**: Foundation for all modern neural networks
 
 ### **Key Innovation**
+
 The **Perceptron Learning Rule**: A simple, guaranteed-to-converge algorithm for linearly separable data:
-```
+
+```text
 If prediction is wrong:
     w = w + η * (target - prediction) * input
     b = b + η * (target - prediction)
@@ -31,6 +36,7 @@ If prediction is wrong:
 ## **🚀 Quick Start**
 
 ### **Setup**
+
 ```powershell
 # Navigate to perceptron directory
 cd models/01_perceptron
@@ -49,6 +55,7 @@ python -c "from src.model import create_perceptron; print('✓ Setup complete')"
 ### **Training Commands**
 
 #### **Strength Demonstrations (Linearly Separable Data)**
+
 ```powershell
 # Quick test - linearly separable data
 $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --experiment debug_small --debug --epochs 10
@@ -61,6 +68,7 @@ $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --experiment breast_c
 ```
 
 #### **Limitation Demonstrations (Non-linearly Separable Data)**
+
 ```powershell
 # XOR problem (classic limitation)
 $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --experiment xor_problem --epochs 100
@@ -73,6 +81,7 @@ $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --experiment mnist_su
 ```
 
 #### **Advanced Options**
+
 ```powershell
 # With visualization
 $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --experiment iris_binary --visualize
@@ -85,6 +94,7 @@ $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --experiment iris_bin
 ```
 
 ### **Evaluation Commands**
+
 ```powershell
 # Evaluate trained model
 $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/evaluate.py --checkpoint outputs/models/iris_binary_final.pth --experiment iris_binary
@@ -94,6 +104,7 @@ $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/evaluate.py --checkpoint outpu
 ```
 
 ### **List Available Experiments**
+
 ```powershell
 $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --list-experiments
 ```
@@ -112,6 +123,7 @@ $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --list-experiments
 | `debug_small` | Small synthetic | 100% | **100%** | Tiny dataset for quick testing |
 
 **Key Insights from Strengths:**
+
 - ✓ **Perfect performance** on linearly separable data
 - ✓ **Fast convergence** (often <50 epochs)
 - ✓ **Guaranteed learning** when solution exists
@@ -126,12 +138,14 @@ $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --list-experiments
 | `mnist_subset` | MNIST 0 vs 1 | ~70% | **65-75%** | High-dimensional non-linearity |
 
 **Key Insights from Limitations:**
+
 - ✗ **Cannot learn** XOR function (fundamental limitation)
 - ✗ **Stuck at suboptimal** solutions for non-separable data
 - ✗ **No improvement** with more training epochs
 - ✗ **Motivates need** for multi-layer networks
 
 ### **Performance Benchmarks**
+
 - **Training Speed**: 0.02-0.1 seconds for most experiments
 - **Memory Usage**: Minimal (~10MB for largest datasets)
 - **Convergence**: 10-100 epochs for linearly separable data
@@ -142,6 +156,7 @@ $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --list-experiments
 ## **🔧 Implementation Details**
 
 ### **Architecture**
+
 ```python
 class Perceptron(nn.Module, BaseModel):
     def __init__(self, input_size: int, learning_rate: float = 0.1):
@@ -158,21 +173,25 @@ class Perceptron(nn.Module, BaseModel):
 ### **Key Components**
 
 #### **1. Linear Transformation**
+
 - **Weights**: `w ∈ ℝ^d` where `d` is input dimension
-- **Bias**: `b ∈ ℝ` 
+- **Bias**: `b ∈ ℝ`
 - **Output**: `y = w^T x + b`
 
 #### **2. Activation Function**
-- **Training**: Differentiable sigmoid approximation (`σ(10x)`) 
+
+- **Training**: Differentiable sigmoid approximation (`σ(10x)`)
 - **Inference**: True step function (`1 if x ≥ 0 else 0`)
 - **Purpose**: Enable PyTorch gradient computation during training
 
 #### **3. Learning Algorithm**
+
 - **Classic Rule**: `w = w + η(target - prediction)x`
 - **PyTorch Integration**: Uses automatic differentiation with BCE loss
 - **Convergence**: Guaranteed for linearly separable data
 
 ### **Training Algorithm**
+
 1. **Initialize**: Random weights and zero bias
 2. **Forward Pass**: Compute predictions for batch
 3. **Loss Computation**: Binary Cross-Entropy loss
@@ -181,6 +200,7 @@ class Perceptron(nn.Module, BaseModel):
 6. **Repeat**: Until convergence or max epochs
 
 ### **Evaluation Metrics**
+
 - **Accuracy**: Fraction of correct predictions
 - **Loss**: Binary Cross-Entropy loss
 - **Convergence**: Training loss below threshold
@@ -188,6 +208,7 @@ class Perceptron(nn.Module, BaseModel):
 - **Performance vs. Expectation**: Actual vs. theoretical accuracy
 
 ### **Integration with Shared Infrastructure**
+
 - **BaseModel Interface**: Implements `forward()`, `predict()`, `get_model_info()`
 - **Unified Trainer**: Uses `engine.Trainer` for consistent training loop
 - **Dataset Loading**: Integrates with `data_utils.load_dataset()`
@@ -198,7 +219,7 @@ class Perceptron(nn.Module, BaseModel):
 
 ## **📁 Project Structure**
 
-```
+```text
 models/01_perceptron/
 ├── src/
 │   ├── __init__.py
@@ -219,15 +240,19 @@ models/01_perceptron/
 ## 📊 Visualizations
 
 The following visualizations are required for the Perceptron model (see Visualization Playbooks in `docs/visualization/Playbooks.md`):
+
 - **Learning Curves** (training/validation loss and accuracy)
 - **Confusion Matrix** (for classification tasks)
 - **Decision Boundary Plot** (for 2D datasets)
 
 **How to Generate:**
+
 - Add the `--visualize` flag to your training or evaluation command, e.g.:
+
   ```powershell
   python src/train.py --experiment iris_binary --visualize
   ```
+
 - All plots will be saved to `outputs/visualizations/`.
 - For detailed analysis, see the analysis notebook in `notebooks/`.
 
@@ -238,15 +263,18 @@ For more details and best practices, refer to the Visualization Playbooks and Im
 ## **🧪 Available Experiments**
 
 ### **Debug Experiments** (Quick Testing)
+
 - **`debug_small`**: 20 samples, 2 features, perfect separation (trivial)
 - **`debug_linear`**: 50 samples, 2 features, minimal noise (easy)
 
 ### **Strength Experiments** (Perceptron Excels)
+
 - **`iris_binary`**: Iris setosa vs non-setosa classification (easy)
 - **`linear_separable`**: 2D synthetic linearly separable data (easy)  
 - **`breast_cancer_binary`**: Wisconsin breast cancer dataset (medium)
 
 ### **Weakness Experiments** (Perceptron Limitations)
+
 - **`xor_problem`**: XOR truth table - classic impossibility (impossible)
 - **`circles_dataset`**: Concentric circles - geometric non-linearity (hard)
 - **`mnist_subset`**: MNIST 0 vs 1 - high-dimensional complexity (hard)
@@ -256,18 +284,21 @@ For more details and best practices, refer to the Visualization Playbooks and Im
 ## **🎓 Educational Value**
 
 ### **Core Learning Objectives**
+
 1. **Historical Understanding**: How neural networks began
 2. **Mathematical Foundation**: Linear classification and gradient descent
 3. **Limitation Recognition**: Why simple linear models aren't enough
 4. **Modern Relevance**: Connection to current deep learning
 
 ### **Hands-On Learning**
+
 - **Experiment with hyperparameters**: Learning rate, epochs, initialization
 - **Visualize decision boundaries**: See linear separation in action
 - **Compare datasets**: Understand separability vs. non-separability
 - **Analyze convergence**: Watch the learning process unfold
 
 ### **Key Insights Students Gain**
+
 1. **Linear Classification**: How weighted sums create decision boundaries
 2. **Learning Rules**: How errors drive weight updates
 3. **Convergence Guarantees**: When and why learning is guaranteed
@@ -279,20 +310,24 @@ For more details and best practices, refer to the Visualization Playbooks and Im
 ## **📚 References**
 
 ### **Original Papers**
+
 - **Rosenblatt, F. (1957)**. "The Perceptron: A Perceiving and Recognizing Automaton". Cornell Aeronautical Laboratory Report 85-460-1.
 - **Rosenblatt, F. (1958)**. "The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain". Psychological Review, 65(6), 386-408.
 - **Minsky, M. & Papert, S. (1969)**. "Perceptrons: An Introduction to Computational Geometry". MIT Press.
 
 ### **Historical Context**
+
 - **McCulloch, W.S. & Pitts, W. (1943)**. "A Logical Calculus of Ideas Immanent in Nervous Activity". Bulletin of Mathematical Biophysics, 5, 115-133.
 - **Hebb, D.O. (1949)**. "The Organization of Behavior". Wiley.
 - **Block, H.D. (1962)**. "The Perceptron: A Model for Brain Functioning". Reviews of Modern Physics, 34, 123-135.
 
 ### **Modern Perspectives**
+
 - **Goodfellow, I., Bengio, Y., & Courville, A. (2016)**. "Deep Learning". MIT Press. Chapter 4: Numerical Computation.
-- **Nielsen, M. (2015)**. "Neural Networks and Deep Learning". Online book: http://neuralnetworksanddeeplearning.com/
+- **Nielsen, M. (2015)**. "Neural Networks and Deep Learning". Online book: <http://neuralnetworksanddeeplearning.com/>
 
 ### **Educational Resources**
+
 - **Perceptron Learning Algorithm Proof**: [Wikipedia - Perceptron](https://en.wikipedia.org/wiki/Perceptron)
 - **Interactive Visualizations**: [Tensorflow Playground](https://playground.tensorflow.org/)
 - **Historical Timeline**: [History of Neural Networks](https://cs.stanford.edu/people/eroberts/courses/soco/projects/neural-networks/History/history1.html)
@@ -304,17 +339,20 @@ For more details and best practices, refer to the Visualization Playbooks and Im
 After mastering the Perceptron, explore:
 
 ### **Immediate Next Models**
+
 1. **02_ADALINE** - Adaptive Linear Neuron (continuous activation)
 2. **03_Multi-Layer Perceptron** - Solving the XOR problem
 3. **04_Backpropagation** - Learning in deep networks
 
 ### **Key Questions for Next Models**
+
 - How can we solve the XOR problem?
 - What if we use continuous activations instead of step functions?
 - How do we train networks with multiple layers?
 - Can we learn more complex, non-linear patterns?
 
 ### **Suggested Learning Path**
+
 1. **Master the basics**: Ensure you understand linear classification
 2. **Experiment extensively**: Try all experiments, modify hyperparameters
 3. **Analyze failures**: Focus on why XOR fails - this motivates MLPs
@@ -326,20 +364,23 @@ After mastering the Perceptron, explore:
 ## **💡 Tips for Learning**
 
 ### **For Beginners**
+
 - Start with `debug_small` experiment to understand the basics
 - Visualize decision boundaries with 2D datasets
 - Focus on understanding the learning rule before implementation details
 
 ### **For Practitioners**
+
 - Compare with scikit-learn's Perceptron implementation
 - Experiment with different initialization strategies  
 - Analyze convergence rates across different datasets
 
 ### **For Researchers**
+
 - Study the historical papers to understand original context
 - Implement variants (voting perceptron, averaged perceptron)
 - Connect to modern large-scale linear models
 
 ---
 
-**🎯 Remember**: The Perceptron isn't just a simple classifier - it's the foundation that launched the entire field of neural networks. Every modern deep learning architecture builds upon the principles first established here in 1957. 
+**🎯 Remember**: The Perceptron isn't just a simple classifier - it's the foundation that launched the entire field of neural networks. Every modern deep learning architecture builds upon the principles first established here in 1957.

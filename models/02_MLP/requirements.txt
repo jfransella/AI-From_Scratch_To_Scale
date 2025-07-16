@@ -21,3 +21,8 @@ wandb>=0.13.0
 
 # Additional utilities for MLP visualization
 plotly>=5.0.0 
+
+-e ../../plotting
+-e ../../engine
+-e ../../data_utils
+-e ../../utils 

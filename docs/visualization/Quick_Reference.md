@@ -11,6 +11,7 @@ This table maps each model archetype to its required visualizations. For details
 | GCN, BitNet               | Learning Curves, Embedding t-SNE/UMAP, Weight Histogram, Loss Landscape | 5. Frontier     |
 
 **How to Use:**
+
 - Find your model type in the left column.
 - Implement all required visualizations listed in the middle column.
-- For code and best practices, see the Playbooks and Implementation Guide. 
+- For code and best practices, see the Playbooks and Implementation Guide.

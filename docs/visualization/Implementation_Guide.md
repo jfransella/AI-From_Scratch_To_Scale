@@ -16,9 +16,11 @@ This guide provides step-by-step instructions for integrating visualizations int
 ## 2. Using the /plotting Package
 
 - **Import plotting utilities** at the top of your script:
+
   ```python
   from plotting import plot_learning_curve, plot_confusion_matrix, ...
   ```
+
 - **Follow naming conventions** and docstring standards as described in `Coding_Standards.md`.
 - **Pass all required arguments** (e.g., model, data, save_path) to each plotting function.
 - **Set random seeds** for reproducibility in plots involving randomness (e.g., t-SNE, UMAP).
@@ -48,4 +50,4 @@ This guide provides step-by-step instructions for integrating visualizations int
 
 ---
 
-For a summary of required visualizations by model type, see `docs/visualization/Playbooks.md`. For interpretive guidance, see `docs/strategy/Visualization_Ideas.md`. 
+For a summary of required visualizations by model type, see `docs/visualization/Playbooks.md`. For interpretive guidance, see `docs/strategy/Visualization_Ideas.md`.

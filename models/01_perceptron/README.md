@@ -216,6 +216,23 @@ models/01_perceptron/
 └── README.md            # This file
 ```
 
+## 📊 Visualizations
+
+The following visualizations are required for the Perceptron model (see Visualization Playbooks in `docs/visualization/Playbooks.md`):
+- **Learning Curves** (training/validation loss and accuracy)
+- **Confusion Matrix** (for classification tasks)
+- **Decision Boundary Plot** (for 2D datasets)
+
+**How to Generate:**
+- Add the `--visualize` flag to your training or evaluation command, e.g.:
+  ```powershell
+  python src/train.py --experiment iris_binary --visualize
+  ```
+- All plots will be saved to `outputs/visualizations/`.
+- For detailed analysis, see the analysis notebook in `notebooks/`.
+
+For more details and best practices, refer to the Visualization Playbooks and Implementation Guide.
+
 ---
 
 ## **🧪 Available Experiments**

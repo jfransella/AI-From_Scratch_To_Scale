@@ -188,6 +188,23 @@ This implementation demonstrates:
 └── README.md            # This documentation
 ```
 
+## 📊 Visualizations
+
+The following visualizations are required for the MLP model (see Visualization Playbooks in `docs/visualization/Playbooks.md`):
+- **Learning Curves** (training/validation loss and accuracy)
+- **Confusion Matrix** (for classification tasks)
+- **Decision Boundary Plot** (for 2D datasets)
+
+**How to Generate:**
+- Add the `--visualize` flag to your training or evaluation command, e.g.:
+  ```bash
+  python src/train.py --experiment xor_breakthrough --visualize
+  ```
+- All plots will be saved to `outputs/visualizations/`.
+- For detailed analysis, see the analysis notebook in `notebooks/`.
+
+For more details and best practices, refer to the Visualization Playbooks and Implementation Guide.
+
 ## Key Learning Objectives
 
 1. **Understand Non-linear Function Approximation**: How hidden layers enable complex pattern learning

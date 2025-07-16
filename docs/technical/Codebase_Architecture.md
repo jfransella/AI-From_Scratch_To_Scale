@@ -105,14 +105,18 @@ To capture both a human-readable narrative and structured metrics, we will use t
 * **System 1: Python logging (The Narrative Log)**  
 * **System 2: Weights & Biases (wandb) (The Metrics Database)**
 
-## **5\. Visualization Strategy**
+## 5.1 Visualization as a Core Architectural Component
 
-This strategy separates visualization **generation** from **display** to support automated runs, wandb integration, and interactive notebook analysis.
+Visualization is a first-class citizen in this project, serving as both a diagnostic and interpretive tool for all models. The following guidelines ensure that visualization is systematically integrated into the workflow:
 
-* **Activation**: Generation is triggered by the `--visualize` command-line flag.  
-* **Selection Logic**: The model-specific **train.py script is responsible for deciding *which* visualizations to generate**. It contains a static mapping that links an `--experiment` name to a list of required plot function names defined in the config.py template.  
-* **Execution**: The `engine\` receives the list of plot names and calls the corresponding functions from `plotting\` to save the image files to the local `outputs\visualizations\` directory.  
-* **Error Handling**: Visualization generation uses the error handling patterns from section 9, gracefully degrading if specific plots fail while continuing with others.
+- **Centralized Utilities:** All reusable plotting and visualization utilities must reside in the shared `/plotting` package. This includes functions for generating learning curves, confusion matrices, decision boundaries, feature maps, Grad-CAM, t-SNE/UMAP projections, and more. Model-specific visualizations should be implemented in the model’s notebook or in a dedicated script within the model’s directory, but should leverage shared utilities whenever possible.
+- **Activation:** Visualization generation is triggered by the `--visualize` command-line flag in training and evaluation scripts. This flag should be supported in all model scripts, and its logic should be handled in accordance with the selection logic described above.
+- **Outputs:** All generated figures must be saved to the standardized `outputs/visualizations/` directory within each model’s project. This ensures reproducibility and easy access for analysis and reporting.
+- **Documentation:** Every model’s README and analysis notebook must include a section on visualizations, listing required plots and referencing the Visualization Playbooks (see `docs/visualization/Playbooks.md`).
+- **Extensibility:** When new visualization types are needed, they should be added to the `/plotting` package with clear, reusable APIs and documented in the Implementation Guide (`docs/visualization/Implementation_Guide.md`).
+- **Best Practices:** Visualization code should follow the standards outlined in `Coding_Standards.md`, including naming conventions, docstrings, and reproducibility (e.g., setting random seeds for t-SNE/UMAP).
+
+This approach ensures that visualization is not an afterthought, but a systematic, reproducible, and extensible part of the project’s architecture, supporting both automated and interactive analysis workflows.
 
 ## **6\. Model Checkpointing & Loading**
 

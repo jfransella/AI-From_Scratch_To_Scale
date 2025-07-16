@@ -133,6 +133,38 @@ def main():
         action="store_true",
         help="List available experiments and exit",
     )
+    parser.add_argument(
+        "--experiment-info", type=str,
+        help="Show information about a specific experiment"
+    )
+    parser.add_argument(
+        "--seed", type=int, default=None,
+        help="Random seed for reproducibility"
+    )
+    parser.add_argument(
+        "--environment", choices=["default", "debug", "production"],
+        default="default", help="Environment configuration"
+    )
+    parser.add_argument(
+        "--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        default="INFO", help="Logging level"
+    )
+    parser.add_argument(
+        "--wandb-project", type=str, default="ai-from-scratch",
+        help="Weights & Biases project name"
+    )
+    parser.add_argument(
+        "--tags", type=str, nargs="+", default=[],
+        help="Tags to attach to the run"
+    )
+    parser.add_argument(
+        "--load-checkpoint", type=str, default=None,
+        help="Path to checkpoint to load before training"
+    )
+    parser.add_argument(
+        "--no-save-checkpoint", action="store_true",
+        help="Skip saving final model checkpoint"
+    )
 
     args = parser.parse_args()
 

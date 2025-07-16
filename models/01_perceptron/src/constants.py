@@ -1,12 +1,12 @@
 """
 Constants for Perceptron model implementation.
 
-Defines model metadata, file paths, and fixed values for the Perceptron,
-the first artificial neural network model.
+Defines model metadata, file paths, experiment configurations, and fixed values 
+for the Perceptron, the first artificial neural network model.
 """
 
-import os
 from pathlib import Path
+from typing import Dict, Any
 
 # =============================================================================
 # MODEL METADATA
@@ -56,11 +56,11 @@ DEFAULT_MAX_EPOCHS = 100
 DEFAULT_TOLERANCE = 1e-6
 
 # Activation function options
-SUPPORTED_ACTIVATIONS = ["step", "sign"]
+SUPPORTED_ACTIVATIONS = ["step", "sigmoid", "tanh"]
 DEFAULT_ACTIVATION = "step"
 
 # Weight initialization options
-SUPPORTED_INIT_METHODS = ["zeros", "random_normal", "random_uniform"]
+SUPPORTED_INIT_METHODS = ["zeros", "normal", "xavier", "random"]
 DEFAULT_INIT_METHOD = "zeros"
 
 # Training parameters
@@ -70,29 +70,165 @@ MIN_EPOCHS = 1
 MAX_EPOCHS = 10000
 
 # =============================================================================
-# DATASET CONFIGURATIONS
+# EXPERIMENT CONFIGURATIONS
 # =============================================================================
 
-# Strength datasets (should perform well)
-STRENGTH_DATASETS = [
-    "iris_binary",      # Linearly separable subset of Iris
-    "linear_2d",        # Simple 2D linearly separable data
-    "breast_cancer",    # Wisconsin breast cancer dataset
+# All experiments supported by this model
+ALL_EXPERIMENTS = [
+    # Strength experiments (should succeed)
+    "iris_binary",
+    "linear_separable",
+    "breast_cancer_binary",
+    
+    # Weakness experiments (should struggle/fail)
+    "xor_problem",
+    "circles_dataset",
+    "mnist_subset",
+    
+    # Debug experiments (for quick testing)
+    "debug_small",
+    "debug_linear"
 ]
 
-# Weakness datasets (should struggle/fail)
-WEAKNESS_DATASETS = [
-    "xor",              # Classic non-linearly separable problem
-    "circles",          # Concentric circles
-    "iris_multiclass"   # Multi-class problem (Perceptron is binary)
+# Strength experiments - datasets where Perceptron excels
+STRENGTH_EXPERIMENTS = [
+    "iris_binary",
+    "linear_separable", 
+    "breast_cancer_binary"
 ]
 
-# Default experiments
-DEFAULT_EXPERIMENTS = [
-    "iris_setosa_vs_others",  # Binary classification from Iris
-    "linear_simple",          # Simple synthetic linear data
-    "xor_failure_demo"        # Demonstrate XOR limitation
+# Weakness experiments - datasets that expose Perceptron limitations
+WEAKNESS_EXPERIMENTS = [
+    "xor_problem",
+    "circles_dataset", 
+    "mnist_subset"
 ]
+
+# Debug experiments - for quick testing and development
+DEBUG_EXPERIMENTS = [
+    "debug_small",
+    "debug_linear"
+]
+
+# =============================================================================
+# DATASET SPECIFICATIONS
+# =============================================================================
+
+DATASET_SPECS = {
+    # Strength datasets
+    "iris_binary": {
+        "dataset_name": "iris_binary",
+        "dataset_params": {
+            "classes": ["setosa", "versicolor"],
+            "n_samples": None,  # Use all available
+            "noise": 0.0
+        },
+        "input_size": 4,
+        "output_size": 1,
+        "expected_accuracy": 0.98,
+        "difficulty": "easy",
+        "description": "Binary classification of Iris setosa vs versicolor - linearly separable"
+    },
+    
+    "linear_separable": {
+        "dataset_name": "linear_separable",
+        "dataset_params": {
+            "n_samples": 200,
+            "n_features": 2,
+            "n_clusters_per_class": 1,
+            "noise": 0.1
+        },
+        "input_size": 2,
+        "output_size": 1,
+        "expected_accuracy": 0.95,
+        "difficulty": "easy",
+        "description": "Simple 2D linearly separable synthetic data"
+    },
+    
+    "breast_cancer_binary": {
+        "dataset_name": "breast_cancer",
+        "dataset_params": {
+            "binary_classification": True,
+            "normalize": True
+        },
+        "input_size": 30,
+        "output_size": 1,
+        "expected_accuracy": 0.85,
+        "difficulty": "medium",
+        "description": "Wisconsin breast cancer dataset - binary classification"
+    },
+    
+    # Weakness datasets
+    "xor_problem": {
+        "dataset_name": "xor",
+        "dataset_params": {
+            "n_samples": 1000,
+            "noise": 0.0
+        },
+        "input_size": 2,
+        "output_size": 1,
+        "expected_accuracy": 0.50,  # Random chance - should fail
+        "difficulty": "impossible",
+        "description": "XOR problem - classic non-linearly separable case"
+    },
+    
+    "circles_dataset": {
+        "dataset_name": "circles",
+        "dataset_params": {
+            "n_samples": 300,
+            "noise": 0.1,
+            "factor": 0.8
+        },
+        "input_size": 2,
+        "output_size": 1,
+        "expected_accuracy": 0.60,
+        "difficulty": "hard",
+        "description": "Concentric circles - non-linearly separable"
+    },
+    
+    "mnist_subset": {
+        "dataset_name": "mnist_binary",
+        "dataset_params": {
+            "digits": [0, 1],
+            "n_samples": 1000,
+            "flatten": True
+        },
+        "input_size": 784,
+        "output_size": 1,
+        "expected_accuracy": 0.70,
+        "difficulty": "hard",
+        "description": "MNIST digits 0 vs 1 - high dimensional, some non-linearity"
+    },
+    
+    # Debug datasets
+    "debug_small": {
+        "dataset_name": "linear_separable",
+        "dataset_params": {
+            "n_samples": 20,
+            "n_features": 2,
+            "noise": 0.0
+        },
+        "input_size": 2,
+        "output_size": 1,
+        "expected_accuracy": 1.0,
+        "difficulty": "trivial",
+        "description": "Small linearly separable dataset for quick testing"
+    },
+    
+    "debug_linear": {
+        "dataset_name": "linear_separable",
+        "dataset_params": {
+            "n_samples": 50,
+            "n_features": 2,
+            "noise": 0.05
+        },
+        "input_size": 2,
+        "output_size": 1,
+        "expected_accuracy": 0.95,
+        "difficulty": "easy",
+        "description": "Small dataset with minimal noise for debugging"
+    }
+}
 
 # =============================================================================
 # FILE PATH CONSTANTS
@@ -116,7 +252,7 @@ PLOT_FILENAME_PATTERN = "{experiment}_{plot_type}.png"
 LOG_FILENAME_PATTERN = "training_{timestamp}.log"
 
 # =============================================================================
-# EXPERIMENT VALIDATION
+# VALIDATION FUNCTIONS
 # =============================================================================
 
 def validate_learning_rate(lr: float) -> float:
@@ -153,30 +289,111 @@ def validate_init_method(init_method: str) -> str:
     return init_method
 
 
+def validate_experiment(experiment_name: str) -> str:
+    """Validate experiment name."""
+    if experiment_name not in ALL_EXPERIMENTS:
+        raise ValueError(f"Unknown experiment: {experiment_name}. "
+                        f"Available experiments: {ALL_EXPERIMENTS}")
+    return experiment_name
+
+
 # =============================================================================
-# EXPERIMENTAL SETUPS
+# UTILITY FUNCTIONS
 # =============================================================================
 
-# Standard experimental configurations
-STANDARD_EXPERIMENTS = {
-    "quick_test": {
-        "max_epochs": 10,
-        "learning_rate": 0.1,
-        "dataset": "linear_2d",
-        "n_samples": 100
+def get_experiment_info(experiment_name: str) -> Dict[str, Any]:
+    """
+    Get comprehensive information about an experiment.
+    
+    Args:
+        experiment_name: Name of the experiment
+        
+    Returns:
+        Dictionary with experiment metadata
+    """
+    if experiment_name not in ALL_EXPERIMENTS:
+        raise ValueError(f"Unknown experiment: {experiment_name}")
+    
+    dataset_spec = DATASET_SPECS[experiment_name]
+    
+    return {
+        "experiment_name": experiment_name,
+        "model_name": MODEL_NAME,
+        "dataset_info": dataset_spec,
+        "is_strength": experiment_name in STRENGTH_EXPERIMENTS,
+        "is_weakness": experiment_name in WEAKNESS_EXPERIMENTS,
+        "is_debug": experiment_name in DEBUG_EXPERIMENTS,
+        "expected_outcome": "success" if experiment_name in STRENGTH_EXPERIMENTS else "failure" if experiment_name in WEAKNESS_EXPERIMENTS else "testing"
+    }
+
+
+def validate_parameter(param_name: str, value: Any) -> Any:
+    """
+    Validate and potentially adjust parameter values.
+    
+    Args:
+        param_name: Name of the parameter
+        value: Parameter value to validate
+        
+    Returns:
+        Validated (and potentially adjusted) parameter value
+    """
+    if param_name == "learning_rate":
+        return validate_learning_rate(float(value))
+    elif param_name == "max_epochs":
+        return validate_epochs(int(value))
+    elif param_name == "activation":
+        return validate_activation(str(value))
+    elif param_name == "init_method":
+        return validate_init_method(str(value))
+    else:
+        return value
+
+
+def get_expected_performance(experiment_name: str) -> Dict[str, Any]:
+    """
+    Get expected performance metrics for an experiment.
+    
+    Args:
+        experiment_name: Name of the experiment
+        
+    Returns:
+        Dictionary with expected performance metrics
+    """
+    if experiment_name not in ALL_EXPERIMENTS:
+        raise ValueError(f"Unknown experiment: {experiment_name}")
+    
+    dataset_spec = DATASET_SPECS[experiment_name]
+    
+    return {
+        "expected_accuracy": dataset_spec["expected_accuracy"],
+        "difficulty": dataset_spec["difficulty"],
+        "should_converge": experiment_name in STRENGTH_EXPERIMENTS or experiment_name in DEBUG_EXPERIMENTS,
+        "max_reasonable_epochs": 50 if dataset_spec["difficulty"] == "easy" else 200 if dataset_spec["difficulty"] == "medium" else 1000,
+        "description": dataset_spec["description"]
+    }
+
+
+# =============================================================================
+# EXPERIMENT METADATA
+# =============================================================================
+
+# Educational context for each experiment type
+EXPERIMENT_CONTEXTS = {
+    "strength": {
+        "purpose": "Demonstrate Perceptron capabilities on linearly separable data",
+        "expected_outcome": "High accuracy and convergence",
+        "learning_objective": "Understanding when Perceptrons work well"
     },
-    "iris_binary": {
-        "max_epochs": 100,
-        "learning_rate": 0.1,
-        "dataset": "iris_setosa_vs_others",
-        "tolerance": 1e-6
+    "weakness": {
+        "purpose": "Expose Perceptron limitations on non-linearly separable data",
+        "expected_outcome": "Poor accuracy and/or non-convergence",
+        "learning_objective": "Understanding Perceptron limitations and motivation for MLPs"
     },
-    "xor_failure": {
-        "max_epochs": 1000,
-        "learning_rate": 0.1,
-        "dataset": "xor",
-        "tolerance": 1e-6,
-        "note": "Expected to fail - demonstrates limitation"
+    "debug": {
+        "purpose": "Quick validation of implementation and setup",
+        "expected_outcome": "Fast convergence on simple data",
+        "learning_objective": "Verification that code works correctly"
     }
 }
 
@@ -197,67 +414,4 @@ DEFAULT_LOG_LEVEL = "INFO"
 # Debug flags
 DEBUG_WEIGHT_UPDATES = False
 DEBUG_PREDICTION_DETAILS = False
-DEBUG_CONVERGENCE_CRITERIA = False
-
-# =============================================================================
-# VISUALIZATION SETTINGS
-# =============================================================================
-
-# Plot types available for Perceptron
-AVAILABLE_PLOTS = [
-    "loss_curve",           # Training loss over epochs
-    "decision_boundary",    # 2D decision boundary visualization
-    "weight_evolution",     # How weights change during training
-    "convergence_analysis", # Convergence behavior analysis
-    "error_analysis"        # Error distribution analysis
-]
-
-# Default plot settings
-DEFAULT_PLOT_SETTINGS = {
-    "figsize": (8, 6),
-    "dpi": 150,
-    "style": "seaborn-v0_8-whitegrid",
-    "color_palette": "Set1"
-}
-
-# =============================================================================
-# PERFORMANCE BENCHMARKS
-# =============================================================================
-
-# Expected performance on standard datasets
-PERFORMANCE_BENCHMARKS = {
-    "iris_setosa_vs_others": {
-        "expected_accuracy": 1.0,  # Should achieve perfect separation
-        "max_epochs_expected": 50,
-        "convergence_tolerance": 1e-6
-    },
-    "linear_2d": {
-        "expected_accuracy": 0.95,
-        "max_epochs_expected": 100,
-        "convergence_tolerance": 1e-6
-    },
-    "xor": {
-        "expected_accuracy": 0.5,  # Random performance expected
-        "max_epochs_expected": float('inf'),  # Will not converge
-        "note": "Demonstrates fundamental limitation"
-    }
-}
-
-# =============================================================================
-# HISTORICAL CONTEXT
-# =============================================================================
-
-HISTORICAL_CONTEXT = f"""
-The Perceptron ({YEAR_INTRODUCED}) by {ORIGINAL_AUTHOR} was a groundbreaking moment in AI history.
-It demonstrated for the first time that a machine could learn to classify patterns, 
-laying the foundation for all modern neural networks.
-
-Key Historical Significance:
-- First trainable artificial neural network
-- Introduced the concept of learning through weight adjustment
-- Sparked the first wave of neural network research
-- Led to both great excitement and the "AI Winter" when limitations were discovered
-
-The famous XOR problem, unsolvable by a single Perceptron, led to the development 
-of multi-layer networks and eventually modern deep learning.
-""" 
+DEBUG_CONVERGENCE_CRITERIA = False 

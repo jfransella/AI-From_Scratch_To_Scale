@@ -1,19 +1,37 @@
-# Perceptron Model - Specific Requirements
-# Minimal dependencies for the first neural network model
+# Perceptron Model - Requirements for Shared Infrastructure Integration
+# Dependencies for the first neural network model using unified training/evaluation engine
 
-# Core ML Libraries (minimal for Perceptron)
+# Core ML Libraries
 torch>=1.12.0
 numpy>=1.21.0
 scikit-learn>=1.1.0
 
-# Basic Data Processing
+# Data Processing
 pandas>=1.4.0
 
-# Basic Visualization
+# Visualization
 matplotlib>=3.5.0
+seaborn>=0.11.0
 
-# Progress Tracking
+# Progress and Logging
 tqdm>=4.64.0
 
-# Experiment Tracking (optional for first model)
-wandb>=0.13.0 
+# Experiment Tracking
+wandb>=0.13.0
+
+# Shared Infrastructure Dependencies
+# (These are automatically installed when installing the main package with pip install -e ../..)
+# utils package - logging, seeds, device management
+# data_utils package - dataset loading and preprocessing  
+# engine package - unified training and evaluation with wandb integration
+# plotting package - visualization generation
+
+# Additional utilities that may be used by shared infrastructure
+pathlib2>=2.3.0;python_version<"3.4"  # Path handling compatibility
+typing-extensions>=3.7.4;python_version<"3.8"  # Type hints compatibility
+
+# Development dependencies (install separately with requirements-dev.txt from project root)
+# pytest>=7.0.0
+# black>=22.0.0
+# flake8>=4.0.0
+# mypy>=0.910 

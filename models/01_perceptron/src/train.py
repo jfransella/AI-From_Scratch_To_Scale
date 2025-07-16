@@ -1,260 +1,307 @@
+#!/usr/bin/env python3
 """
-Training script for Perceptron model.
+Training script for the 01_perceptron model.
 
-This script demonstrates training the Perceptron on various datasets,
-including both successes (linearly separable) and failures (XOR).
+This script trains the classic Rosenblatt perceptron using the unified
+engine framework. Supports multiple datasets including both linearly
+separable (strengths) and non-separable (limitations) examples.
 """
 
 import sys
 import argparse
 import torch
-import numpy as np
 from pathlib import Path
+import warnings
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from utils import setup_logging, set_random_seed, get_logger
-from data_utils import generate_xor_dataset, generate_linear_dataset, generate_circles_dataset
-from config import get_config
-from model import Perceptron
-from constants import MODEL_NAME
+from data_utils import load_dataset
+from engine.trainer import Trainer
+from engine.base import DataSplit
+from config import get_training_config, get_model_config, get_dataset_config, print_config_summary
+from model import create_perceptron
+from constants import MODEL_NAME, ALL_EXPERIMENTS
 
 
-def load_dataset_from_config(config):
-    """Load dataset based on configuration."""
-    dataset_name = config["dataset"]
-    dataset_params = config.get("dataset_params", {})
+def create_data_split(X: torch.Tensor, y: torch.Tensor, validation_split: float = 0.2, 
+                      test_split: float = 0.2, random_state: int = 42) -> DataSplit:
+    """
+    Create train/validation/test data splits.
     
-    logger = get_logger(__name__)
-    logger.info(f"Loading dataset: {dataset_name}")
+    Args:
+        X: Input features
+        y: Target labels
+        validation_split: Fraction for validation set
+        test_split: Fraction for test set
+        random_state: Random seed
+        
+    Returns:
+        DataSplit object with train/val/test splits
+    """
+    # Set random seed
+    torch.manual_seed(random_state)
     
-    if dataset_name == "xor":
-        X, y = generate_xor_dataset(**dataset_params)
-    elif dataset_name == "linear":
-        X, y = generate_linear_dataset(**dataset_params)
-    elif dataset_name == "circles":
-        X, y = generate_circles_dataset(**dataset_params)
-    else:
-        raise ValueError(f"Unknown dataset: {dataset_name}")
-    
-    # Convert to PyTorch tensors
-    X = torch.tensor(X, dtype=torch.float32)
-    y = torch.tensor(y, dtype=torch.long)
-    
-    logger.info(f"Dataset loaded: {X.shape}, classes: {torch.unique(y).tolist()}")
-    
-    return X, y
-
-
-def create_simple_train_test_split(X, y, train_split=0.8, random_state=None):
-    """Create a simple train/test split."""
-    if random_state is not None:
-        set_random_seed(random_state)
-    
-    n_samples = X.shape[0]
-    n_train = int(n_samples * train_split)
-    
-    # Shuffle indices
+    n_samples = len(X)
     indices = torch.randperm(n_samples)
     
-    train_indices = indices[:n_train]
-    test_indices = indices[n_train:]
+    # Calculate split sizes
+    n_test = int(test_split * n_samples)
+    n_val = int(validation_split * n_samples)
+    n_train = n_samples - n_test - n_val
     
-    X_train, X_test = X[train_indices], X[test_indices]
-    y_train, y_test = y[train_indices], y[test_indices]
+    # Split indices
+    train_idx = indices[:n_train]
+    val_idx = indices[n_train:n_train + n_val] if n_val > 0 else None
+    test_idx = indices[n_train + n_val:] if n_test > 0 else None
     
-    return X_train, X_test, y_train, y_test
-
-
-def evaluate_model(model, X_test, y_test):
-    """Simple evaluation function."""
-    model.eval()
-    with torch.no_grad():
-        predictions = model.predict(X_test)
-        
-        # Convert predictions to match target format
-        if model.activation == "step":
-            # predictions are already 0/1
-            pred_labels = predictions.long()
-        else:  # sign function
-            # Convert sign output to 0/1
-            pred_labels = (predictions > 0).long()
-        
-        # Handle label mapping
-        unique_labels = torch.unique(y_test)
-        if len(unique_labels) == 2:
-            accuracy = (pred_labels == y_test).float().mean().item()
-        else:
-            accuracy = 0.0
+    # Create data splits
+    x_train, y_train = X[train_idx], y[train_idx]
+    x_val, y_val = (X[val_idx], y[val_idx]) if val_idx is not None else (None, None)
+    x_test, y_test = (X[test_idx], y[test_idx]) if test_idx is not None else (None, None)
     
-    return accuracy, pred_labels
-
-
-def save_results(config, model, training_history, test_accuracy):
-    """Save training results."""
-    results = {
-        'experiment': config['experiment'],
-        'model_info': model.get_model_info(),
-        'training_history': training_history,
-        'test_accuracy': test_accuracy,
-        'converged': training_history.get('converged', False)
-    }
-    
-    # Save to outputs directory
-    output_file = Path(config['model_dir']) / f"{config['experiment']}_results.json"
-    
-    # Convert numpy arrays to lists for JSON serialization
-    def convert_numpy(obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        elif isinstance(obj, np.integer):
-            return int(obj)
-        elif isinstance(obj, np.floating):
-            return float(obj)
-        elif isinstance(obj, dict):
-            return {k: convert_numpy(v) for k, v in obj.items()}
-        elif isinstance(obj, list):
-            return [convert_numpy(item) for item in obj]
-        return obj
-    
-    results = convert_numpy(results)
-    
-    import json
-    with open(output_file, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger = get_logger(__name__)
-    logger.info(f"Results saved to {output_file}")
+    return DataSplit(
+        x_train=x_train,
+        y_train=y_train,
+        x_val=x_val,
+        y_val=y_val,
+        x_test=x_test,
+        y_test=y_test
+    )
 
 
 def main():
-    """Main training function."""
+    """Main training function using unified infrastructure."""
     parser = argparse.ArgumentParser(description='Train Perceptron model')
     parser.add_argument('--experiment', type=str, required=True,
-                       help='Experiment name (e.g., quick_test, xor_failure)')
+                       help=f'Experiment name. Available: {ALL_EXPERIMENTS}')
     parser.add_argument('--epochs', type=int, default=None,
                        help='Override max epochs')
     parser.add_argument('--learning-rate', type=float, default=None,
                        help='Override learning rate')
+    parser.add_argument('--batch-size', type=int, default=None,
+                       help='Batch size (Perceptron uses full batch by default)')
+    parser.add_argument('--device', type=str, default=None,
+                       help='Device to use (cpu or cuda)')
+    parser.add_argument('--wandb', action='store_true',
+                       help='Enable Weights & Biases logging')
     parser.add_argument('--visualize', action='store_true',
-                       help='Generate visualizations (placeholder)')
+                       help='Generate visualizations after training')
     parser.add_argument('--debug', action='store_true',
-                       help='Enable debug mode')
+                       help='Enable debug mode with reduced epochs')
+    parser.add_argument('--config-summary', action='store_true',
+                       help='Print configuration summary and exit')
+    parser.add_argument('--list-experiments', action='store_true',
+                       help='List available experiments and exit')
     
     args = parser.parse_args()
     
-    # Load configuration
-    try:
-        config = get_config(args.experiment)
-        
-        # Apply command-line overrides
-        if args.epochs is not None:
-            config['max_epochs'] = args.epochs
-        if args.learning_rate is not None:
-            config['learning_rate'] = args.learning_rate
-        if args.debug:
-            config['log_level'] = 'DEBUG'
-            config['max_epochs'] = min(config['max_epochs'], 10)
-        
-    except Exception as e:
-        print(f"Error loading configuration: {e}")
+    # Handle special arguments
+    if args.list_experiments:
+        print("\nAvailable Perceptron experiments:")
+        print("-" * 50)
+        for exp in ALL_EXPERIMENTS:
+            try:
+                dataset_config = get_dataset_config(exp)
+                print(f"{exp:20} - {dataset_config['description']}")
+            except Exception as e:
+                print(f"{exp:20} - Error: {e}")
+        return 0
+    
+    if args.config_summary:
+        try:
+            print_config_summary(args.experiment)
+        except Exception as e:
+            print(f"Error printing config summary: {e}")
+            return 1
+        return 0
+    
+    # Validate experiment
+    if args.experiment not in ALL_EXPERIMENTS:
+        print(f"Error: Unknown experiment '{args.experiment}'")
+        print(f"Available experiments: {ALL_EXPERIMENTS}")
         return 1
     
-    # Setup logging
     try:
-        logger = setup_logging(
-            level=config.get('log_level', 'INFO'),
-            log_dir=config.get('log_dir')
-        )
+        # Load configurations
+        print(f"Loading configuration for experiment: {args.experiment}")
         
-        # Set random seed for reproducibility
-        if 'seed' in config:
-            set_random_seed(config['seed'])
+        # Build configuration overrides from command line
+        overrides = {}
+        if args.epochs is not None:
+            overrides['max_epochs'] = args.epochs
+        if args.learning_rate is not None:
+            overrides['learning_rate'] = args.learning_rate
+        if args.batch_size is not None:
+            overrides['batch_size'] = args.batch_size
+        if args.device is not None:
+            overrides['device'] = args.device
+        if args.wandb:
+            overrides['use_wandb'] = True
+        if args.debug:
+            overrides['max_epochs'] = min(overrides.get('max_epochs', 50), 20)
+            overrides['log_freq'] = 1
+            overrides['verbose'] = True
+        
+        # Get configurations
+        training_config = get_training_config(args.experiment, **overrides)
+        model_config = get_model_config(args.experiment, **overrides)
+        dataset_config = get_dataset_config(args.experiment)
+        
+        # Setup logging
+        setup_logging(level='DEBUG' if args.debug else 'INFO')
+        logger = get_logger(__name__)
+        
+        # Set random seed
+        if training_config.random_seed is not None:
+            set_random_seed(training_config.random_seed)
         
         logger.info(f"Starting {MODEL_NAME} training")
-        logger.info(f"Experiment: {config['experiment']}")
-        logger.info(f"Configuration: lr={config['learning_rate']}, "
-                   f"epochs={config['max_epochs']}, "
-                   f"dataset={config['dataset']}")
+        logger.info(f"Experiment: {args.experiment}")
+        logger.info(f"Dataset: {dataset_config['dataset_name']}")
+        logger.info(f"Expected accuracy: {dataset_config['expected_accuracy']:.3f}")
+        logger.info(f"Difficulty: {dataset_config['difficulty']}")
         
-    except Exception as e:
-        print(f"Error setting up logging: {e}")
-        return 1
-    
-    try:
         # Load dataset
-        X, y = load_dataset_from_config(config)
-        
-        # Create train/test split
-        X_train, X_test, y_train, y_test = create_simple_train_test_split(
-            X, y, train_split=config.get('train_split', 0.8), 
-            random_state=config.get('seed', 42)
+        logger.info("Loading dataset...")
+        X, y = load_dataset(
+            dataset_config['dataset_name'],
+            dataset_config['dataset_params']
         )
         
-        logger.info(f"Data split: {X_train.shape[0]} train, {X_test.shape[0]} test")
+        # Convert to tensors if needed
+        if not isinstance(X, torch.Tensor):
+            X = torch.tensor(X, dtype=torch.float32)
+        if not isinstance(y, torch.Tensor):
+            y = torch.tensor(y, dtype=torch.float32)
+        
+        logger.info(f"Dataset loaded: {X.shape} features, {len(torch.unique(y))} classes")
+        
+        # Create data splits
+        logger.info("Creating data splits...")
+        data_split = create_data_split(
+            X, y,
+            validation_split=training_config.validation_split,
+            test_split=0.2,  # Fixed test split
+            random_state=training_config.random_seed
+        )
+        
+        split_info = data_split.get_split_info()
+        logger.info(f"Data splits: {split_info}")
         
         # Create model
-        model = Perceptron(
-            n_features=X_train.shape[1],
-            learning_rate=config['learning_rate'],
-            max_epochs=config['max_epochs'],
-            tolerance=config.get('tolerance', 1e-6),
-            activation=config.get('activation', 'step'),
-            random_state=config.get('seed')
-        )
+        logger.info("Creating Perceptron model...")
+        model = create_perceptron(model_config)
         
-        logger.info(f"Created model: {model.get_model_info()}")
+        model_info = model.get_model_info()
+        logger.info(f"Model created: {model_info['total_parameters']} parameters")
+        logger.info(f"Architecture: {model_info['input_size']} -> {model_info['output_size']}")
+        logger.info(f"Activation: {model_info['activation']}")
+        
+        # Create trainer
+        logger.info("Initializing trainer...")
+        trainer = Trainer(training_config)
         
         # Train model
         logger.info("Starting training...")
-        training_history = model.fit(X_train, y_train)
+        print(f"\nTraining {MODEL_NAME} on {args.experiment}")
+        print(f"Dataset: {dataset_config['dataset_name']} ({dataset_config['difficulty']})")
+        print(f"Samples: {split_info['train_size']} train, {split_info.get('val_size', 0)} val")
+        print(f"Learning rate: {training_config.learning_rate}")
+        print(f"Max epochs: {training_config.max_epochs}")
+        print(f"Device: {training_config.device}")
+        print("-" * 60)
         
-        # Evaluate model
-        test_accuracy, predictions = evaluate_model(model, X_test, y_test)
+        # Train the model
+        training_result = trainer.train(model, data_split)
         
-        # Log results
-        logger.info("Training completed!")
-        logger.info(f"Converged: {training_history.get('converged', False)}")
-        logger.info(f"Training epochs: {len(training_history['epochs'])}")
-        logger.info(f"Final training accuracy: {training_history['accuracy'][-1]:.4f}")
-        logger.info(f"Test accuracy: {test_accuracy:.4f}")
+        # Print results
+        print("\n" + "=" * 60)
+        print("TRAINING COMPLETED")
+        print("=" * 60)
+        print(f"Experiment: {args.experiment}")
+        print(f"Model: {MODEL_NAME}")
+        print(f"Dataset: {dataset_config['dataset_name']}")
+        print("-" * 60)
+        print(f"Epochs trained: {training_result.epochs_trained}")
+        print(f"Training time: {training_result.total_training_time:.2f} seconds")
+        print(f"Converged: {'✓' if training_result.converged else '✗'}")
+        print(f"Final train accuracy: {training_result.final_train_accuracy:.4f}")
         
-        # Save results
-        save_results(config, model, training_history, test_accuracy)
+        if training_result.final_val_accuracy is not None:
+            print(f"Final validation accuracy: {training_result.final_val_accuracy:.4f}")
         
-        # Save model checkpoint
-        if config.get('save_model', True):
-            model_path = Path(config['model_dir']) / f"{config['experiment']}_model.pth"
-            model.save_model(str(model_path))
+        if training_result.final_test_accuracy is not None:
+            print(f"Final test accuracy: {training_result.final_test_accuracy:.4f}")
         
-        # Print summary
-        print("\n" + "="*60)
-        print(f"EXPERIMENT: {config['experiment']}")
-        print("="*60)
-        print(f"Dataset: {config['dataset']}")
-        print(f"Samples: {X.shape[0]} ({X_train.shape[0]} train, {X_test.shape[0]} test)")
-        print(f"Features: {X.shape[1]}")
-        print(f"Learning Rate: {config['learning_rate']}")
-        print(f"Max Epochs: {config['max_epochs']}")
-        print(f"Activation: {config.get('activation', 'step')}")
-        print("-"*60)
-        print(f"Training Epochs: {len(training_history['epochs'])}")
-        print(f"Converged: {'✓' if training_history.get('converged', False) else '✗'}")
-        print(f"Final Training Accuracy: {training_history['accuracy'][-1]:.4f}")
-        print(f"Test Accuracy: {test_accuracy:.4f}")
-        print("="*60)
+        # Performance vs expectation
+        expected_acc = dataset_config['expected_accuracy']
+        actual_acc = training_result.final_train_accuracy
         
+        if actual_acc >= expected_acc * 0.9:
+            performance = "✓ MEETS EXPECTATIONS"
+        elif actual_acc >= expected_acc * 0.7:
+            performance = "~ BELOW EXPECTATIONS"
+        else:
+            performance = "✗ POOR PERFORMANCE"
+        
+        print(f"Expected accuracy: {expected_acc:.3f}")
+        print(f"Performance: {performance}")
+        print("=" * 60)
+        
+        # Save additional information
+        if training_result.best_model_path:
+            logger.info(f"Best model saved: {training_result.best_model_path}")
+        if training_result.final_model_path:
+            logger.info(f"Final model saved: {training_result.final_model_path}")
+        
+        # Generate visualizations if requested
         if args.visualize:
-            logger.info("Visualization requested but not implemented yet")
+            logger.info("Generating visualizations...")
+            try:
+                from plotting import generate_training_plots
+                plots_dir = Path(training_config.output_dir) / "visualizations"
+                plots_dir.mkdir(exist_ok=True)
+                
+                # Generate training plots
+                plot_path = plots_dir / f"{args.experiment}_training.png"
+                generate_training_plots(training_result, str(plot_path))
+                logger.info(f"Training plots saved: {plot_path}")
+                
+                # Generate decision boundary if 2D data
+                if model_config['input_size'] == 2:
+                    from plotting import plot_decision_boundary
+                    boundary_path = plots_dir / f"{args.experiment}_decision_boundary.png"
+                    plot_decision_boundary(model, data_split.x_train, data_split.y_train, str(boundary_path))
+                    logger.info(f"Decision boundary plot saved: {boundary_path}")
+                    
+            except ImportError:
+                logger.warning("Plotting functions not available")
+            except Exception as e:
+                logger.error(f"Error generating visualizations: {e}")
+        
+        # Educational summary
+        print(f"\nEducational Summary:")
+        print(f"Description: {dataset_config['description']}")
+        
+        if args.experiment in ['iris_binary', 'linear_separable', 'debug_small', 'debug_linear']:
+            print("✓ This experiment demonstrates Perceptron strengths on linearly separable data")
+        elif args.experiment in ['xor_problem', 'circles_dataset', 'mnist_subset']:
+            print("⚠ This experiment exposes Perceptron limitations on non-linearly separable data")
+            print("💡 These limitations motivated the development of multi-layer perceptrons (MLPs)")
         
         return 0
         
+    except KeyboardInterrupt:
+        logger.info("Training interrupted by user")
+        return 1
     except Exception as e:
         logger.error(f"Training failed: {e}")
-        import traceback
-        logger.debug(traceback.format_exc())
+        if args.debug:
+            import traceback
+            logger.debug(traceback.format_exc())
         return 1
 
 

@@ -11,11 +11,11 @@ Key components:
 - Dataset factory for easy dataset creation
 """
 
-# from .datasets import (
-#     load_dataset,
-#     get_dataset_info,
-#     list_available_datasets
-# )
+from .datasets import (
+    load_dataset,
+    get_dataset_info,
+    list_available_datasets
+)
 # from .loaders import (
 #     create_data_loaders,
 #     create_train_val_test_loaders
@@ -35,10 +35,10 @@ from .synthetic import (
 
 __version__ = "1.0.0"
 __all__ = [
-    # # Main dataset loading
-    # "load_dataset",
-    # "get_dataset_info", 
-    # "list_available_datasets",
+    # Main dataset loading
+    "load_dataset",
+    "get_dataset_info", 
+    "list_available_datasets",
     # # Data loaders
     # "create_data_loaders",
     # "create_train_val_test_loaders",

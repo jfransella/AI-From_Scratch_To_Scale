@@ -72,8 +72,7 @@
             "ms-python.flake8",
             "ms-python.black-formatter",
             "ms-python.isort",
-            "ms-toolsai.jupyter",
-            "eamodio.gitlens"
+            "ms-toolsai.jupyter"
         ]
     },
     "launch": {

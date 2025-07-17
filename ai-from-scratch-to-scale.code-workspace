@@ -33,6 +33,10 @@
             "path": "./models/01_perceptron"
         },
         {
+            "name": "02️⃣ MLP",
+            "path": "./models/02_MLP"
+        },
+        {
             "name": "📚 Documentation",
             "path": "./docs"
         }

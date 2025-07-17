@@ -32,6 +32,7 @@
 ## **Template Usage**
 
 When starting a new model, always copy the latest templates from [docs/templates/](templates/):
+
 - `model.py`, `train.py`, `config.py`, `constants.py`, `requirements.txt`
 - Follow the [Development Checklist](Development_Checklist.md) for the correct order and customization steps.
 - Templates ensure consistency and reduce errors—do not start from scratch or copy from other models unless updating for improvements.
@@ -72,13 +73,14 @@ When starting a new model, always copy the latest templates from [docs/templates
 **Approach**: Separate shared infrastructure from model-specific code, progress from NumPy implementations to framework-based solutions.
 
 > **See Also:**
+>
 > - [Project Charter](strategy/Project_Charter.md) — Vision, roadmap, and guiding principles
 
 ---
 
 ## **📁 Project Structure**
 
-```
+```text
 ai-from-scratch-to-scale\
 ├── data_utils\          # SHARED: Dataset loading & transformations
 ├── engine\              # SHARED: Training/evaluation engine with wandb
@@ -102,6 +104,7 @@ ai-from-scratch-to-scale\
 ```
 
 > **For more details:**
+>
 > - [Codebase Architecture](technical/Codebase_Architecture.md) — Directory structure, shared infrastructure
 > - [Coding Standards](technical/Coding_Standards.md) — Naming, style, and documentation
 > - [Quick Reference](Quick_Reference.md) — Directory and command patterns
@@ -113,6 +116,7 @@ ai-from-scratch-to-scale\
 ### **Setting Up a New Model**
 
 1. **Create Directory Structure**:
+
    ```powershell
    New-Item -ItemType Directory -Force -Path "models\XX_modelname\src"
    New-Item -ItemType Directory -Force -Path "models\XX_modelname\notebooks"
@@ -122,6 +126,7 @@ ai-from-scratch-to-scale\
    ```
 
 2. **Create Virtual Environment**:
+
    ```powershell
    Set-Location models\XX_modelname
    python -m venv .venv
@@ -129,6 +134,7 @@ ai-from-scratch-to-scale\
    ```
 
 3. **Install Dependencies**:
+
    ```powershell
    pip install -r requirements.txt
    pip install -r ..\..\requirements-dev.txt  # For development
@@ -153,6 +159,7 @@ flake8 src\
 ```
 
 > **For more details:**
+>
 > - [Development Checklist](Development_Checklist.md) — Step-by-step for new models
 > - [Quick Reference](Quick_Reference.md) — Command patterns
 > - [CI/CD Guide](CI_CD_Guide.md) — Automation and deployment
@@ -163,6 +170,7 @@ flake8 src\
 ## **📝 Coding Standards**
 
 ### **Style Guidelines**
+
 - **PEP 8** compliance with **black** formatting (88 character line length)
 - **snake_case** for variables and functions
 - **PascalCase** for classes
@@ -171,12 +179,14 @@ flake8 src\
 ### **File Structure Requirements**
 
 **model.py**:
+
 - Define model class inheriting from appropriate base (torch.nn.Module for frameworks)
 - Include proper docstrings describing the model's purpose
 - Keep architecture definition clean and well-commented
 - Follow naming conventions for layers and methods
 
 **train.py**:
+
 - Standard argument parsing with required `--experiment` parameter
 - Import and use shared `engine.Trainer` class for training logic
 - Load configuration from `config.py` based on experiment name
@@ -184,17 +194,20 @@ flake8 src\
 - Include proper error handling and logging
 
 **evaluate.py**:
+
 - Load pre-trained model from checkpoint
 - Use shared `engine.Evaluator` for evaluation logic
 - Support both local and wandb checkpoint loading
 - Generate evaluation metrics and visualizations
 
 ### **Documentation Requirements**
+
 - **Google-style docstrings** for all functions and classes
 - **README.md** for each model with setup instructions and key findings
 - **Inline comments** explaining complex logic (the "why", not the "what")
 
 > **For more details:**
+>
 > - [Coding Standards](technical/Coding_Standards.md)
 > - [Codebase Architecture](technical/Codebase_Architecture.md)
 
@@ -203,6 +216,7 @@ flake8 src\
 ## **🗂️ Configuration Management**
 
 ### **config.py Approach**
+
 - **Single function**: `get_config(experiment_name: str) -> dict`
 - **Base configuration**: Default values for learning_rate, batch_size, epochs, seed, device
 - **Experiment-specific overrides**: Each experiment can override base values
@@ -210,18 +224,21 @@ flake8 src\
 - **Return dictionary**: Consistent structure across all models
 
 ### **constants.py Purpose**
+
 - **Model-specific fixed values**: Architecture parameters that don't change
 - **File path constants**: Standardized directory paths for outputs (use Windows path separators)
 - **Model metadata**: Name, version, historical context
 - **Avoid hardcoding**: Keep all magic numbers and paths in one place
 
 ### **Configuration Principles**
+
 - **No hardcoded values** in training or model scripts
 - **Centralized management** through config.py
 - **Easy experimentation** by adding new experiment configurations
 - **Historical accuracy** - use parameters close to original implementations where possible
 
 > **For more details:**
+>
 > - [Templates: config.py, constants.py](templates/)
 > - [Quick Reference](Quick_Reference.md)
 
@@ -230,23 +247,27 @@ flake8 src\
 ## **📊 Dataset Strategy**
 
 ### **Two-Phase Approach**
+
 - **Strength Datasets**: Demonstrate where the model excels and validates the core innovation
 - **Weakness Datasets**: Expose limitations that motivate the next model in the sequence
 - **Educational Value**: Each dataset choice should teach something specific about the model
 
 ### **Dataset Loading Principles**
+
 - **Shared data_utils**: Use centralized loading functions for consistency
 - **Experiment-driven**: Dataset selection controlled by experiment name in config
 - **Progressive Complexity**: Start simple (synthetic), move to real-world, then complex
 - **Historical Context**: Use datasets appropriate to the model's historical period when possible
 
 ### **Standard Patterns**
+
 - **Synthetic Data**: Generated datasets for controlled experiments (XOR, circles, etc.)
 - **Classic Datasets**: Iris, MNIST for historical accuracy and comparison
 - **Modern Datasets**: CIFAR-10, ImageNet subsets for complex models
 - **Task-Specific**: Segmentation masks, text corpora based on model purpose
 
 > **For more details:**
+>
 > - [Dataset Strategy](strategy/Dataset_Strategy.md)
 
 ---
@@ -254,23 +275,27 @@ flake8 src\
 ## **🧪 Testing Strategy**
 
 ### **Test Categories**
+
 1. **Unit Tests**: Test individual functions and model components in isolation
 2. **Integration Tests**: Verify shared components work together correctly
 3. **Smoke Tests**: End-to-end training pipeline validation (single epoch)
 
 ### **Testing Approach**
+
 - **Shared Infrastructure**: Focus testing on `engine\`, `data_utils\`, `plotting\`, `utils\`
 - **Model-Specific**: Test model initialization, forward pass, and basic training
 - **Data Loading**: Verify dataset loading functions work correctly
 - **Visualization**: Test plot generation without requiring human validation
 
 ### **Test Organization**
+
 - **Centralized Tests**: All tests in `tests\` directory at project root
 - **Naming Convention**: `test_[component]_[functionality].py`
 - **Pytest Framework**: Use pytest for all testing with appropriate fixtures
 - **CI Integration**: Tests run automatically on pull requests
 
 > **For more details:**
+>
 > - [Testing Strategy](strategy/Testing_Strategy.md)
 > - [Development Checklist](Development_Checklist.md)
 > - [Validation System](validation/README.md)
@@ -280,23 +305,27 @@ flake8 src\
 ## **📈 Visualization & Logging**
 
 ### **Dual Logging System**
+
 - **Python logging**: Human-readable narrative for console and log files
 - **Weights & Biases (wandb)**: Structured metrics database for analysis
 - **Shared utils**: Use centralized logging setup for consistency
 
 ### **Logging Principles**
+
 - **Structured Information**: Log key metrics, epoch progress, and important events
 - **Appropriate Levels**: Use INFO for progress, DEBUG for detailed information
 - **Consistent Format**: Standardized logging patterns across all models
 - **Historical Narrative**: Logs should tell the story of the training process
 
 ### **Visualization Strategy**
+
 - **Flag-Activated**: Use `--visualize` flag to generate plots (not automatic)
 - **Separation of Concerns**: Generate plots separate from training logic
 - **Standard Locations**: Save to `outputs\visualizations\` directory
 - **Educational Focus**: Visualizations should support learning objectives
 
 > **For more details:**
+>
 > - [Codebase Architecture](technical/Codebase_Architecture.md)
 > - [Notebook Strategy](strategy/Notebook_Strategy.md)
 
@@ -305,6 +334,7 @@ flake8 src\
 ## **🔄 Development Patterns**
 
 ### **Training Architecture**
+
 - **Use Shared Engine**: Delegate training logic to `engine.Trainer` class
 - **Standard Training Loop**: Train phase → Validation phase → Logging → Repeat
 - **Proper Mode Setting**: Use `model.train()` and `model.eval()` appropriately
@@ -312,6 +342,7 @@ flake8 src\
 - **Progress Tracking**: Log metrics each epoch, save checkpoints, handle early stopping
 
 ### **Evaluation Architecture**
+
 - **Use Shared Engine**: Delegate evaluation logic to `engine.Evaluator` class
 - **No Gradient Computation**: Wrap evaluation in `torch.no_grad()` context
 - **Comprehensive Metrics**: Compute accuracy, loss, and task-specific metrics
@@ -319,6 +350,7 @@ flake8 src\
 - **Visualization Integration**: Generate plots when `--visualize` flag is used
 
 ### **Error Handling Patterns**
+
 - **Graceful Degradation**: Handle missing datasets, checkpoints, or configuration gracefully
 - **Informative Messages**: Provide clear error messages that help debug issues
 - **Validation**: Validate inputs, configurations, and model outputs
@@ -329,6 +361,7 @@ flake8 src\
 ## **🚀 Quick Commands Reference**
 
 ### **Creating a New Model**
+
 ```powershell
 # 1. Set up directory structure
 New-Item -ItemType Directory -Force -Path "models\XX_modelname\src"
@@ -352,6 +385,7 @@ pip install -e ..\..  # Shared packages
 ```
 
 ### **Standard Run Commands**
+
 ```powershell
 # Basic training
 python src\train.py --experiment iris-hard
@@ -374,6 +408,7 @@ flake8 src\
 ```
 
 > **For more details:**
+>
 > - [Quick Reference](Quick_Reference.md)
 > - [Development Checklist](Development_Checklist.md)
 
@@ -382,11 +417,13 @@ flake8 src\
 ## **🎯 Model Implementation Checklist**
 
 ### **Before Starting**
+
 - [ ] Review historical context and original paper
 - [ ] Identify strength and weakness datasets
 - [ ] Plan experiment configurations
 
 ### **Implementation Phase**
+
 - [ ] Create directory structure
 - [ ] Implement `constants.py` with fixed values
 - [ ] Implement `config.py` with experiment configurations
@@ -397,6 +434,7 @@ flake8 src\
 - [ ] Create model-specific `README.md`
 
 ### **Validation Phase**
+
 - [ ] Test on strength datasets (should succeed)
 - [ ] Test on weakness datasets (should fail/struggle)
 - [ ] Generate visualizations with `--visualize`
@@ -405,6 +443,7 @@ flake8 src\
 - [ ] Check code with flake8
 
 ### **Documentation Phase**
+
 - [ ] Create analysis notebooks
 - [ ] Document key findings and limitations
 - [ ] Link to next model motivation
@@ -427,7 +466,8 @@ flake8 src\
 
 #### **Example: Implementing a New MLP Model**
 
-**Step 1: Research and Planning (30 minutes)**
+##### **Step 1: Research and Planning (30 minutes)**
+
 ```powershell
 # Create project directory
 New-Item -ItemType Directory -Force -Path "models\03_mlp\src"
@@ -444,7 +484,8 @@ Set-Location models\03_mlp
 # - Identify weakness datasets (CIFAR-10)
 ```
 
-**Step 2: Environment Setup (15 minutes)**
+##### **Step 2: Environment Setup (15 minutes)**
+
 ```powershell
 # Create virtual environment
 python -m venv .venv
@@ -473,7 +514,8 @@ pip install -e ..\..
 python -c "from data_utils import load_dataset; print('Shared packages OK')"
 ```
 
-**Step 3: Implement Constants (10 minutes)**
+##### **Step 3: Implement Constants (10 minutes)**
+
 ```python
 # src/constants.py
 """
@@ -516,7 +558,8 @@ MIN_EPOCHS = 1
 MAX_EPOCHS = 1000
 ```
 
-**Step 4: Configure Experiments (20 minutes)**
+##### **Step 4: Configure Experiments (20 minutes)**
+
 ```python
 # src/config.py - Use template and customize
 from templates.config import create_config
@@ -542,7 +585,8 @@ if __name__ == "__main__":
     print(f"Config loaded: {config.experiment}")
 ```
 
-**Step 5: Implement Model Architecture (45 minutes)**
+##### **Step 5: Implement Model Architecture (45 minutes)**
+
 ```python
 # src/model.py
 """
@@ -627,7 +671,8 @@ if __name__ == "__main__":
     print(f"Parameters: {sum(p.numel() for p in model.parameters())}")
 ```
 
-**Step 6: Implement Training Script (30 minutes)**
+##### **Step 6: Implement Training Script (30 minutes)**
+
 ```python
 # src/train.py
 """
@@ -729,7 +774,8 @@ if __name__ == "__main__":
     main()
 ```
 
-**Step 7: Test Basic Functionality (15 minutes)**
+##### **Step 7: Test Basic Functionality (15 minutes)**
+
 ```powershell
 # Test configuration
 python src\train.py --experiment debug_small --epochs 2 --debug
@@ -744,7 +790,8 @@ python src\train.py --experiment cifar10 --epochs 10 --visualize
 # Should show limitations with complex image data
 ```
 
-**Step 8: Implement Evaluation Script (20 minutes)**
+##### **Step 8: Implement Evaluation Script (20 minutes)**
+
 ```python
 # src/evaluate.py
 """
@@ -811,7 +858,8 @@ if __name__ == "__main__":
     main()
 ```
 
-**Step 9: Testing and Validation (30 minutes)**
+##### **Step 9: Testing and Validation (30 minutes)**
+
 ```powershell
 # Run automated tests
 pytest ..\..\tests\unit\test_mlp.py -v
@@ -833,7 +881,8 @@ python -c "from src.config import get_config; print('Config imports OK')"
 python -c "from src.train import main; print('Training imports OK')"
 ```
 
-**Step 10: Create Documentation (25 minutes)**
+##### **Step 10: Create Documentation (25 minutes)**
+
 ```markdown
 # models/03_mlp/README.md
 
@@ -859,14 +908,15 @@ python src\train.py --experiment cifar10 --epochs 50 --visualize
 ```
 
 ## Results Summary
+
 - **Strengths**: Solves XOR, handles multi-class classification
 - **Weaknesses**: Poor performance on complex image data
 - **Next Model**: CNN to handle spatial data properly
-```
 
 ### **Advanced Command-Line Usage Examples**
 
 #### **Systematic Experimentation Workflow**
+
 ```powershell
 # 1. Quick smoke test
 python src\train.py --experiment debug_small --epochs 1 --debug
@@ -895,6 +945,7 @@ foreach ($exp in $experiments) {
 ```
 
 #### **Development and Debugging Workflow**
+
 ```powershell
 # Development mode with fast iteration
 python src\train.py --experiment debug_small --epochs 5 --debug --visualize
@@ -915,6 +966,7 @@ Get-Content -Path "outputs\logs\training.log" -Wait
 ```
 
 #### **Batch Processing and Automation**
+
 ```powershell
 # Batch training script
 $experiments = @(
@@ -965,6 +1017,7 @@ if (Test-ModelImplementation) {
 ### **Troubleshooting Integration Examples**
 
 #### **Common Issues During Implementation**
+
 ```powershell
 # Issue: Import errors
 python -c "import sys; print('\n'.join(sys.path))"
@@ -986,6 +1039,7 @@ python src\train.py --experiment mnist_multiclass --dropout 0.5 --weight-decay 0
 ```
 
 #### **Performance Debugging Example**
+
 ```powershell
 # Step 1: Baseline performance
 python src\train.py --experiment mnist_multiclass --epochs 10 --debug
@@ -1007,6 +1061,7 @@ nvidia-smi dmon -s pucvmet -d 1
 ### **Integration with Shared Infrastructure**
 
 #### **Using Shared Components Effectively**
+
 ```python
 # Example: Leveraging engine.Trainer with custom callbacks
 from engine import Trainer
@@ -1059,20 +1114,23 @@ train_loader = dataset.get_dataloader(
 ## **🆘 Common Issues & Solutions**
 
 ### **Import Errors**
+
 - Ensure you've run `pip install -e ..\..` from the model directory
 - Check that virtual environment is activated
 - Verify shared packages are in the correct location
 
 ### **Training Failures**
+
 - Check dataset loading with a small batch first
 - Verify model architecture matches expected input/output shapes
 - Ensure proper device placement (CPU vs GPU)
 
 ### **Visualization Issues**
+
 - Make sure `--visualize` flag is included
 - Check that `outputs\visualizations\` directory exists
 - Verify plotting functions are imported correctly
 
 ---
 
-This guide should serve as your primary reference for developing models in this project. For detailed specifications, refer to the individual strategy documents linked above. 
+This guide should serve as your primary reference for developing models in this project. For detailed specifications, refer to the individual strategy documents linked above.

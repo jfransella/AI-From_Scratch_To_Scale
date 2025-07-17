@@ -20,14 +20,14 @@ from utils import setup_logging, set_random_seed, get_logger
 from data_utils import load_dataset
 from engine.trainer import Trainer
 from engine.base import DataSplit
-from config import (
+from .config import (
     get_training_config,
     get_model_config,
     get_dataset_config,
     print_config_summary,
 )
-from model import create_perceptron
-from constants import MODEL_NAME, ALL_EXPERIMENTS
+from .model import create_perceptron
+from .constants import MODEL_NAME, ALL_EXPERIMENTS
 
 # Optional plotting imports (handled gracefully if not installed)
 try:
@@ -96,7 +96,7 @@ def main():
     parser.add_argument(
         "--experiment",
         type=str,
-        required=True,
+        required=False,  # Not required for special actions like --list-experiments
         help=f"Experiment name. Available: {ALL_EXPERIMENTS}",
     )
     parser.add_argument("--epochs", type=int, default=None, help="Override max epochs")
@@ -188,7 +188,12 @@ def main():
             return 1
         return 0
 
-    # Validate experiment
+    # Validate experiment (required for normal training)
+    if not args.experiment:
+        print("Error: --experiment is required for training")
+        print(f"Use --list-experiments to see available options")
+        return 1
+    
     if args.experiment not in ALL_EXPERIMENTS:
         print(f"Error: Unknown experiment '{args.experiment}'")
         print(f"Available experiments: {ALL_EXPERIMENTS}")

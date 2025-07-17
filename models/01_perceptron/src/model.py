@@ -201,7 +201,12 @@ class Perceptron(nn.Module, BaseModel):
                 prob_pos = torch.sigmoid(raw_output)
 
             prob_neg = 1 - prob_pos
-            return torch.stack([prob_neg, prob_pos], dim=1)
+            # Ensure both are at least 1D
+            if prob_pos.dim() == 0:
+                prob_pos = prob_pos.unsqueeze(0)
+                prob_neg = prob_neg.unsqueeze(0)
+            probs = torch.stack([prob_neg, prob_pos], dim=1)
+            return probs
 
     def get_loss(self, outputs: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
         """
@@ -215,13 +220,17 @@ class Perceptron(nn.Module, BaseModel):
             Loss tensor
         """
         # Use BCE loss for binary classification
+        # Ensure outputs are probabilities in [0, 1]
         criterion = nn.BCELoss()
-
-        # Apply sigmoid to outputs if needed (step activation outputs raw values)
-        if self.activation == "step":
-            # Convert step function outputs to probabilities for loss computation
+        if self.activation == "step" or self.activation == "tanh":
+            # Convert outputs to probabilities for loss computation
             outputs = torch.sigmoid(outputs)
-
+        elif self.activation == "sigmoid":
+            # Already in [0, 1]
+            pass
+        else:
+            # Default: apply sigmoid
+            outputs = torch.sigmoid(outputs)
         return criterion(outputs.squeeze(), targets.float())
 
     def get_model_info(self) -> Dict[str, Any]:

@@ -1,34 +1,29 @@
 """
-Perceptron model implementation using unified BaseModel interface.
+Perceptron Model Implementation.
 
-Implements the classic Perceptron algorithm by Frank Rosenblatt (1957),
-the first artificial neural network capable of learning. This implementation
-uses the shared infrastructure from the AI From Scratch to Scale project.
+This module implements the classic Rosenblatt Perceptron (1957) using the unified
+model infrastructure. The Perceptron is a foundational neural network that can
+learn linear decision boundaries through iterative weight updates.
 """
 
-
-from typing import Dict, Any, Optional
-from pathlib import Path
 import sys
+import numpy as np
 import torch
 import torch.nn as nn
+from pathlib import Path
+from typing import Dict, Any, Optional, Tuple, Union
+import json
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(project_root))
-
+# Import shared packages
 from utils import get_logger, set_random_seed
 from engine.base import BaseModel
-from constants import (
+
+# Import model-specific components  
+from .constants import (
     MODEL_NAME,
     MODEL_VERSION,
     YEAR_INTRODUCED,
     AUTHORS,
-    DEFAULT_LEARNING_RATE,
-    DEFAULT_MAX_EPOCHS,
-    DEFAULT_TOLERANCE,
-    DEFAULT_ACTIVATION,
-    DEFAULT_INIT_METHOD,
 )
 
 
@@ -65,11 +60,11 @@ class Perceptron(nn.Module, BaseModel):
     def __init__(
         self,
         input_size: int,
-        learning_rate: float = DEFAULT_LEARNING_RATE,
-        max_epochs: int = DEFAULT_MAX_EPOCHS,
-        tolerance: float = DEFAULT_TOLERANCE,
-        activation: str = DEFAULT_ACTIVATION,
-        init_method: str = DEFAULT_INIT_METHOD,
+        learning_rate: float = 0.1,  # Changed from DEFAULT_LEARNING_RATE
+        max_epochs: int = 100,  # Changed from DEFAULT_MAX_EPOCHS
+        tolerance: float = 0.01,  # Changed from DEFAULT_TOLERANCE
+        activation: str = "step",  # Changed from DEFAULT_ACTIVATION
+        init_method: str = "zeros", # Changed from DEFAULT_INIT_METHOD
         random_state: Optional[int] = None,
     ):
         super().__init__()
@@ -249,7 +244,7 @@ class Perceptron(nn.Module, BaseModel):
             "model_name": MODEL_NAME,
             "model_version": MODEL_VERSION,
             "year_introduced": YEAR_INTRODUCED,
-            "original_author": AUTHORS[0],
+            "original_author": AUTHORS[0] if AUTHORS else "Frank Rosenblatt",
             # Architecture
             "input_size": self.input_size,
             "output_size": 1,
@@ -419,10 +414,10 @@ def create_perceptron(config: Dict[str, Any]) -> Perceptron:
     """
     return Perceptron(
         input_size=config.get("input_size", 2),
-        learning_rate=config.get("learning_rate", DEFAULT_LEARNING_RATE),
-        max_epochs=config.get("max_epochs", DEFAULT_MAX_EPOCHS),
-        tolerance=config.get("tolerance", DEFAULT_TOLERANCE),
-        activation=config.get("activation", DEFAULT_ACTIVATION),
-        init_method=config.get("init_method", DEFAULT_INIT_METHOD),
+        learning_rate=config.get("learning_rate", 0.1), # Changed from DEFAULT_LEARNING_RATE
+        max_epochs=config.get("max_epochs", 100), # Changed from DEFAULT_MAX_EPOCHS
+        tolerance=config.get("tolerance", 0.01), # Changed from DEFAULT_TOLERANCE
+        activation=config.get("activation", "step"), # Changed from DEFAULT_ACTIVATION
+        init_method=config.get("init_method", "zeros"), # Changed from DEFAULT_INIT_METHOD
         random_state=config.get("random_state", None),
     )

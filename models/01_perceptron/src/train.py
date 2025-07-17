@@ -12,14 +12,13 @@ import argparse
 import torch
 from pathlib import Path
 
-# Add project root to path for imports (must be first)
-project_root = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(project_root))
-
+# Import shared packages
 from utils import setup_logging, set_random_seed, get_logger
 from data_utils import load_dataset
 from engine.trainer import Trainer
 from engine.base import DataSplit
+
+# Import model-specific components
 from .config import (
     get_training_config,
     get_model_config,

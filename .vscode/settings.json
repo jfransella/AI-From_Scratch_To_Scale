@@ -1,14 +1,27 @@
 {
-    // Python Configuration - Model-specific environments for dependency isolation
-    // Default to Foundation models, but manually select interpreter per model
-    "python.defaultInterpreterPath": "./models/01_perceptron/.venv",
+    // Python Configuration - Using perceptron virtual environment for project isolation
+    // All shared packages (utils, data_utils, engine, plotting) installed via 'pip install -e ..'
+    "python.defaultInterpreterPath": "./models/01_perceptron/.venv/Scripts/python.exe",
     "python.terminal.activateEnvironment": true,
-    // Linting Configuration
+    // Python Path Configuration for Language Server
+    "python.analysis.extraPaths": [
+        ".",
+        "./data_utils",
+        "./engine",
+        "./plotting",
+        "./utils",
+        "./models/01_perceptron/src",
+        "./models/02_MLP/src"
+    ],
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.autoSearchPaths": true,
+    // Linting Configuration - Multiple linters for comprehensive code quality
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": true,
     "python.linting.pylintEnabled": true,
     "python.linting.banditEnabled": false,
     "python.linting.mypyEnabled": true,
+    "python.languageServer": "Pylance",
     // Flake8 specific settings
     "python.linting.flake8Args": [
         "--config=.flake8"
@@ -72,13 +85,6 @@
         "PYTHONPATH": "${workspaceFolder}"
     },
     // IntelliSense Configuration
-    "python.analysis.extraPaths": [
-        "./data_utils",
-        "./engine",
-        "./plotting",
-        "./utils"
-    ],
-    "python.analysis.autoSearchPaths": true,
     "python.analysis.diagnosticMode": "workspace",
     // Testing Configuration
     "python.testing.pytestEnabled": true,
@@ -99,7 +105,6 @@
     "git.ignoreLimitWarning": true,
     // Pylance/Pyright Configuration
     "python.analysis.typeCheckingMode": "basic",
-    "python.analysis.autoImportCompletions": true,
     "python.analysis.completeFunctionParens": true,
     "python.analysis.indexing": true,
     "python.analysis.packageIndexDepths": [
@@ -158,35 +163,6 @@
     "jupyter.interactiveWindow.textEditor.executeSelection": true,
     "jupyter.interactiveWindow.textEditor.magicCommandsAsComments": true,
     "jupyter.interactiveWindow.codeLens.enable": true,
-    "cursorpyright.analysis.autoImportCompletions": true,
-    "cursorpyright.analysis.autoSearchPaths": true,
-    "cursorpyright.analysis.diagnosticMode": "workspace",
-    "cursorpyright.analysis.exclude": [
-        "docs/templates/**",
-        "docs/examples/**",
-        "docs/validation/**",
-        ".vscode/**",
-        "**/.venv/**",
-        "**/venv/**",
-        "**/__pycache__/**",
-        "**/.git/**",
-        "**/.pytest_cache/**",
-        "**/build/**",
-        "**/dist/**",
-        "**/*.egg-info/**",
-        "**/.coverage",
-        "**/.mypy_cache/**"
-    ],
-    "cursorpyright.analysis.extraPaths": [
-        "./data_utils",
-        "./engine",
-        "./plotting",
-        "./utils"
-    ],
-    "cursorpyright.analysis.inlayHints.functionReturnTypes": true,
-    "cursorpyright.analysis.inlayHints.variableTypes": true,
-    "cursorpyright.analysis.stubPath": "./typings",
-    "cursorpyright.analysis.typeCheckingMode": "basic",
     // PowerShell Execution Policy Settings
     "terminal.integrated.shellArgs.windows": [
         "-ExecutionPolicy",

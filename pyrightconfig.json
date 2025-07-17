@@ -1,0 +1,53 @@
+{
+    "include": [
+        "."
+    ],
+    "exclude": [
+        "**/node_modules",
+        "**/__pycache__",
+        ".git",
+        ".venv",
+        "venv",
+        ".mypy_cache",
+        ".pytest_cache"
+    ],
+    "extraPaths": [
+        ".",
+        "models/01_perceptron/src",
+        "models/02_MLP/src"
+    ],
+    "pythonVersion": "3.13",
+    "pythonPlatform": "Windows",
+    "executionEnvironments": [
+        {
+            "root": ".",
+            "pythonVersion": "3.13",
+            "extraPaths": [
+                ".",
+                "utils",
+                "data_utils",
+                "engine",
+                "plotting"
+            ]
+        },
+        {
+            "root": "models/01_perceptron",
+            "pythonVersion": "3.13",
+            "extraPaths": [
+                ".",
+                "src",
+                "../../utils",
+                "../../data_utils",
+                "../../engine",
+                "../../plotting"
+            ]
+        }
+    ],
+    "typeCheckingMode": "basic",
+    "reportMissingImports": "warning",
+    "reportMissingTypeStubs": false,
+    "reportGeneralTypeIssues": "warning",
+    "reportOptionalMemberAccess": "warning",
+    "reportOptionalCall": "warning",
+    "reportOptionalIterable": "warning"
+}

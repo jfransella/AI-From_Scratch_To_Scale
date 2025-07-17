@@ -8,16 +8,16 @@ visualization generation, and detailed analysis.
 
 import sys
 import argparse
-import torch
 from pathlib import Path
+import torch
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(project_root))
 
+# Import shared packages  
 from utils import setup_logging, get_logger
 from data_utils import load_dataset
 from engine.evaluator import Evaluator
+
+# Import model-specific components
 from .config import get_evaluation_config, get_dataset_config, get_model_config
 from .model import Perceptron
 from .constants import MODEL_NAME, ALL_EXPERIMENTS
@@ -104,29 +104,24 @@ def prepare_evaluation_data(dataset_config: dict, split: str = "test") -> tuple:
         return X_eval, y_eval
 
 
-def print_evaluation_summary(results, dataset_config: dict, experiment_name: str):
-    """
-    Print a comprehensive evaluation summary.
-
-    Args:
-        results: EvaluationResult object
-        dataset_config: Dataset configuration
-        experiment_name: Name of the experiment
-    """
+def print_dataset_info(dataset_config: dict, experiment_name: str, num_samples: int):
+    """Print dataset information section."""
     print(f"\n{'='*70}")
     print(f"EVALUATION SUMMARY: {experiment_name}")
     print(f"{'='*70}")
 
-    # Dataset information
     print(f"Model: {MODEL_NAME}")
     print(f"Dataset: {dataset_config['dataset_name']}")
     print(f"Description: {dataset_config['description']}")
     print(f"Difficulty: {dataset_config['difficulty']}")
     print(f"Expected Accuracy: {dataset_config['expected_accuracy']:.3f}")
-    print(f"Samples Evaluated: {results.num_samples}")
+    print(f"Samples Evaluated: {num_samples}")
 
+
+def print_metrics_section(results):
+    """Print performance metrics section."""
     print(f"\n{'-'*70}")
-    print(f"PERFORMANCE METRICS")
+    print("PERFORMANCE METRICS")
     print(f"{'-'*70}")
 
     # Core metrics
@@ -140,12 +135,14 @@ def print_evaluation_summary(results, dataset_config: dict, experiment_name: str
     if results.f1_score is not None:
         print(f"F1-Score: {results.f1_score:.4f}")
 
-    # Performance vs expectation
+
+def print_performance_analysis(results, dataset_config: dict):
+    """Print performance analysis section."""
     expected_acc = dataset_config["expected_accuracy"]
     actual_acc = results.accuracy
 
     print(f"\n{'-'*70}")
-    print(f"PERFORMANCE ANALYSIS")
+    print("PERFORMANCE ANALYSIS")
     print(f"{'-'*70}")
 
     if actual_acc >= expected_acc * 0.95:
@@ -162,9 +159,13 @@ def print_evaluation_summary(results, dataset_config: dict, experiment_name: str
     print(f"Performance: {performance}")
     print(f"Accuracy Gap: {actual_acc - expected_acc:+.3f}")
 
-    # Educational context
+
+def print_educational_insights(experiment_name: str, results):
+    """Print educational insights section."""
+    actual_acc = results.accuracy
+    
     print(f"\n{'-'*70}")
-    print(f"EDUCATIONAL INSIGHTS")
+    print("EDUCATIONAL INSIGHTS")
     print(f"{'-'*70}")
 
     if experiment_name in [
@@ -191,10 +192,12 @@ def print_evaluation_summary(results, dataset_config: dict, experiment_name: str
             print("🤔 Unexpectedly good performance on non-linearly separable data")
             print("💡 The dataset might be more separable than expected")
 
-    # Confusion matrix if available
+
+def print_confusion_matrix(results):
+    """Print confusion matrix section if available."""
     if results.confusion_matrix is not None:
         print(f"\n{'-'*70}")
-        print(f"CONFUSION MATRIX")
+        print("CONFUSION MATRIX")
         print(f"{'-'*70}")
         cm = results.confusion_matrix
         if len(cm) == 2:  # Binary classification
@@ -204,6 +207,21 @@ def print_evaluation_summary(results, dataset_config: dict, experiment_name: str
             for i, row in enumerate(cm):
                 print(f"Class {i}: {row}")
 
+
+def print_evaluation_summary(results, dataset_config: dict, experiment_name: str):
+    """
+    Print a comprehensive evaluation summary.
+
+    Args:
+        results: EvaluationResult object
+        dataset_config: Dataset configuration
+        experiment_name: Name of the experiment
+    """
+    print_dataset_info(dataset_config, experiment_name, results.num_samples)
+    print_metrics_section(results)
+    print_performance_analysis(results, dataset_config)
+    print_educational_insights(experiment_name, results)
+    print_confusion_matrix(results)
     print(f"{'='*70}\n")
 
 
@@ -234,8 +252,8 @@ def save_evaluation_results(results, output_path: str, experiment_name: str):
     logger.info(f"Evaluation results saved to {output_file}")
 
 
-def main():
-    """Main evaluation function."""
+def parse_arguments():
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Evaluate Perceptron model")
     parser.add_argument(
         "--checkpoint", type=str, required=True, help="Path to model checkpoint file"
@@ -268,16 +286,101 @@ def main():
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
 
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    # Validate arguments
+
+def validate_arguments(args):
+    """Validate command line arguments."""
     if args.experiment not in ALL_EXPERIMENTS:
         print(f"Error: Unknown experiment '{args.experiment}'")
         print(f"Available experiments: {ALL_EXPERIMENTS}")
-        return 1
+        return False
 
     if not Path(args.checkpoint).exists():
         print(f"Error: Checkpoint file not found: {args.checkpoint}")
+        return False
+    
+    return True
+
+
+def generate_visualizations(args, results, model, X_eval, y_eval, model_config):
+    """Generate evaluation visualizations."""
+    logger = get_logger(__name__)
+    logger.info("Generating evaluation visualizations...")
+    
+    try:
+        from plotting import plot_confusion_matrix, plot_decision_boundary
+
+        plots_dir = Path("outputs/visualizations")
+        plots_dir.mkdir(exist_ok=True)
+
+        # Plot confusion matrix if available
+        if results.confusion_matrix is not None:
+            cm_path = (
+                plots_dir
+                / f"{args.experiment}_{args.split}_confusion_matrix.png"
+            )
+            plot_confusion_matrix(results.confusion_matrix, str(cm_path))
+            logger.info(f"Confusion matrix plot saved: {cm_path}")
+
+        # Plot decision boundary for 2D data
+        if model_config["input_size"] == 2:
+            boundary_path = (
+                plots_dir
+                / f"{args.experiment}_{args.split}_decision_boundary.png"
+            )
+            plot_decision_boundary(model, X_eval, y_eval, str(boundary_path))
+            logger.info(f"Decision boundary plot saved: {boundary_path}")
+
+        # Plot prediction distribution
+        if hasattr(results, "predictions") and results.predictions is not None:
+            pred_path = (
+                plots_dir / f"{args.experiment}_{args.split}_predictions.png"
+            )
+            # Additional plotting logic here
+            logger.info(f"Prediction plots would be saved to: {pred_path}")
+
+    except ImportError:
+        logger.warning("Plotting functions not available")
+    except Exception as e:
+        logger.error(f"Error generating visualizations: {e}")
+
+
+def save_predictions(args, results):
+    """Save model predictions to file."""
+    if not (args.save_predictions and hasattr(results, "predictions")):
+        return
+        
+    pred_file = (
+        f"outputs/predictions/{args.experiment}_{args.split}_predictions.json"
+    )
+    pred_data = {
+        "experiment": args.experiment,
+        "split": args.split,
+        "predictions": results.predictions,
+        "ground_truth": results.ground_truth,
+        "probabilities": (
+            results.probabilities if hasattr(results, "probabilities") else None
+        ),
+    }
+
+    pred_path = Path(pred_file)
+    pred_path.parent.mkdir(parents=True, exist_ok=True)
+
+    import json
+
+    with open(pred_path, "w") as f:
+        json.dump(pred_data, f, indent=2)
+
+    logger = get_logger(__name__)
+    logger.info(f"Predictions saved to {pred_path}")
+
+
+def main():
+    """Main evaluation function."""
+    args = parse_arguments()
+    
+    if not validate_arguments(args):
         return 1
 
     try:
@@ -348,68 +451,10 @@ def main():
 
         # Generate visualizations if requested
         if args.visualize:
-            logger.info("Generating evaluation visualizations...")
-            try:
-                from plotting import plot_confusion_matrix, plot_decision_boundary
-
-                plots_dir = Path("outputs/visualizations")
-                plots_dir.mkdir(exist_ok=True)
-
-                # Plot confusion matrix if available
-                if results.confusion_matrix is not None:
-                    cm_path = (
-                        plots_dir
-                        / f"{args.experiment}_{args.split}_confusion_matrix.png"
-                    )
-                    plot_confusion_matrix(results.confusion_matrix, str(cm_path))
-                    logger.info(f"Confusion matrix plot saved: {cm_path}")
-
-                # Plot decision boundary for 2D data
-                if model_config["input_size"] == 2:
-                    boundary_path = (
-                        plots_dir
-                        / f"{args.experiment}_{args.split}_decision_boundary.png"
-                    )
-                    plot_decision_boundary(model, X_eval, y_eval, str(boundary_path))
-                    logger.info(f"Decision boundary plot saved: {boundary_path}")
-
-                # Plot prediction distribution
-                if hasattr(results, "predictions") and results.predictions is not None:
-                    pred_path = (
-                        plots_dir / f"{args.experiment}_{args.split}_predictions.png"
-                    )
-                    # Additional plotting logic here
-                    logger.info(f"Prediction plots would be saved to: {pred_path}")
-
-            except ImportError:
-                logger.warning("Plotting functions not available")
-            except Exception as e:
-                logger.error(f"Error generating visualizations: {e}")
+            generate_visualizations(args, results, model, X_eval, y_eval, model_config)
 
         # Save predictions if requested
-        if args.save_predictions and hasattr(results, "predictions"):
-            pred_file = (
-                f"outputs/predictions/{args.experiment}_{args.split}_predictions.json"
-            )
-            pred_data = {
-                "experiment": args.experiment,
-                "split": args.split,
-                "predictions": results.predictions,
-                "ground_truth": results.ground_truth,
-                "probabilities": (
-                    results.probabilities if hasattr(results, "probabilities") else None
-                ),
-            }
-
-            pred_path = Path(pred_file)
-            pred_path.parent.mkdir(parents=True, exist_ok=True)
-
-            import json
-
-            with open(pred_path, "w") as f:
-                json.dump(pred_data, f, indent=2)
-
-            logger.info(f"Predictions saved to {pred_path}")
+        save_predictions(args, results)
 
         logger.info("Evaluation completed successfully")
         return 0
@@ -421,7 +466,6 @@ def main():
         logger.error(f"Evaluation failed: {e}")
         if args.debug:
             import traceback
-
             logger.debug(traceback.format_exc())
         return 1
 

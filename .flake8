@@ -29,6 +29,7 @@ exclude =
     docs/templates,
     docs/examples,
     docs/validation,
+    Documentation/templates,
     # VS Code configuration
     .vscode,
 

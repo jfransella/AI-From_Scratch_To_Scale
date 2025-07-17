@@ -1,0 +1,4 @@
+[flake8]
+# Disable flake8 for all files in this directory
+exclude = *
+ignore = * 

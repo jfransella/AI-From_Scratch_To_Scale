@@ -1,14 +1,14 @@
-# **Project Charter: AI From Scratch to Scale: A Hands-On Journey Through the History of Neural Networks**
+# Project Charter: AI From Scratch to Scale: A Hands-On Journey Through the History of Neural Networks
 
-# **1\. Project Goal**
+## 1. Project Goal
 
 The primary goal of this project is twofold: first, to gain a deep, practical, and historical understanding of neural networks for the primary learner; and second, to create a high-quality, open-source educational resource that allows others to follow the same journey. This will be achieved by progressively building and analyzing the key neural network architectures that have defined the field, from its origins to the modern day. The project emphasizes not only *how* the models work but *why* they were invented and what specific limitations they overcame, making the learning process transparent and accessible to the community.
 
-# **2\. Learner Profile**
+## 2. Learner Profile
 
 The project is undertaken by an experienced enterprise architect with a multi-decade background in IT, including software development, IT operations, and data analytics. The learner is comfortable with technical concepts and desires a deep, principled understanding of the subject matter, starting from foundational principles.
 
-# **3\. Guiding Principles & Tools**
+## 3. Guiding Principles & Tools
 
 To ensure consistency, all work will adhere to the following guidelines:
 
@@ -26,7 +26,7 @@ To ensure consistency, all work will adhere to the following guidelines:
   3. **Demonstrate Strength**: Train the model on a dataset where it excels.  
   4. **Expose Weakness**: Use a different dataset or problem to clearly demonstrate the model's limitations, creating the motivation for the next model in our journey.
 
-# **4\. Definition of "Build"**
+## 4. Definition of "Build"
 
 The term "build" will evolve as the project progresses:
 
@@ -34,7 +34,7 @@ The term "build" will evolve as the project progresses:
 * **Intermediate Models (e.g., LeNet-5, ResNet)**: "Build" means using a deep learning framework (like PyTorch) to assemble the architecture from its constituent layers and implementing the training loop.  
 * **Modern, Large-Scale Models (e.g., BERT, Diffusion Models)**: "Build" means understanding the architecture in detail, but the implementation will focus on loading a **pre-trained** version of the model and **fine-tuning** it for a specific task. Training these models from scratch is beyond the scope of this project.
 
-# **5\. Model Engagement Levels**
+## 5. Model Engagement Levels
 
 To manage effort and focus on the most critical learning objectives, each model in the roadmap is assigned an engagement level:
 
@@ -42,11 +42,11 @@ To manage effort and focus on the most critical learning objectives, each model 
 * **Conceptual**: These models represent important iterative improvements or alternative ideas. Our engagement will focus on the "Understand" phase. We will analyze the architecture and innovation in detail, perhaps sketching out pseudocode, but we will not perform a full build and training run. This allows us to learn the concept efficiently without redundant implementation.  
 * **Side-quest**: These models explore a different branch of thought from the main lineage of modern deep learning. They will be treated like Keystone models (full build and analysis), but we will explicitly frame the work as an exploration of an alternative, parallel paradigm.
 
-# **6\. Project Roadmap: Learning Modules & Models**
+## 6. Project Roadmap: Learning Modules & Models
 
 This roadmap is designed to be a marathon, not a sprint. We will tackle it in logical modules, focusing on the "keystone" models for full implementation and treating others as conceptual studies where appropriate.
 
-## **Module 1: The Foundations (From Scratch)**
+### Module 1: The Foundations (From Scratch)
 
 *The goal here is to understand the basic mechanics of a neuron and a learning algorithm.*
 
@@ -55,7 +55,7 @@ This roadmap is designed to be a marathon, not a sprint. We will tackle it in lo
 * **3\. Multi-Layer Perceptron (MLP)** (Keystone)  
 * **4\. Hopfield Network** (Side-quest: understand a different paradigm)
 
-## **Module 2: The CNN Revolution (Intro to Frameworks)**
+### Module 2: The CNN Revolution (Intro to Frameworks)
 
 *The goal is to understand how networks process spatial data like images.*
 
@@ -65,7 +65,7 @@ This roadmap is designed to be a marathon, not a sprint. We will tackle it in lo
 * **8\. GoogLeNet** (Conceptual: understand "width" and efficiency)  
 * **9\. ResNet** (Keystone: the critical innovation of skip connections)
 
-## **Module 3: Applying CNNs to New Problems**
+### Module 3: Applying CNNs to New Problems
 
 *The goal is to see how the CNN building block can be used in complex frameworks.*
 
@@ -75,7 +75,7 @@ This roadmap is designed to be a marathon, not a sprint. We will tackle it in lo
 * **13\. U-Net** (Keystone: focus on segmentation and the skip-connection architecture)  
 * **14\. Mask R-CNN** (Conceptual: understand how it extends Faster R-CNN)
 
-## **Module 4: The Sequence Models**
+### Module 4: The Sequence Models
 
 *The goal is to understand how networks process sequential data like text.*
 
@@ -84,7 +84,7 @@ This roadmap is designed to be a marathon, not a sprint. We will tackle it in lo
 * **17\. LSTM with Attention** (Keystone: add the attention mechanism to an LSTM)  
 * **18\. The Transformer** (Keystone: focus on the self-attention mechanism, abandoning recurrence)
 
-## **Module 5: The Generative Era**
+### Module 5: The Generative Era
 
 *The goal is to understand how networks can create new data, not just classify it.*
 
@@ -93,7 +93,7 @@ This roadmap is designed to be a marathon, not a sprint. We will tackle it in lo
 * **21\. DCGAN** (Keystone: implement a stable GAN)  
 * **22\. Denoising Diffusion Models (DDPM)** (Keystone: implement the core denoising loop)
 
-## **Module 6: The Modern Paradigm**
+### Module 6: The Modern Paradigm
 
 *The goal is to understand transfer learning, new data structures, and extreme efficiency.*
 

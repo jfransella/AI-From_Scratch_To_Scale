@@ -6,7 +6,7 @@ Perceptron model, following the project's established patterns.
 """
 
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Dict, Any
 
 # =============================================================================
 # Model Metadata
@@ -86,7 +86,7 @@ DOCS_DIR = BASE_DIR / "docs"
 # Strength experiments (where Perceptron excels)
 STRENGTH_EXPERIMENTS = [
     "and_gate",
-    "or_gate", 
+    "or_gate",
     "iris_easy",
     "mnist_binary"
 ]
@@ -94,7 +94,7 @@ STRENGTH_EXPERIMENTS = [
 # Weakness experiments (where Perceptron fails)
 WEAKNESS_EXPERIMENTS = [
     "xor_gate",
-    "iris_hard", 
+    "iris_hard",
     "circles",
     "moons"
 ]
@@ -210,7 +210,9 @@ VALIDATION_RANGES = {
 # =============================================================================
 
 ERROR_MESSAGES = {
-    "invalid_learning_rate": f"Learning rate must be between {MIN_LEARNING_RATE} and {MAX_LEARNING_RATE}",
+    "invalid_learning_rate": (
+        f"Learning rate must be between {MIN_LEARNING_RATE} and {MAX_LEARNING_RATE}"
+    ),
     "invalid_epochs": "Number of epochs must be positive",
     "invalid_batch_size": "Batch size must be positive",
     "invalid_input_size": "Input size must be positive",
@@ -244,49 +246,52 @@ MODEL_LIMITATIONS = [
 # Utility Functions
 # =============================================================================
 
+
 def get_experiment_info(experiment_name: str) -> Dict[str, Any]:
     """
     Get information about a specific experiment.
-    
+
     Args:
         experiment_name: Name of the experiment
-        
+
     Returns:
         Dictionary containing experiment information
-        
+
     Raises:
         ValueError: If experiment name is not recognized
     """
     if experiment_name not in ALL_EXPERIMENTS:
-        raise ValueError(f"Unknown experiment: {experiment_name}. "
-                        f"Available experiments: {ALL_EXPERIMENTS}")
-    
+        raise ValueError(
+            f"Unknown experiment: {experiment_name}. "
+            f"Available experiments: {ALL_EXPERIMENTS}"
+        )
+
     if experiment_name in DATASET_SPECS:
         return DATASET_SPECS[experiment_name]
-    else:
-        # Return default info for debug experiments
-        return {
-            "description": f"Debug experiment: {experiment_name}",
-            "input_size": DEFAULT_INPUT_SIZE,
-            "output_size": DEFAULT_OUTPUT_SIZE,
-            "difficulty": "debug"
-        }
+
+    # Return default info for debug experiments
+    return {
+        "description": f"Debug experiment: {experiment_name}",
+        "input_size": DEFAULT_INPUT_SIZE,
+        "output_size": DEFAULT_OUTPUT_SIZE,
+        "difficulty": "debug"
+    }
 
 
 def validate_parameter(param_name: str, value: Any) -> bool:
     """
     Validate a parameter value against defined ranges.
-    
+
     Args:
         param_name: Name of the parameter
         value: Value to validate
-        
+
     Returns:
         True if valid, False otherwise
     """
     if param_name not in VALIDATION_RANGES:
         return True  # Unknown parameters are considered valid
-    
+
     min_val, max_val = VALIDATION_RANGES[param_name]
     return min_val <= value <= max_val
 
@@ -294,10 +299,10 @@ def validate_parameter(param_name: str, value: Any) -> bool:
 def get_expected_performance(experiment_name: str) -> Dict[str, Any]:
     """
     Get expected performance metrics for an experiment.
-    
+
     Args:
         experiment_name: Name of the experiment
-        
+
     Returns:
         Dictionary containing expected performance metrics
     """
@@ -308,7 +313,7 @@ def get_expected_performance(experiment_name: str) -> Dict[str, Any]:
             "difficulty": spec.get("difficulty", "medium"),
             "should_converge": spec.get("difficulty") != "impossible"
         }
-    
+
     return {
         "expected_accuracy": 0.8,
         "difficulty": "medium",
@@ -333,7 +338,7 @@ create_output_directories()
 # Export important constants
 __all__ = [
     "MODEL_NAME",
-    "MODEL_VERSION", 
+    "MODEL_VERSION",
     "YEAR_INTRODUCED",
     "PAPER_TITLE",
     "AUTHORS",
@@ -350,4 +355,4 @@ __all__ = [
     "get_experiment_info",
     "validate_parameter",
     "get_expected_performance"
-] 
+]

@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from engine.base import BaseModel
 
@@ -21,7 +21,7 @@ from utils import get_logger, set_random_seed
 from .constants import AUTHORS, MODEL_NAME, MODEL_VERSION, YEAR_INTRODUCED
 
 
-class Perceptron(nn.Module, BaseModel):
+class Perceptron(nn.Module, BaseModel):  # pylint: disable=too-many-instance-attributes
     """
     Classic Perceptron implementation with BaseModel interface.
 
@@ -51,7 +51,7 @@ class Perceptron(nn.Module, BaseModel):
         random_state: Random seed for reproducibility
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         input_size: int,
         learning_rate: float = 0.1,  # Changed from DEFAULT_LEARNING_RATE
@@ -116,19 +116,16 @@ class Perceptron(nn.Module, BaseModel):
             if self.training:
                 # Steep sigmoid approximates step function but maintains gradients
                 return torch.sigmoid(10.0 * x_input)
-            else:
-                # True step function for inference
-                return (x_input >= 0).float()
-        elif self.activation == "sigmoid":
+            # True step function for inference
+            return (x_input >= 0).float()
+        if self.activation == "sigmoid":
             return torch.sigmoid(x_input)
-        elif self.activation == "tanh":
+        if self.activation == "tanh":
             return torch.tanh(x_input)
-        else:
-            # Default to step with same logic
-            if self.training:
-                return torch.sigmoid(10.0 * x_input)
-            else:
-                return (x_input >= 0).float()
+        # Default to step with same logic
+        if self.training:
+            return torch.sigmoid(10.0 * x_input)
+        return (x_input >= 0).float()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -211,7 +208,7 @@ class Perceptron(nn.Module, BaseModel):
         # Use BCE loss for binary classification
         # Ensure outputs are probabilities in [0, 1]
         criterion = nn.BCELoss()
-        if self.activation == "step" or self.activation == "tanh":
+        if self.activation in ("step", "tanh"):
             # Convert outputs to probabilities for loss computation
             outputs = torch.sigmoid(outputs)
         elif self.activation == "sigmoid":

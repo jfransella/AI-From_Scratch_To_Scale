@@ -1,3 +1,6 @@
+# pylint: skip-file
+# flake8: noqa
+# mypy: skip-file
 # Requirements template for AI From Scratch to Scale models
 # 
 # This template shows common dependencies needed for different types of models.

@@ -1,0 +1,7 @@
+[MASTER]
+# Disable pylint for all files in this directory
+disable=all
+
+[MESSAGES CONTROL]
+# Disable all messages
+disable=all 

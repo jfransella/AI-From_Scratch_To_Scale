@@ -32,6 +32,29 @@
     "python.linting.pylintArgs": [
         "--rcfile=.pylintrc"
     ],
+    "python.linting.ignorePatterns": [
+        "docs/templates/**",
+        "docs/examples/**",
+        "docs/validation/**",
+        "Documentation/templates/**"
+    ],
+    "python.analysis.exclude": [
+        "docs/templates/**",
+        "docs/examples/**",
+        "docs/validation/**",
+        "Documentation/templates/**",
+        ".vscode/**",
+        "**/.venv/**",
+        "**/venv/**",
+        "**/__pycache__/**",
+        "**/.git/**",
+        "**/.pytest_cache/**",
+        "**/build/**",
+        "**/dist/**",
+        "**/*.egg-info/**",
+        "**/.coverage",
+        "**/.mypy_cache/**"
+    ],
     // Mypy specific settings  
     "python.linting.mypyArgs": [
         "--config-file=mypy.ini",
@@ -68,7 +91,13 @@
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit"
         },
-        "editor.formatOnType": false
+        "editor.formatOnType": false,
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.defaultFormatterOptions": {
+            "black-formatter": {
+                "lineLength": 88
+            }
+        }
     },
     // Workspace-specific settings
     "files.exclude": {
@@ -142,22 +171,6 @@
     "python.experiments.enabled": true,
     "python.experiments.optInto": [
         "pythonREPLSmartSend"
-    ],
-    "python.analysis.exclude": [
-        "docs/templates/**",
-        "docs/examples/**",
-        "docs/validation/**",
-        ".vscode/**",
-        "**/.venv/**",
-        "**/venv/**",
-        "**/__pycache__/**",
-        "**/.git/**",
-        "**/.pytest_cache/**",
-        "**/build/**",
-        "**/dist/**",
-        "**/*.egg-info/**",
-        "**/.coverage",
-        "**/.mypy_cache/**"
     ],
     "jupyter.interactiveWindow.creationMode": "perFile",
     "jupyter.interactiveWindow.textEditor.executeSelection": true,

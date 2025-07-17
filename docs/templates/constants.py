@@ -1,327 +1,288 @@
+# pylint: skip-file
+# flake8: noqa
+# type: ignore
 """
 Template for constants.py - Model Constants and Metadata
 
-This template provides the basic structure for defining model-specific constants
-and metadata in the "AI From Scratch to Scale" project. Each model should follow
-this pattern for consistency.
+This template provides constants and metadata for neural network models
+in the "AI From Scratch to Scale" project. Each model should follow this pattern
+for consistency and historical accuracy.
 
-Replace [MODEL_NAME] with the actual model name (e.g., "Perceptron", "MLP", etc.)
-Replace [YEAR] with the year the model was introduced
-Replace [AUTHOR] with the original author(s)
-Replace [PAPER_TITLE] with the original paper title
+Replace MODEL_NAME with the actual model name (e.g., "Perceptron", "MLP", etc.)
+Replace YEAR_INTRODUCED with the year the model was introduced
+Replace AUTHORS with the original authors
 """
 
-import os
 from pathlib import Path
+from typing import Dict, Any, List
 
 # =============================================================================
 # MODEL METADATA
 # =============================================================================
 
 # Basic model information
-MODEL_NAME = "[MODEL_NAME]"
+MODEL_NAME = "ModelTemplate"
 MODEL_VERSION = "1.0.0"
-MODEL_DESCRIPTION = "[Brief description of what this model does]"
+MODEL_DESCRIPTION = "Template model for AI From Scratch to Scale project"
 
 # Historical information
-YEAR_INTRODUCED = [YEAR]
-ORIGINAL_AUTHOR = "[AUTHOR(S)]"
-ORIGINAL_PAPER_TITLE = "[PAPER_TITLE]"
-ORIGINAL_PAPER_URL = "[URL_TO_PAPER]"
+YEAR_INTRODUCED = 2024
+AUTHORS = ["AI From Scratch Team"]
+ORIGINAL_PAPER_TITLE = "Template Model Implementation"
+ORIGINAL_PAPER_URL = "https://github.com/ai-from-scratch-to-scale"
 
 # Key innovations and contributions
 KEY_INNOVATIONS = [
-    "[KEY_INNOVATION_1]",
-    "[KEY_INNOVATION_2]",
-    "[KEY_INNOVATION_3]",
+    "Template implementation for educational purposes",
+    "Demonstrates best practices for model development",
+    "Provides foundation for more complex models",
 ]
 
 # Problems solved by this model
 PROBLEMS_SOLVED = [
-    "[PROBLEM_1]",
-    "[PROBLEM_2]",
+    "Template for model implementation",
+    "Educational demonstration",
+    "Best practices showcase",
 ]
 
 # Limitations of this model
 LIMITATIONS = [
-    "[LIMITATION_1]",
-    "[LIMITATION_2]",
+    "Template only - not a real model",
+    "For demonstration purposes only",
+    "Not intended for production use",
 ]
 
 # =============================================================================
-# ARCHITECTURE CONSTANTS
+# MODEL ARCHITECTURE CONSTANTS
 # =============================================================================
 
 # Default architecture parameters
-DEFAULT_INPUT_SIZE = 2
-DEFAULT_HIDDEN_SIZE = None  # Not all models have hidden layers
-DEFAULT_OUTPUT_SIZE = 1
-
-# Activation functions
-DEFAULT_ACTIVATION = "sigmoid"  # Options: "sigmoid", "tanh", "relu", "step", etc.
-AVAILABLE_ACTIVATIONS = ["sigmoid", "tanh", "relu", "step", "linear"]
-
-# Weight initialization
-DEFAULT_WEIGHT_INIT = "random"  # Options: "random", "zeros", "xavier", "he"
-WEIGHT_INIT_SCALE = 0.1
-
-# Learning parameters
 DEFAULT_LEARNING_RATE = 0.01
+DEFAULT_MAX_EPOCHS = 100
+DEFAULT_TOLERANCE = 1e-6
+
+# Activation function options
+SUPPORTED_ACTIVATIONS = ["relu", "sigmoid", "tanh", "leaky_relu"]
+DEFAULT_ACTIVATION = "relu"
+
+# Weight initialization options
+SUPPORTED_INIT_METHODS = ["xavier_normal", "xavier_uniform", "he_normal", "zeros"]
+DEFAULT_INIT_METHOD = "xavier_normal"
+
+# Training parameters
 MIN_LEARNING_RATE = 1e-6
-MAX_LEARNING_RATE = 1.0
+MAX_LEARNING_RATE = 10.0
+MIN_EPOCHS = 1
+MAX_EPOCHS = 10000
 
 # =============================================================================
-# TRAINING CONSTANTS
+# EXPERIMENT CONFIGURATIONS
 # =============================================================================
 
-# Default training parameters
-DEFAULT_EPOCHS = 100
-DEFAULT_BATCH_SIZE = 32
-DEFAULT_OPTIMIZER = "adam"
-
-# Early stopping
-DEFAULT_PATIENCE = 20
-MIN_DELTA = 1e-6
-
-# Convergence criteria
-CONVERGENCE_THRESHOLD = 1e-6
-MAX_GRADIENT_NORM = 1.0
-
-# =============================================================================
-# DATA CONSTANTS
-# =============================================================================
-
-# Data splits
-DEFAULT_TRAIN_SPLIT = 0.7
-DEFAULT_VAL_SPLIT = 0.15
-DEFAULT_TEST_SPLIT = 0.15
-
-# Data preprocessing
-DEFAULT_NORMALIZE = True
-DEFAULT_STANDARDIZE = False
-
-# =============================================================================
-# FILE PATHS
-# =============================================================================
-
-# Get the model directory (assuming this constants.py is in src/)
-MODEL_DIR = Path(__file__).parent.parent
-PROJECT_ROOT = MODEL_DIR.parent.parent
-
-# Output directories
-OUTPUT_DIR = MODEL_DIR / "outputs"
-MODELS_DIR = OUTPUT_DIR / "models"
-LOGS_DIR = OUTPUT_DIR / "logs"
-VISUALIZATIONS_DIR = OUTPUT_DIR / "visualizations"
-
-# Data directory
-DATA_DIR = MODEL_DIR / "data"
-
-# Notebooks directory
-NOTEBOOKS_DIR = MODEL_DIR / "notebooks"
-
-# Ensure output directories exist
-for directory in [OUTPUT_DIR, MODELS_DIR, LOGS_DIR, VISUALIZATIONS_DIR, DATA_DIR]:
-    directory.mkdir(parents=True, exist_ok=True)
-
-# =============================================================================
-# LOGGING CONSTANTS
-# =============================================================================
-
-# Log levels
-DEFAULT_LOG_LEVEL = "INFO"
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-# Log file names
-TRAIN_LOG_FILE = LOGS_DIR / f"{MODEL_NAME.lower()}_train.log"
-EVAL_LOG_FILE = LOGS_DIR / f"{MODEL_NAME.lower()}_eval.log"
-
-# =============================================================================
-# VISUALIZATION CONSTANTS
-# =============================================================================
-
-# Plot settings
-DEFAULT_FIGURE_SIZE = (10, 6)
-DEFAULT_DPI = 300
-DEFAULT_FORMAT = "png"
-
-# Colors for plots
-PRIMARY_COLOR = "#1f77b4"
-SECONDARY_COLOR = "#ff7f0e"
-ACCENT_COLOR = "#2ca02c"
-ERROR_COLOR = "#d62728"
-
-# Plot types supported by this model
-SUPPORTED_PLOT_TYPES = [
-    "loss_curve",
-    "accuracy_curve",
-    "decision_boundary",  # For 2D problems
-    "feature_importance",
-    "confusion_matrix",
-    "sample_predictions",
+# All experiments supported by this model
+ALL_EXPERIMENTS = [
+    "debug",
+    "quick_test",
+    "standard",
+    "production",
 ]
 
-# =============================================================================
-# DEVICE CONSTANTS
-# =============================================================================
+# Debug experiments - for quick testing and development
+DEBUG_EXPERIMENTS = ["debug", "quick_test"]
 
-# Device preferences
-PREFER_GPU = True
-FALLBACK_TO_CPU = True
-
-# Memory limits
-MAX_BATCH_SIZE_GPU = 1024
-MAX_BATCH_SIZE_CPU = 256
+# Standard experiments - for normal training
+STANDARD_EXPERIMENTS = ["standard", "production"]
 
 # =============================================================================
-# VALIDATION CONSTANTS
+# DATASET SPECIFICATIONS
 # =============================================================================
 
-# Parameter validation ranges
-VALID_INPUT_SIZE_RANGE = (1, 10000)
-VALID_OUTPUT_SIZE_RANGE = (1, 1000)
-VALID_EPOCHS_RANGE = (1, 10000)
-VALID_BATCH_SIZE_RANGE = (1, 1024)
-VALID_LEARNING_RATE_RANGE = (1e-6, 1.0)
-
-# =============================================================================
-# EXPERIMENTAL CONSTANTS
-# =============================================================================
-
-# Common experiment names for this model
-STRENGTH_EXPERIMENTS = [
-    # TODO: Add experiments where this model excels
-    # Example: "linear_classification", "simple_regression"
-]
-
-WEAKNESS_EXPERIMENTS = [
-    # TODO: Add experiments where this model struggles
-    # Example: "xor_problem", "non_linear_classification"
-]
-
-# Dataset-specific constants
-DATASET_CONFIGS = {
-    "iris": {
-        "input_size": 4,
-        "output_size": 3,
-        "task_type": "classification",
-    },
-    "mnist": {
-        "input_size": 784,
-        "output_size": 10,
-        "task_type": "classification",
-    },
-    "xor": {
+DATASET_SPECS = {
+    "debug": {
+        "dataset_name": "synthetic_debug",
+        "dataset_params": {
+            "n_samples": 20,
+            "n_features": 2,
+            "noise": 0.0,
+        },
         "input_size": 2,
         "output_size": 1,
-        "task_type": "classification",
+        "expected_accuracy": 1.0,
+        "difficulty": "trivial",
+        "description": "Small synthetic dataset for quick testing",
     },
-    # Add more datasets as needed
+    "quick_test": {
+        "dataset_name": "synthetic_quick",
+        "dataset_params": {
+            "n_samples": 50,
+            "n_features": 2,
+            "noise": 0.05,
+        },
+        "input_size": 2,
+        "output_size": 1,
+        "expected_accuracy": 0.95,
+        "difficulty": "easy",
+        "description": "Small dataset with minimal noise for testing",
+    },
+    "standard": {
+        "dataset_name": "synthetic_standard",
+        "dataset_params": {
+            "n_samples": 200,
+            "n_features": 2,
+            "noise": 0.1,
+        },
+        "input_size": 2,
+        "output_size": 1,
+        "expected_accuracy": 0.85,
+        "difficulty": "medium",
+        "description": "Standard synthetic dataset for training",
+    },
+    "production": {
+        "dataset_name": "synthetic_production",
+        "dataset_params": {
+            "n_samples": 1000,
+            "n_features": 2,
+            "noise": 0.1,
+        },
+        "input_size": 2,
+        "output_size": 1,
+        "expected_accuracy": 0.90,
+        "difficulty": "hard",
+        "description": "Large synthetic dataset for production testing",
+    },
 }
 
 # =============================================================================
-# UTILITY FUNCTIONS
+# FILE PATH CONSTANTS
 # =============================================================================
 
-def get_model_info():
-    """
-    Get comprehensive model information.
+# Base directories
+MODEL_DIR = Path(__file__).parent.parent
+OUTPUTS_DIR = MODEL_DIR / "outputs"
+LOGS_DIR = OUTPUTS_DIR / "logs"
+MODELS_DIR = OUTPUTS_DIR / "models"
+PLOTS_DIR = OUTPUTS_DIR / "visualizations"
+NOTEBOOKS_DIR = MODEL_DIR / "notebooks"
+
+# Ensure output directories exist
+for directory in [OUTPUTS_DIR, LOGS_DIR, MODELS_DIR, PLOTS_DIR]:
+    directory.mkdir(parents=True, exist_ok=True)
+
+# File naming patterns
+MODEL_CHECKPOINT_PATTERN = "{experiment}_epoch_{epoch:03d}.pth"
+PLOT_FILENAME_PATTERN = "{experiment}_{plot_type}.png"
+LOG_FILENAME_PATTERN = "training_{timestamp}.log"
+
+# =============================================================================
+# VALIDATION FUNCTIONS
+# =============================================================================
+
+
+def validate_learning_rate(lr: float) -> float:
+    """Validate and clip learning rate to acceptable range."""
+    if lr < MIN_LEARNING_RATE:
+        return MIN_LEARNING_RATE
+    elif lr > MAX_LEARNING_RATE:
+        return MAX_LEARNING_RATE
+    return lr
+
+
+def validate_epochs(epochs: int) -> int:
+    """Validate and clip epochs to acceptable range."""
+    if epochs < MIN_EPOCHS:
+        return MIN_EPOCHS
+    elif epochs > MAX_EPOCHS:
+        return MAX_EPOCHS
+    return epochs
+
+
+def validate_activation(activation: str) -> str:
+    """Validate activation function name."""
+    if activation not in SUPPORTED_ACTIVATIONS:
+        raise ValueError(
+            f"Unsupported activation: {activation}. "
+            f"Supported: {SUPPORTED_ACTIVATIONS}"
+        )
+    return activation
+
+
+def validate_init_method(init_method: str) -> str:
+    """Validate weight initialization method."""
+    if init_method not in SUPPORTED_INIT_METHODS:
+        raise ValueError(
+            f"Unsupported init method: {init_method}. "
+            f"Supported: {SUPPORTED_INIT_METHODS}"
+        )
+    return init_method
+
+
+def validate_experiment(experiment_name: str) -> str:
+    """Validate experiment name."""
+    if experiment_name not in ALL_EXPERIMENTS:
+        raise ValueError(
+            f"Unknown experiment: {experiment_name}. "
+            f"Available: {ALL_EXPERIMENTS}"
+        )
+    return experiment_name
+
+
+def get_experiment_info(experiment_name: str) -> Dict[str, Any]:
+    """Get detailed information about an experiment."""
+    validate_experiment(experiment_name)
     
-    Returns:
-        dict: Dictionary containing model metadata
-    """
+    dataset_spec = DATASET_SPECS.get(experiment_name, {})
+    
     return {
-        "name": MODEL_NAME,
-        "version": MODEL_VERSION,
-        "description": MODEL_DESCRIPTION,
-        "year_introduced": YEAR_INTRODUCED,
-        "original_author": ORIGINAL_AUTHOR,
-        "original_paper": ORIGINAL_PAPER_TITLE,
-        "paper_url": ORIGINAL_PAPER_URL,
-        "key_innovations": KEY_INNOVATIONS,
-        "problems_solved": PROBLEMS_SOLVED,
-        "limitations": LIMITATIONS,
-        "default_architecture": {
-            "input_size": DEFAULT_INPUT_SIZE,
-            "hidden_size": DEFAULT_HIDDEN_SIZE,
-            "output_size": DEFAULT_OUTPUT_SIZE,
-            "activation": DEFAULT_ACTIVATION,
-        },
-        "supported_plots": SUPPORTED_PLOT_TYPES,
-        "strength_experiments": STRENGTH_EXPERIMENTS,
-        "weakness_experiments": WEAKNESS_EXPERIMENTS,
+        "name": experiment_name,
+        "description": dataset_spec.get("description", "No description"),
+        "dataset_name": dataset_spec.get("dataset_name", "unknown"),
+        "input_size": dataset_spec.get("input_size", 2),
+        "output_size": dataset_spec.get("output_size", 1),
+        "expected_accuracy": dataset_spec.get("expected_accuracy", 0.8),
+        "difficulty": dataset_spec.get("difficulty", "medium"),
+        "dataset_params": dataset_spec.get("dataset_params", {}),
     }
 
 
-def validate_architecture_params(input_size, hidden_size, output_size):
-    """
-    Validate architecture parameters.
-    
-    Args:
-        input_size (int): Input layer size
-        hidden_size (int or None): Hidden layer size
-        output_size (int): Output layer size
-        
-    Raises:
-        ValueError: If parameters are invalid
-    """
-    if not (VALID_INPUT_SIZE_RANGE[0] <= input_size <= VALID_INPUT_SIZE_RANGE[1]):
-        raise ValueError(f"Input size must be in range {VALID_INPUT_SIZE_RANGE}")
-    
-    if not (VALID_OUTPUT_SIZE_RANGE[0] <= output_size <= VALID_OUTPUT_SIZE_RANGE[1]):
-        raise ValueError(f"Output size must be in range {VALID_OUTPUT_SIZE_RANGE}")
-    
-    if hidden_size is not None and hidden_size <= 0:
-        raise ValueError("Hidden size must be positive if specified")
+def validate_parameter(param_name: str, value: Any) -> Any:
+    """Validate a specific parameter value."""
+    if param_name == "learning_rate":
+        return validate_learning_rate(value)
+    elif param_name == "max_epochs":
+        return validate_epochs(value)
+    elif param_name == "activation":
+        return validate_activation(value)
+    elif param_name == "init_method":
+        return validate_init_method(value)
+    elif param_name == "experiment":
+        return validate_experiment(value)
+    else:
+        return value
 
 
-def validate_training_params(epochs, batch_size, learning_rate):
-    """
-    Validate training parameters.
+def get_expected_performance(experiment_name: str) -> Dict[str, Any]:
+    """Get expected performance metrics for an experiment."""
+    validate_experiment(experiment_name)
     
-    Args:
-        epochs (int): Number of training epochs
-        batch_size (int): Batch size
-        learning_rate (float): Learning rate
-        
-    Raises:
-        ValueError: If parameters are invalid
-    """
-    if not (VALID_EPOCHS_RANGE[0] <= epochs <= VALID_EPOCHS_RANGE[1]):
-        raise ValueError(f"Epochs must be in range {VALID_EPOCHS_RANGE}")
+    dataset_spec = DATASET_SPECS.get(experiment_name, {})
     
-    if not (VALID_BATCH_SIZE_RANGE[0] <= batch_size <= VALID_BATCH_SIZE_RANGE[1]):
-        raise ValueError(f"Batch size must be in range {VALID_BATCH_SIZE_RANGE}")
-    
-    if not (VALID_LEARNING_RATE_RANGE[0] <= learning_rate <= VALID_LEARNING_RATE_RANGE[1]):
-        raise ValueError(f"Learning rate must be in range {VALID_LEARNING_RATE_RANGE}")
+    return {
+        "expected_accuracy": dataset_spec.get("expected_accuracy", 0.8),
+        "difficulty": dataset_spec.get("difficulty", "medium"),
+        "convergence_expected": True,
+        "max_epochs_for_convergence": 100,
+    }
 
 
-if __name__ == "__main__":
-    # Print model information
-    print("Model Information:")
-    print("=" * 50)
-    
-    info = get_model_info()
-    for key, value in info.items():
-        if isinstance(value, list):
-            print(f"{key}:")
-            for item in value:
-                print(f"  - {item}")
-        elif isinstance(value, dict):
-            print(f"{key}:")
-            for subkey, subvalue in value.items():
-                print(f"  {subkey}: {subvalue}")
-        else:
-            print(f"{key}: {value}")
-    
-    print("\nFile Paths:")
-    print("=" * 50)
-    print(f"Model Directory: {MODEL_DIR}")
-    print(f"Output Directory: {OUTPUT_DIR}")
-    print(f"Models Directory: {MODELS_DIR}")
-    print(f"Logs Directory: {LOGS_DIR}")
-    print(f"Visualizations Directory: {VISUALIZATIONS_DIR}")
-    print(f"Data Directory: {DATA_DIR}")
-    print(f"Notebooks Directory: {NOTEBOOKS_DIR}") 
+# =============================================================================
+# MODEL-SPECIFIC CONSTANTS
+# =============================================================================
+
+# Add model-specific constants here
+# These should be customized for each model implementation
+
+MODEL_SPECIFIC_CONSTANTS = {
+    "example_param": 42,
+    "example_flag": True,
+    "example_list": [1, 2, 3, 4, 5],
+} 

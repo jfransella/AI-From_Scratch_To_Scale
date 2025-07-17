@@ -22,24 +22,24 @@ disable=
     missing-class-docstring,
     missing-function-docstring,
     
-    # Design warnings common in ML code
+    # Design warnings - keeping some ML-appropriate ones disabled
     too-few-public-methods,
-    too-many-arguments,
-    too-many-instance-attributes,
-    too-many-locals,
+    # too-many-arguments,        # Enable this to see argument count warnings
+    # too-many-instance-attributes,  # Enable this to see attribute count warnings
+    # too-many-locals,          # Enable this to see local variable count warnings
     too-many-branches,
     too-many-statements,
     
-    # Import warnings
-    import-outside-toplevel,
+    # Import warnings - keeping import-outside-toplevel disabled for ML patterns
+    # import-outside-toplevel,  # Enable this to see import position warnings
     import-error,
     
-    # Naming conventions (we prefer descriptive ML names)
-    invalid-name,
+    # Naming conventions - enabling some but keeping ML names allowed
+    # invalid-name,             # Enable this to see naming convention warnings
     
-    # Common ML patterns
+    # Common ML patterns - enabling broad-except to see exception handling
     unused-argument,
-    broad-except,
+    # broad-except,             # Enable this to see broad exception warnings
     
     # Jupyter notebook patterns
     pointless-string-statement,

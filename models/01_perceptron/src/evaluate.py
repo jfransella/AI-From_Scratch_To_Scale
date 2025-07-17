@@ -8,11 +8,12 @@ visualization generation, and detailed analysis.
 
 import sys
 import argparse
+import json
+import traceback
 from pathlib import Path
 import torch
 
-
-# Import shared packages  
+# Import shared packages
 from utils import setup_logging, get_logger
 from data_utils import load_dataset
 from engine.evaluator import Evaluator
@@ -21,6 +22,13 @@ from engine.evaluator import Evaluator
 from .config import get_evaluation_config, get_dataset_config, get_model_config
 from .model import Perceptron
 from .constants import MODEL_NAME, ALL_EXPERIMENTS
+
+# Optional plotting imports (handled gracefully if not installed)
+try:
+    from plotting import plot_confusion_matrix, plot_decision_boundary
+except ImportError:
+    plot_confusion_matrix = None
+    plot_decision_boundary = None
 
 
 def load_model_from_checkpoint(checkpoint_path: str, model_config: dict) -> Perceptron:
@@ -39,11 +47,11 @@ def load_model_from_checkpoint(checkpoint_path: str, model_config: dict) -> Perc
     try:
         # Try loading as a saved model first
         model = Perceptron.load_model(checkpoint_path)
-        logger.info(f"Loaded saved model from {checkpoint_path}")
+        logger.info("Loaded saved model from %s", checkpoint_path)
         return model
 
-    except Exception as e:
-        logger.warning(f"Failed to load saved model: {e}")
+    except Exception as e:  # pylint: disable=broad-except
+        logger.warning("Failed to load saved model: %s", e)
 
         try:
             # Try loading as state dict
@@ -55,12 +63,12 @@ def load_model_from_checkpoint(checkpoint_path: str, model_config: dict) -> Perc
             else:
                 model.load_state_dict(state_dict)
 
-            logger.info(f"Loaded state dict from {checkpoint_path}")
+            logger.info("Loaded state dict from %s", checkpoint_path)
             return model
 
-        except Exception as e2:
-            logger.error(f"Failed to load model: {e2}")
-            raise ValueError(f"Could not load model from {checkpoint_path}")
+        except Exception as e2:  # pylint: disable=broad-except
+            logger.error("Failed to load model: %s", e2)
+            raise ValueError(f"Could not load model from {checkpoint_path}") from e2
 
 
 def prepare_evaluation_data(dataset_config: dict, split: str = "test") -> tuple:
@@ -72,36 +80,36 @@ def prepare_evaluation_data(dataset_config: dict, split: str = "test") -> tuple:
         split: Data split to use ("test", "full", or "train")
 
     Returns:
-        Tuple of (X, y) tensors
+        Tuple of (x_features, y_target) tensors
     """
     logger = get_logger(__name__)
 
     # Load dataset
-    X, y = load_dataset(
+    x_features, y_target = load_dataset(
         dataset_config["dataset_name"], dataset_config["dataset_params"]
     )
 
     # Convert to tensors if needed
-    if not isinstance(X, torch.Tensor):
-        X = torch.tensor(X, dtype=torch.float32)
-    if not isinstance(y, torch.Tensor):
-        y = torch.tensor(y, dtype=torch.float32)
+    if not isinstance(x_features, torch.Tensor):
+        x_features = torch.tensor(x_features, dtype=torch.float32)
+    if not isinstance(y_target, torch.Tensor):
+        y_target = torch.tensor(y_target, dtype=torch.float32)
 
     if split == "full":
-        logger.info(f"Using full dataset: {len(X)} samples")
-        return X, y
-    elif split == "train":
+        logger.info("Using full dataset: %d samples", len(x_features))
+        return x_features, y_target
+    if split == "train":
         # Use first 80% for train split evaluation
-        n_train = int(0.8 * len(X))
-        X_eval, y_eval = X[:n_train], y[:n_train]
-        logger.info(f"Using train split: {len(X_eval)} samples")
-        return X_eval, y_eval
+        n_train = int(0.8 * len(x_features))
+        x_eval, y_eval = x_features[:n_train], y_target[:n_train]
+        logger.info("Using train split: %d samples", len(x_eval))
+        return x_eval, y_eval
     else:  # test split
         # Use last 20% for test split evaluation
-        n_train = int(0.8 * len(X))
-        X_eval, y_eval = X[n_train:], y[n_train:]
-        logger.info(f"Using test split: {len(X_eval)} samples")
-        return X_eval, y_eval
+        n_train = int(0.8 * len(x_features))
+        x_eval, y_eval = x_features[n_train:], y_target[n_train:]
+        logger.info("Using test split: %d samples", len(x_eval))
+        return x_eval, y_eval
 
 
 def print_dataset_info(dataset_config: dict, experiment_name: str, num_samples: int):
@@ -163,7 +171,7 @@ def print_performance_analysis(results, dataset_config: dict):
 def print_educational_insights(experiment_name: str, results):
     """Print educational insights section."""
     actual_acc = results.accuracy
-    
+
     print(f"\n{'-'*70}")
     print("EDUCATIONAL INSIGHTS")
     print(f"{'-'*70}")
@@ -234,8 +242,6 @@ def save_evaluation_results(results, output_path: str, experiment_name: str):
         output_path: Path to save results
         experiment_name: Name of the experiment
     """
-    import json
-
     # Convert results to dictionary
     results_dict = results.to_dict()
     results_dict["experiment_name"] = experiment_name
@@ -245,11 +251,11 @@ def save_evaluation_results(results, output_path: str, experiment_name: str):
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_file, "w") as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         json.dump(results_dict, f, indent=2)
 
     logger = get_logger(__name__)
-    logger.info(f"Evaluation results saved to {output_file}")
+    logger.info("Evaluation results saved to %s", output_file)
 
 
 def parse_arguments():
@@ -292,68 +298,58 @@ def parse_arguments():
 def validate_arguments(args):
     """Validate command line arguments."""
     if args.experiment not in ALL_EXPERIMENTS:
-        print(f"Error: Unknown experiment '{args.experiment}'")
-        print(f"Available experiments: {ALL_EXPERIMENTS}")
+        print("Error: Unknown experiment '%s'", args.experiment)
+        print("Available experiments: %s", ALL_EXPERIMENTS)
         return False
 
     if not Path(args.checkpoint).exists():
-        print(f"Error: Checkpoint file not found: {args.checkpoint}")
+        print("Error: Checkpoint file not found: %s", args.checkpoint)
         return False
-    
+
     return True
 
 
-def generate_visualizations(args, results, model, X_eval, y_eval, model_config):
+def generate_visualizations(args, results, model, x_eval, y_eval, model_config):
     """Generate evaluation visualizations."""
     logger = get_logger(__name__)
     logger.info("Generating evaluation visualizations...")
-    
-    try:
-        from plotting import plot_confusion_matrix, plot_decision_boundary
 
+    try:
         plots_dir = Path("outputs/visualizations")
         plots_dir.mkdir(exist_ok=True)
 
         # Plot confusion matrix if available
-        if results.confusion_matrix is not None:
-            cm_path = (
-                plots_dir
-                / f"{args.experiment}_{args.split}_confusion_matrix.png"
-            )
+        if results.confusion_matrix is not None and plot_confusion_matrix is not None:
+            cm_path = plots_dir / f"{args.experiment}_{args.split}_confusion_matrix.png"
             plot_confusion_matrix(results.confusion_matrix, str(cm_path))
-            logger.info(f"Confusion matrix plot saved: {cm_path}")
+            logger.info("Confusion matrix plot saved: %s", cm_path)
 
         # Plot decision boundary for 2D data
-        if model_config["input_size"] == 2:
+        if model_config["input_size"] == 2 and plot_decision_boundary is not None:
             boundary_path = (
-                plots_dir
-                / f"{args.experiment}_{args.split}_decision_boundary.png"
+                plots_dir / f"{args.experiment}_{args.split}_decision_boundary.png"
             )
-            plot_decision_boundary(model, X_eval, y_eval, str(boundary_path))
-            logger.info(f"Decision boundary plot saved: {boundary_path}")
+            plot_decision_boundary(model, x_eval, y_eval, str(boundary_path))
+            logger.info("Decision boundary plot saved: %s", boundary_path)
 
         # Plot prediction distribution
         if hasattr(results, "predictions") and results.predictions is not None:
-            pred_path = (
-                plots_dir / f"{args.experiment}_{args.split}_predictions.png"
-            )
+            pred_path = plots_dir / f"{args.experiment}_{args.split}_predictions.png"
             # Additional plotting logic here
-            logger.info(f"Prediction plots would be saved to: {pred_path}")
+            logger.info("Prediction plots would be saved to: %s", pred_path)
 
     except ImportError:
         logger.warning("Plotting functions not available")
-    except Exception as e:
-        logger.error(f"Error generating visualizations: {e}")
+    except Exception as e:  # pylint: disable=broad-except
+        logger.error("Error generating visualizations: %s", e)
 
 
 def save_predictions(args, results):
     """Save model predictions to file."""
     if not (args.save_predictions and hasattr(results, "predictions")):
         return
-        
-    pred_file = (
-        f"outputs/predictions/{args.experiment}_{args.split}_predictions.json"
-    )
+
+    pred_file = f"outputs/predictions/{args.experiment}_{args.split}_predictions.json"
     pred_data = {
         "experiment": args.experiment,
         "split": args.split,
@@ -367,19 +363,17 @@ def save_predictions(args, results):
     pred_path = Path(pred_file)
     pred_path.parent.mkdir(parents=True, exist_ok=True)
 
-    import json
-
-    with open(pred_path, "w") as f:
+    with open(pred_path, "w", encoding="utf-8") as f:
         json.dump(pred_data, f, indent=2)
 
     logger = get_logger(__name__)
-    logger.info(f"Predictions saved to {pred_path}")
+    logger.info("Predictions saved to %s", pred_path)
 
 
 def main():
     """Main evaluation function."""
     args = parse_arguments()
-    
+
     if not validate_arguments(args):
         return 1
 
@@ -388,10 +382,10 @@ def main():
         setup_logging(level="DEBUG" if args.debug else "INFO")
         logger = get_logger(__name__)
 
-        logger.info(f"Starting {MODEL_NAME} evaluation")
-        logger.info(f"Experiment: {args.experiment}")
-        logger.info(f"Checkpoint: {args.checkpoint}")
-        logger.info(f"Data split: {args.split}")
+        logger.info("Starting %s evaluation", MODEL_NAME)
+        logger.info("Experiment: %s", args.experiment)
+        logger.info("Checkpoint: %s", args.checkpoint)
+        logger.info("Data split: %s", args.split)
 
         # Load configurations
         evaluation_config = get_evaluation_config(
@@ -402,22 +396,24 @@ def main():
         model_config = get_model_config(args.experiment)
         dataset_config = get_dataset_config(args.experiment)
 
-        logger.info(f"Dataset: {dataset_config['dataset_name']}")
-        logger.info(f"Expected accuracy: {dataset_config['expected_accuracy']:.3f}")
+        logger.info("Dataset: %s", dataset_config["dataset_name"])
+        logger.info("Expected accuracy: %.3f", dataset_config["expected_accuracy"])
 
         # Load model
         logger.info("Loading model from checkpoint...")
         model = load_model_from_checkpoint(args.checkpoint, model_config)
 
         model_info = model.get_model_info()
-        logger.info(f"Model loaded: {model_info['total_parameters']} parameters")
+        logger.info("Model loaded: %d parameters", model_info["total_parameters"])
         logger.info(
-            f"Architecture: {model_info['input_size']} -> {model_info['output_size']}"
+            "Architecture: %d -> %d",
+            model_info["input_size"],
+            model_info["output_size"],
         )
 
         # Prepare evaluation data
         logger.info("Loading evaluation data...")
-        X_eval, y_eval = prepare_evaluation_data(dataset_config, args.split)
+        x_eval, y_eval = prepare_evaluation_data(dataset_config, args.split)
 
         # Create evaluator
         logger.info("Initializing evaluator...")
@@ -427,49 +423,43 @@ def main():
         logger.info("Running evaluation...")
         print(f"\nEvaluating {MODEL_NAME} on {args.experiment}")
         print(f"Dataset: {dataset_config['dataset_name']} ({args.split} split)")
-        print(f"Samples: {len(X_eval)}")
+        print(f"Samples: {len(x_eval)}")
         print(f"Checkpoint: {Path(args.checkpoint).name}")
         print("-" * 50)
 
         results = evaluator.evaluate(
             model,
-            X_eval,
+            x_eval,
             y_eval,
             dataset_name=f"{dataset_config['dataset_name']}_{args.split}",
         )
 
-        # Print comprehensive summary
+        # Print evaluation summary
         print_evaluation_summary(results, dataset_config, args.experiment)
 
-        # Save results if requested
-        if args.output or evaluation_config.save_results:
-            output_path = (
-                args.output
-                or f"outputs/evaluations/{args.experiment}_{args.split}_evaluation.json"
-            )
-            save_evaluation_results(results, output_path, args.experiment)
+        # Save results if output path specified
+        if args.output:
+            save_evaluation_results(results, args.output, args.experiment)
 
         # Generate visualizations if requested
         if args.visualize:
-            generate_visualizations(args, results, model, X_eval, y_eval, model_config)
+            generate_visualizations(args, results, model, x_eval, y_eval, model_config)
 
         # Save predictions if requested
         save_predictions(args, results)
 
-        logger.info("Evaluation completed successfully")
         return 0
 
     except KeyboardInterrupt:
         logger.info("Evaluation interrupted by user")
         return 1
-    except Exception as e:
-        logger.error(f"Evaluation failed: {e}")
+    except Exception as e:  # pylint: disable=broad-except
+        logger.error("Evaluation failed: %s", e)
         if args.debug:
-            import traceback
             logger.debug(traceback.format_exc())
         return 1
 
 
 if __name__ == "__main__":
-    exit_code = main()
-    sys.exit(exit_code)
+    EXIT_CODE = main()
+    sys.exit(EXIT_CODE)

@@ -6,25 +6,19 @@ model infrastructure. The Perceptron is a foundational neural network that can
 learn linear decision boundaries through iterative weight updates.
 """
 
-import sys
-import numpy as np
+from pathlib import Path
+from typing import Any, Dict, Optional
+
 import torch
 import torch.nn as nn
-from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, Union
-import json
+
+from engine.base import BaseModel
 
 # Import shared packages
 from utils import get_logger, set_random_seed
-from engine.base import BaseModel
 
-# Import model-specific components  
-from .constants import (
-    MODEL_NAME,
-    MODEL_VERSION,
-    YEAR_INTRODUCED,
-    AUTHORS,
-)
+# Import model-specific components
+from .constants import AUTHORS, MODEL_NAME, MODEL_VERSION, YEAR_INTRODUCED
 
 
 class Perceptron(nn.Module, BaseModel):
@@ -64,7 +58,7 @@ class Perceptron(nn.Module, BaseModel):
         max_epochs: int = 100,  # Changed from DEFAULT_MAX_EPOCHS
         tolerance: float = 0.01,  # Changed from DEFAULT_TOLERANCE
         activation: str = "step",  # Changed from DEFAULT_ACTIVATION
-        init_method: str = "zeros", # Changed from DEFAULT_INIT_METHOD
+        init_method: str = "zeros",  # Changed from DEFAULT_INIT_METHOD
         random_state: Optional[int] = None,
     ):
         super().__init__()
@@ -96,7 +90,7 @@ class Perceptron(nn.Module, BaseModel):
         self.training_history = {"loss": [], "accuracy": [], "epochs_trained": 0}
 
         self.logger.info(
-            f"Perceptron initialized: {input_size} inputs, {activation} activation"
+            "Perceptron initialized: %d inputs, %s activation", input_size, activation
         )
 
     def _initialize_weights(self):
@@ -115,26 +109,26 @@ class Perceptron(nn.Module, BaseModel):
                 nn.init.uniform_(self.linear.weight, -0.5, 0.5)
                 nn.init.zeros_(self.linear.bias)
 
-    def _apply_activation(self, x: torch.Tensor) -> torch.Tensor:
+    def _apply_activation(self, x_input: torch.Tensor) -> torch.Tensor:
         """Apply the specified activation function."""
         if self.activation == "step":
             # Use differentiable approximation of step function for training
             if self.training:
                 # Steep sigmoid approximates step function but maintains gradients
-                return torch.sigmoid(10.0 * x)
+                return torch.sigmoid(10.0 * x_input)
             else:
                 # True step function for inference
-                return (x >= 0).float()
+                return (x_input >= 0).float()
         elif self.activation == "sigmoid":
-            return torch.sigmoid(x)
+            return torch.sigmoid(x_input)
         elif self.activation == "tanh":
-            return torch.tanh(x)
+            return torch.tanh(x_input)
         else:
             # Default to step with same logic
             if self.training:
-                return torch.sigmoid(10.0 * x)
+                return torch.sigmoid(10.0 * x_input)
             else:
-                return (x >= 0).float()
+                return (x_input >= 0).float()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -261,8 +255,8 @@ class Perceptron(nn.Module, BaseModel):
             "epochs_trained": self.training_history.get("epochs_trained", 0),
             "device": str(next(self.parameters()).device),
             # Weights (for analysis)
-            "weights": self.linear.weight.detach().cpu().numpy().tolist(),
-            "bias": self.linear.bias.detach().cpu().numpy().tolist(),
+            "weights": self.linear.weight.data.cpu().numpy().tolist(),
+            "bias": self.linear.bias.data.cpu().numpy().tolist(),
         }
 
     def save_model(self, filepath: str):
@@ -292,7 +286,7 @@ class Perceptron(nn.Module, BaseModel):
         }
 
         torch.save(save_dict, save_path)
-        self.logger.info(f"Model saved to {save_path}")
+        self.logger.info("Model saved to %s", save_path)
 
     @classmethod
     def load_model(cls, filepath: str) -> "Perceptron":
@@ -326,10 +320,10 @@ class Perceptron(nn.Module, BaseModel):
         model.training_history = save_dict.get("training_history", {})
         model.is_fitted = True
 
-        model.logger.info(f"Model loaded from {filepath}")
+        model.logger.info("Model loaded from %s", filepath)
         return model
 
-    def fit(self, X: torch.Tensor, y: torch.Tensor) -> Dict[str, Any]:
+    def fit(self, x_data: torch.Tensor, y_target: torch.Tensor) -> Dict[str, Any]:
         """
         Fit the perceptron using the classic perceptron learning rule.
 
@@ -351,14 +345,13 @@ class Perceptron(nn.Module, BaseModel):
         # Training loop
         for epoch in range(self.max_epochs):
             # Forward pass
-            outputs = self.forward(X)
-            predictions = self.predict(X)
+            predictions = self.predict(x_data)
 
             # Compute accuracy
-            accuracy = (predictions == y).float().mean().item()
+            accuracy = (predictions == y_target).float().mean().item()
 
             # Compute loss (number of misclassifications)
-            loss = (predictions != y).float().sum().item()
+            loss = (predictions != y_target).float().sum().item()
 
             # Store metrics
             self.training_history["loss"].append(loss)
@@ -367,29 +360,29 @@ class Perceptron(nn.Module, BaseModel):
 
             # Check convergence
             if loss <= self.tolerance:
-                self.logger.info(f"Converged at epoch {epoch + 1}")
+                self.logger.info("Converged at epoch %d", epoch + 1)
                 break
 
             # Perceptron learning rule
             self.train()
-            for i in range(len(X)):
-                prediction = self.predict(X[i : i + 1])
-                if prediction != y[i]:
+            for x_sample, y_sample in zip(x_data, y_target):
+                prediction = self.predict(x_sample.unsqueeze(0))
+                if prediction != y_sample:
                     # Update weights using proper parameter operations
                     with torch.no_grad():
-                        if y[i] == 1:  # Misclassified positive
-                            self.linear.weight.data += self.learning_rate * X[
-                                i
-                            ].unsqueeze(0)
+                        if y_sample == 1:  # Misclassified positive
+                            self.linear.weight.data += (
+                                self.learning_rate * x_sample.unsqueeze(0)
+                            )
                             self.linear.bias.data += self.learning_rate
                         else:  # Misclassified negative
-                            self.linear.weight.data -= self.learning_rate * X[
-                                i
-                            ].unsqueeze(0)
+                            self.linear.weight.data -= (
+                                self.learning_rate * x_sample.unsqueeze(0)
+                            )
                             self.linear.bias.data -= self.learning_rate
 
         self.is_fitted = True
-        self.logger.info(f"Training completed: {accuracy:.4f} accuracy")
+        self.logger.info("Training completed: %.4f accuracy", accuracy)
         return self.training_history
 
     def __repr__(self) -> str:
@@ -414,10 +407,14 @@ def create_perceptron(config: Dict[str, Any]) -> Perceptron:
     """
     return Perceptron(
         input_size=config.get("input_size", 2),
-        learning_rate=config.get("learning_rate", 0.1), # Changed from DEFAULT_LEARNING_RATE
-        max_epochs=config.get("max_epochs", 100), # Changed from DEFAULT_MAX_EPOCHS
-        tolerance=config.get("tolerance", 0.01), # Changed from DEFAULT_TOLERANCE
-        activation=config.get("activation", "step"), # Changed from DEFAULT_ACTIVATION
-        init_method=config.get("init_method", "zeros"), # Changed from DEFAULT_INIT_METHOD
+        learning_rate=config.get(
+            "learning_rate", 0.1
+        ),  # Changed from DEFAULT_LEARNING_RATE
+        max_epochs=config.get("max_epochs", 100),  # Changed from DEFAULT_MAX_EPOCHS
+        tolerance=config.get("tolerance", 0.01),  # Changed from DEFAULT_TOLERANCE
+        activation=config.get("activation", "step"),  # Changed from DEFAULT_ACTIVATION
+        init_method=config.get(
+            "init_method", "zeros"
+        ),  # Changed from DEFAULT_INIT_METHOD
         random_state=config.get("random_state", None),
     )

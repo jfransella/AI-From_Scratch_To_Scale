@@ -5,6 +5,7 @@ Provides experiment-specific configurations using the shared TrainingConfig
 and EvaluationConfig classes from the engine package.
 """
 
+import os
 import sys
 from pathlib import Path
 from typing import Dict, Any
@@ -13,7 +14,9 @@ from typing import Dict, Any
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from engine import TrainingConfig, EvaluationConfig
+# Import from engine package
+from engine import TrainingConfig, EvaluationConfig  # noqa: E402  # pylint: disable=wrong-import-position
+
 # Import constants - handle both direct and relative imports
 try:
     from constants import (
@@ -26,18 +29,15 @@ try:
         DATASET_SPECS,
         validate_experiment,
         get_experiment_info,
-        LOGS_DIR,
         MODELS_DIR,
         PLOTS_DIR,
     )
 except ImportError:
     # Fallback for validation system - import from same directory
-    import os
-    import sys
     current_dir = os.path.dirname(os.path.abspath(__file__))
     if current_dir not in sys.path:
         sys.path.insert(0, current_dir)
-    
+
     from constants import (
         MODEL_NAME,
         DEFAULT_LEARNING_RATE,
@@ -48,7 +48,6 @@ except ImportError:
         DATASET_SPECS,
         validate_experiment,
         get_experiment_info,
-        LOGS_DIR,
         MODELS_DIR,
         PLOTS_DIR,
     )
@@ -71,8 +70,7 @@ def get_training_config(experiment_name: str, **overrides) -> TrainingConfig:
     # Validate experiment name
     validate_experiment(experiment_name)
 
-    # Get experiment info and dataset specs
-    exp_info = get_experiment_info(experiment_name)
+    # Get dataset specs
     dataset_spec = DATASET_SPECS[experiment_name]
 
     # Base configuration for all Perceptron experiments
@@ -352,13 +350,16 @@ def print_config_summary(experiment_name: str):
         print(f"Dataset: {config['dataset_config']['dataset_name']}")
         print(f"Expected Accuracy: {config['dataset_config']['expected_accuracy']:.3f}")
         print(f"Difficulty: {config['dataset_config']['difficulty']}")
-        print(
-            f"Type: {'Strength' if exp_info['is_strength'] else 'Weakness' if exp_info['is_weakness'] else 'Debug'}"
+        type_str = (
+            "Strength" if exp_info["is_strength"]
+            else "Weakness" if exp_info["is_weakness"]
+            else "Debug"
         )
+        print(f"Type: {type_str}")
 
         # Model config
         model_config = config["model_config"]
-        print(f"\nModel Configuration:")
+        print("\nModel Configuration:")
         print(f"  Input Size: {model_config['input_size']}")
         print(f"  Learning Rate: {model_config['learning_rate']}")
         print(f"  Max Epochs: {model_config['max_epochs']}")
@@ -367,7 +368,7 @@ def print_config_summary(experiment_name: str):
 
         # Training config
         training_config = config["training_config"]
-        print(f"\nTraining Configuration:")
+        print("\nTraining Configuration:")
         print(f"  Optimizer: {training_config.optimizer_type}")
         print(f"  Convergence Threshold: {training_config.convergence_threshold}")
         print(f"  Patience: {training_config.patience}")
@@ -377,8 +378,8 @@ def print_config_summary(experiment_name: str):
         print(f"\nDescription: {config['dataset_config']['description']}")
         print(f"{'='*60}\n")
 
-    except Exception as e:
-        print(f"Error printing config summary: {e}")
+    except Exception as e:  # pylint: disable=broad-except
+        print(f"Error printing config summary: {e}")  # pylint: disable=broad-except
 
 
 # Legacy compatibility function for old code
@@ -399,7 +400,6 @@ def get_config(experiment_name: str, env: str = "default") -> Dict[str, Any]:
     try:
         # Get all configs
         training_config = get_training_config(experiment_name)
-        evaluation_config = get_evaluation_config(experiment_name)
         model_config = get_model_config(experiment_name)
         dataset_config = get_dataset_config(experiment_name)
 
@@ -426,7 +426,7 @@ def get_config(experiment_name: str, env: str = "default") -> Dict[str, Any]:
     except Exception as e:
         raise ValueError(
             f"Failed to get configuration for experiment '{experiment_name}': {e}"
-        )
+        ) from e
 
 
 if __name__ == "__main__":
@@ -436,7 +436,7 @@ if __name__ == "__main__":
     for experiment in ["debug_small", "iris_binary", "xor_problem"]:
         try:
             print_config_summary(experiment)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             print(f"Error testing {experiment}: {e}")
 
     print("Configuration system test completed!")

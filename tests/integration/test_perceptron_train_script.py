@@ -48,9 +48,9 @@ try:
         "constants", "validate_experiment"
     )  # type: ignore
     ALL_EXPERIMENTS: object = import_from_src("constants", "ALL_EXPERIMENTS")  # type: ignore
-    DataSplit: object = import_from_src("engine.base", "DataSplit")  # type: ignore
-    Trainer: object = import_from_src("engine.trainer", "Trainer")  # type: ignore
-    TrainingConfig: object = import_from_src("engine.trainer", "TrainingConfig")  # type: ignore
+    # Import from top-level engine package
+    from engine.base import DataSplit
+    from engine.trainer import Trainer, TrainingConfig
 except ImportError:
     # These will be handled in individual tests
     create_perceptron: object = None  # type: ignore
@@ -59,18 +59,18 @@ except ImportError:
     get_training_config: object = None  # type: ignore
     validate_experiment: object = None  # type: ignore
     ALL_EXPERIMENTS: object = None  # type: ignore
-    DataSplit: object = None  # type: ignore
-    Trainer: object = None  # type: ignore
-    TrainingConfig: object = None  # type: ignore
+    # Engine imports - try direct import if import_from_src fails
+    try:
+        from engine.base import DataSplit
+        from engine.trainer import Trainer, TrainingConfig
+    except ImportError:
+        DataSplit = None  # type: ignore
+        Trainer = None  # type: ignore
+        TrainingConfig = None  # type: ignore
 
 
 class TestTrainScriptIntegration:
     """Integration tests for the train.py script."""
-
-    def __init__(self):
-        """Initialize test attributes."""
-        self.temp_dir = None
-        self.train_script = None
 
     def setup_method(self):
         """Set up test fixtures."""
@@ -271,10 +271,6 @@ class TestTrainScriptIntegration:
 
 class TestTrainingFunctionUnits:
     """Unit tests for training functions that can be tested in isolation."""
-
-    def __init__(self):
-        """Initialize test attributes."""
-        self.temp_dir = None
 
     def setup_method(self):
         """Set up test fixtures."""

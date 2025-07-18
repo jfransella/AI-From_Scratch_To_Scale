@@ -67,6 +67,16 @@ class Perceptron(nn.Module, BaseModel):  # pylint: disable=too-many-instance-att
     ):
         super().__init__()
 
+        # Validate input parameters
+        if input_size <= 0:
+            raise ValueError(f"input_size must be positive, got {input_size}")
+        if learning_rate <= 0:
+            raise ValueError(f"learning_rate must be positive, got {learning_rate}")
+        if max_epochs <= 0:
+            raise ValueError(f"max_epochs must be positive, got {max_epochs}")
+        if tolerance <= 0:
+            raise ValueError(f"tolerance must be positive, got {tolerance}")
+
         # Store configuration
         self.input_size = input_size
         self.learning_rate = learning_rate

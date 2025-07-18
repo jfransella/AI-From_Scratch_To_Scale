@@ -82,26 +82,19 @@ class TestPerceptronInitialization:
     
     def test_initialization_invalid_input_size_raises_error(self):
         """Test that invalid input size raises appropriate error."""
-        # The current implementation doesn't validate input_size, so we'll test that it accepts any positive value
-        # and fails gracefully for non-positive values
-        try:
-            model = Perceptron(input_size=0)
-            # If no error is raised, that's the current behavior
-            assert model.input_size == 0
-        except Exception as e:
-            # If an error is raised, that's also acceptable
-            assert "input" in str(e).lower() or "size" in str(e).lower()
+        with pytest.raises(ValueError, match="input_size must be positive"):
+            Perceptron(input_size=0)
+        
+        with pytest.raises(ValueError, match="input_size must be positive"):
+            Perceptron(input_size=-1)
     
     def test_initialization_invalid_learning_rate_raises_error(self):
         """Test that invalid learning rate raises appropriate error."""
-        # The current implementation doesn't validate learning_rate, so we'll test current behavior
-        try:
-            model = Perceptron(input_size=2, learning_rate=0)
-            # If no error is raised, that's the current behavior
-            assert model.learning_rate == 0
-        except Exception as e:
-            # If an error is raised, that's also acceptable
-            assert "learning" in str(e).lower() or "rate" in str(e).lower()
+        with pytest.raises(ValueError, match="learning_rate must be positive"):
+            Perceptron(input_size=2, learning_rate=0)
+        
+        with pytest.raises(ValueError, match="learning_rate must be positive"):
+            Perceptron(input_size=2, learning_rate=-0.1)
     
     def test_initialization_invalid_activation_raises_error(self):
         """Test that invalid activation function raises appropriate error."""

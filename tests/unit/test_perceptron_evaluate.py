@@ -64,11 +64,6 @@ except ImportError:
 class TestLoadModelFromCheckpoint:
     """Test suite for load_model_from_checkpoint function."""
 
-    def __init__(self):
-        """Initialize test attributes."""
-        self.temp_dir = None
-        self.model_config = None
-
     def setup_method(self):
         """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
@@ -171,12 +166,6 @@ class TestLoadModelFromCheckpoint:
 
 class TestPrepareEvaluationData:
     """Test suite for prepare_evaluation_data function."""
-
-    def __init__(self):
-        """Initialize test attributes."""
-        self.dataset_config = None
-        self.sample_x = None
-        self.sample_y = None
 
     def setup_method(self):
         """Set up test fixtures."""
@@ -284,11 +273,6 @@ class TestPrepareEvaluationData:
 class TestSaveEvaluationResults:
     """Test suite for save_evaluation_results function."""
 
-    def __init__(self):
-        """Initialize test attributes."""
-        self.temp_dir = None
-        self.mock_result = None
-
     def setup_method(self):
         """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
@@ -351,11 +335,6 @@ class TestSaveEvaluationResults:
 
 class TestPrintEvaluationSummary:
     """Test suite for print_evaluation_summary function."""
-
-    def __init__(self):
-        """Initialize test attributes."""
-        self.mock_result = None
-        self.dataset_config = None
 
     def setup_method(self):
         """Set up test fixtures."""
@@ -428,10 +407,6 @@ class TestPrintEvaluationSummary:
 
 class TestEvaluationScriptIntegration:
     """Integration tests for the evaluation script main functionality."""
-
-    def __init__(self):
-        """Initialize test attributes."""
-        self.temp_dir = None
 
     def setup_method(self):
         """Set up test fixtures."""

@@ -44,14 +44,6 @@ get_model_config = import_from_src("config", "get_model_config")
 class TestEvaluateScriptIntegration:
     """Integration tests for the evaluate.py script."""
 
-    def __init__(self):
-        """Initialize test fixtures."""
-        self.temp_dir = None
-        self.evaluate_script = perceptron_src / "evaluate.py"
-        self.model_config = None
-        self.model = None
-        self.checkpoint_path = None
-
     def setup_method(self):
         """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()

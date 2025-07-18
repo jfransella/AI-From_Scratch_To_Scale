@@ -33,8 +33,8 @@
             "path": "./models/01_perceptron"
         },
         {
-            "name": "02️⃣ MLP",
-            "path": "./models/02_MLP"
+            "name": "03️⃣ MLP",
+            "path": "./models/03_MLP"
         },
         {
             "name": "📚 Documentation",

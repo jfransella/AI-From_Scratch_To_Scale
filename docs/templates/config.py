@@ -9,7 +9,7 @@ This template provides a comprehensive configuration management system for the
 configuration patterns to support different implementation needs.
 
 CONFIGURATION PATTERNS:
-1. Simple Pattern: Dataclass-based configuration (like 02_MLP)
+1. Simple Pattern: Dataclass-based configuration (like 03_MLP)
 2. Advanced Pattern: Engine-based configuration (like 01_Perceptron)
 
 Replace MODEL_NAME with the actual model name (e.g., "Perceptron", "MLP", etc.)
@@ -41,7 +41,7 @@ from constants import MODEL_NAME, ALL_EXPERIMENTS
 
 @dataclass
 class SimpleExperimentConfig:
-    """Simple configuration for a single experiment (like 02_MLP)."""
+    """Simple configuration for a single experiment (like 03_MLP)."""
     
     # Experiment metadata
     name: str

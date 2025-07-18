@@ -73,7 +73,7 @@ Input Pattern → XOR Output
 
 ```bash
 # Navigate to MLP directory
-cd models/02_MLP
+cd models/03_MLP
 
 # Install dependencies
 pip install -r requirements.txt
@@ -177,7 +177,7 @@ This implementation demonstrates:
 ## File Structure
 
 ```text
-02_MLP/
+03_MLP/
 ├── src/
 │   ├── constants.py      # Historical metadata and configurations
 │   ├── config.py         # Experiment configurations
@@ -238,7 +238,7 @@ For more details and best practices, refer to the Visualization Playbooks and Im
 This MLP implementation fits into the "AI From Scratch to Scale" educational sequence:
 
 1. **01_perceptron** → Demonstrates fundamental limitations
-2. **02_MLP** → **Breakthrough moment** solving non-linear problems
+2. **03_MLP** → **Breakthrough moment** solving non-linear problems
 3. **Future Models** → Building toward modern deep learning
 
 The MLP represents the first true "neural network" in the modern sense, capable of learning hierarchical representations and solving real-world problems that single neurons cannot handle.

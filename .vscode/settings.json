@@ -11,7 +11,7 @@
         "./plotting",
         "./utils",
         "./models/01_perceptron/src",
-        "./models/02_MLP/src"
+        "./models/03_MLP/src"
     ],
     "python.analysis.autoImportCompletions": true,
     "python.analysis.autoSearchPaths": true,

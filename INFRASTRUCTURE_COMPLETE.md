@@ -73,7 +73,7 @@ AI-From-Scratch-To-Scale/
 ├── plotting/        # ✅ Visualization
 ├── models/          # ✅ Progressive implementations
 │   ├── 01_perceptron/   # ✅ Working
-│   └── 02_MLP/          # ✅ Working
+│   └── 03_MLP/          # ✅ Working
 ├── setup.py         # ✅ Package installation
 └── __init__.py      # ✅ Root package
 ```
@@ -81,7 +81,7 @@ AI-From-Scratch-To-Scale/
 ### 3. **Educational Progression Validated**
 
 - **01_perceptron**: Demonstrates fundamental limitations (XOR ~53% accuracy)
-- **02_MLP**: Shows breakthrough capability (XOR ~75% accuracy)
+- **03_MLP**: Shows breakthrough capability (XOR ~75% accuracy)
 - **Shared Infrastructure**: Same tools work across both models
 - **Scalable Foundation**: Ready for CNNs, RNNs, Transformers
 

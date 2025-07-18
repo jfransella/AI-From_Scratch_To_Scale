@@ -42,7 +42,7 @@ We support two main development patterns to accommodate different needs:
 - Self-contained functionality
 - Minimal dependencies
 
-**Example**: `models/02_MLP/` (simple implementation)
+**Example**: `models/03_MLP/` (simple implementation)
 
 **Key Files**:
 
@@ -398,7 +398,7 @@ Templates support customization through:
 
 The templates have been updated to align with successful implementations:
 
-- **Model Template**: Matches patterns from 01_Perceptron and 02_MLP
+- **Model Template**: Matches patterns from 01_Perceptron and 03_MLP
 - **Config Template**: Supports both dataclass and engine patterns
 - **Train Template**: Provides both manual and engine-based training
 - **Constants Template**: Comprehensive metadata and validation

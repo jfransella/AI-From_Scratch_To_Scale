@@ -22,7 +22,7 @@ def import_models():
     """Dynamically import model classes."""
     # Add model paths
     sys.path.insert(0, str(Path("models/01_perceptron/src")))
-    sys.path.insert(0, str(Path("models/02_MLP/src")))
+    sys.path.insert(0, str(Path("models/03_MLP/src")))
 
     try:
         from model import MLP, Perceptron

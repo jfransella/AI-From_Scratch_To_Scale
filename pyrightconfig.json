@@ -14,7 +14,7 @@
     "extraPaths": [
         ".",
         "models/01_perceptron/src",
-        "models/02_MLP/src"
+        "models/03_MLP/src"
     ],
     "pythonVersion": "3.13",
     "pythonPlatform": "Windows",

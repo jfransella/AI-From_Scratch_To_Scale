@@ -72,17 +72,20 @@ AI-From-Scratch-To-Scale/
 ├── engine/          # ✅ Training/evaluation
 ├── plotting/        # ✅ Visualization
 ├── models/          # ✅ Progressive implementations
-│   ├── 01_perceptron/   # ✅ Working
-│   └── 03_MLP/          # ✅ Working
+│   ├── 01_perceptron/   # ✅ Working (Engine-based pattern)
+│   ├── 02_adaline/      # 📋 Next: Conceptual study 
+│   └── 03_mlp/          # ✅ Working (Simple pattern)
 ├── setup.py         # ✅ Package installation
 └── __init__.py      # ✅ Root package
 ```
 
 ### 3. **Educational Progression Validated**
 
-- **01_perceptron**: Demonstrates fundamental limitations (XOR ~53% accuracy)
-- **03_MLP**: Shows breakthrough capability (XOR ~75% accuracy)
-- **Shared Infrastructure**: Same tools work across both models
+- **01_perceptron**: Demonstrates fundamental limitations (XOR ~53% accuracy) - Engine pattern
+- **02_adaline**: Planned - Continuous learning with Delta Rule - Conceptual study  
+- **03_mlp**: Shows breakthrough capability (XOR ~75% accuracy) - Simple pattern
+- **Shared Infrastructure**: Same tools work across all models
+- **Two Implementation Patterns**: Engine-based (advanced) and Simple (educational)
 - **Scalable Foundation**: Ready for CNNs, RNNs, Transformers
 
 ### 4. **Integration Success**

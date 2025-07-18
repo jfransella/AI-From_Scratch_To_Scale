@@ -1,0 +1,28 @@
+# Multi-Layer Perceptron (MLP) Model - Specific Requirements
+# Dependencies for solving non-linearly separable problems
+
+# Core ML Libraries
+torch>=1.12.0
+numpy>=1.21.0
+scikit-learn>=1.1.0
+
+# Data Processing and Analysis
+pandas>=1.4.0
+
+# Visualization (enhanced for decision boundary plots)
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# Progress Tracking
+tqdm>=4.64.0
+
+# Experiment Tracking
+wandb>=0.13.0
+
+# Additional utilities for MLP visualization
+plotly>=5.0.0 
+
+-e ../../plotting
+-e ../../engine
+-e ../../data_utils
+-e ../../utils 

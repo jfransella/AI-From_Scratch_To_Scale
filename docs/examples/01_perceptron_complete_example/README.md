@@ -5,6 +5,7 @@ This directory contains a complete, working implementation of the Perceptron mod
 ## **Purpose**
 
 This example serves as a reference implementation that shows:
+
 - How to use all the templates effectively
 - Proper integration with shared infrastructure
 - Best practices for model implementation
@@ -13,6 +14,7 @@ This example serves as a reference implementation that shows:
 ## **What's Included**
 
 ### **Implementation Files**
+
 - `src/constants.py` - Model metadata and fixed values
 - `src/config.py` - Configuration management with experiments
 - `src/model.py` - Perceptron model implementation
@@ -21,11 +23,13 @@ This example serves as a reference implementation that shows:
 - `requirements.txt` - Model-specific dependencies
 
 ### **Documentation**
+
 - `notebooks/01_Theory_and_Intuition.ipynb` - Historical context and mathematical intuition
 - `notebooks/02_Code_Walkthrough.ipynb` - Code explanation and demonstration
 - `notebooks/03_Empirical_Analysis.ipynb` - Results analysis and conclusions
 
 ### **Testing**
+
 - `tests/test_perceptron.py` - Unit tests for the model
 - `tests/test_config.py` - Configuration validation tests
 - `tests/test_integration.py` - Integration tests
@@ -33,22 +37,26 @@ This example serves as a reference implementation that shows:
 ## **Key Features Demonstrated**
 
 ### **1. Template Usage**
+
 - Uses all provided templates as starting points
 - Shows how to customize templates for specific models
 - Demonstrates proper error handling and validation
 
 ### **2. Configuration Management**
+
 - Implements hierarchical configuration system
 - Shows experiment-specific parameter overrides
 - Demonstrates environment-specific configurations
 
 ### **3. Shared Infrastructure Integration**
+
 - Properly integrates with `data_utils` for dataset loading
 - Uses `engine` for training and evaluation
 - Leverages `plotting` for visualization generation
 - Utilizes `utils` for logging and reproducibility
 
 ### **4. Best Practices**
+
 - Follows all coding standards and naming conventions
 - Implements proper error handling and logging
 - Uses appropriate testing strategies
@@ -95,11 +103,13 @@ By studying this example, you will understand:
 ## **Expected Results**
 
 ### **Strength Experiments**
+
 - **AND Gate**: Should achieve 100% accuracy quickly
 - **Iris Easy**: Should separate Setosa from others perfectly
 - **MNIST Binary**: Should achieve reasonable accuracy on simple digits
 
 ### **Weakness Experiments**
+
 - **XOR Gate**: Should fail to learn (demonstrates linear limitation)
 - **Iris Hard**: Should struggle with non-linear separation
 - **Circles**: Should fail on non-linearly separable data
@@ -136,6 +146,7 @@ docs\examples\01_perceptron_complete_example\
 ## **Using as Reference**
 
 This example is designed to be:
+
 - **Copied and modified** for new model implementations
 - **Studied** to understand best practices
 - **Referenced** when implementing similar patterns
@@ -144,6 +155,7 @@ This example is designed to be:
 ## **Next Steps**
 
 After studying this example:
+
 1. Try implementing a similar model (ADALINE) using the same patterns
 2. Experiment with different configurations and datasets
 3. Add your own visualizations and analysis
@@ -154,16 +166,19 @@ After studying this example:
 When adapting this example for other models:
 
 ### **For Linear Models (ADALINE)**
+
 - Change activation function in `model.py`
 - Update learning rule in training loop
 - Modify constants for historical accuracy
 
 ### **For Non-Linear Models (MLP)**
+
 - Add hidden layers in `model.py`
 - Update configuration for layer parameters
 - Add feature visualization capabilities
 
 ### **For Specialized Models (CNN, RNN)**
+
 - Extend configuration for domain-specific parameters
 - Add specialized data preprocessing
 - Include domain-specific visualizations
@@ -171,9 +186,10 @@ When adapting this example for other models:
 ## **Support**
 
 If you encounter issues with this example:
+
 1. Check the [Development FAQ](../../Development_FAQ.md)
 2. Review the [AI Development Guide](../../AI_Development_Guide.md)
 3. Ensure all dependencies are installed correctly
 4. Verify virtual environment is activated
 
-This example represents the gold standard for model implementation in this project. Use it as your reference for creating high-quality, educational, and maintainable code. 
+This example represents the gold standard for model implementation in this project. Use it as your reference for creating high-quality, educational, and maintainable code.

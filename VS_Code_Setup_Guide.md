@@ -9,6 +9,7 @@ This guide will help you set up VS Code for optimal development with our AI proj
 When you open the project in VS Code, you'll be prompted to install recommended extensions. Click **"Install All"** or install manually:
 
 **Essential Extensions:**
+
 - **Python** (`ms-python.python`) - Core Python support
 - **Flake8** (`ms-python.flake8`) - Linting with Flake8
 - **Black Formatter** (`ms-python.black-formatter`) - Code formatting
@@ -18,11 +19,13 @@ When you open the project in VS Code, you'll be prompted to install recommended 
 ### 2. Open as Workspace
 
 For best experience, open the **workspace file** instead of just the folder:
+
 ```
 File → Open Workspace from File → ai-from-scratch-to-scale.code-workspace
 ```
 
 This provides:
+
 - ✅ Organized folder structure
 - ✅ Pre-configured settings
 - ✅ Built-in tasks and debugging
@@ -36,13 +39,16 @@ This provides:
 ## 🔧 Configuration Overview
 
 ### Automatic Features
+
 - **Format on Save** - Code automatically formatted with Black
 - **Organize Imports on Save** - isort organizes imports
 - **Real-time Linting** - Flake8 shows issues as you type
 - **88 Character Line Ruler** - Visual guide for line length
 
 ### Linting Configuration
+
 Our Flake8 setup includes:
+
 ```
 ✅ Compatible with Black formatting
 ✅ 88 character line length
@@ -52,7 +58,9 @@ Our Flake8 setup includes:
 ```
 
 ### Formatting Configuration
+
 Our Black setup:
+
 ```
 ✅ 88 character line length (PEP 8 extended)
 ✅ Automatic string quote normalization
@@ -90,6 +98,7 @@ Our Black setup:
 ## 📝 Development Workflow
 
 ### 1. Daily Development
+
 ```powershell
 # Open VS Code workspace
 code ai-from-scratch-to-scale.code-workspace
@@ -102,6 +111,7 @@ code ai-from-scratch-to-scale.code-workspace
 ```
 
 ### 2. Before Committing
+
 ```powershell
 # Run comprehensive check
 Ctrl+Shift+P → "Tasks: Run Task" → "Quality Check"
@@ -111,6 +121,7 @@ Ctrl+Shift+P → "Tasks: Run Task" → "Quality Check"
 ```
 
 ### 3. Debugging Issues
+
 ```powershell
 # Set breakpoints and press F5
 # Or use Debug Panel → "Debug Perceptron Training"
@@ -122,18 +133,21 @@ Ctrl+Shift+P → "Tasks: Run Task" → "Lint Code"
 ## 🎨 Editor Features
 
 ### Real-time Feedback
+
 - **Red Squiggles** - Syntax errors
 - **Yellow Squiggles** - Linting warnings
 - **Blue Squiggles** - Style suggestions
 - **Problems Panel** - All issues listed
 
 ### IntelliSense
+
 - **Auto-completion** for imports and methods
 - **Type hints** and documentation
 - **Parameter hints** for functions
 - **Import suggestions** for missing modules
 
 ### Code Navigation
+
 - **File Explorer** organized by component
 - **Outline View** shows class/function structure
 - **Breadcrumbs** for navigation context
@@ -142,6 +156,7 @@ Ctrl+Shift+P → "Tasks: Run Task" → "Lint Code"
 ## 🔍 Troubleshooting
 
 ### Linting Not Working?
+
 ```powershell
 # Check Python interpreter
 Ctrl+Shift+P → "Python: Select Interpreter"
@@ -154,6 +169,7 @@ flake8 --version
 ```
 
 ### Formatting Not Working?
+
 ```powershell
 # Check Black installation
 black --version
@@ -163,6 +179,7 @@ Shift+Alt+F
 ```
 
 ### Virtual Environment Issues?
+
 ```powershell
 # Reload window
 Ctrl+Shift+P → "Developer: Reload Window"
@@ -172,6 +189,7 @@ Ctrl+Shift+P → "Python: Select Interpreter"
 ```
 
 ### Import Issues?
+
 ```powershell
 # Check PYTHONPATH
 # Should include project root
@@ -183,6 +201,7 @@ Ctrl+Shift+P → "Developer: Reload Window"
 ## 📁 File Organization
 
 Our workspace organizes files logically:
+
 ```
 🏠 Project Root          # Main configuration files
 📊 Data Utils           # Shared data loading
@@ -198,17 +217,20 @@ Our workspace organizes files logically:
 ## 🎯 Pro Tips
 
 ### Productivity Shortcuts
+
 - `Ctrl+`` - Open integrated terminal
 - `Ctrl+Shift+`` - New terminal
 - `Ctrl+K, Ctrl+S` - Keyboard shortcuts reference
 - `Ctrl+,` - Open settings
 
 ### Multi-file Editing
+
 - `Ctrl+D` - Select next occurrence
 - `Alt+Click` - Multiple cursors
 - `Ctrl+Shift+L` - Select all occurrences
 
 ### Search & Replace
+
 - `Ctrl+F` - Find in file
 - `Ctrl+H` - Replace in file
 - `Ctrl+Shift+F` - Find in workspace
@@ -217,11 +239,13 @@ Our workspace organizes files logically:
 ## 🆘 Getting Help
 
 ### VS Code Resources
+
 - `F1` → "Help: Show All Commands"
 - `Ctrl+Shift+P` → "Help: Welcome"
 - View → Command Palette for all commands
 
 ### Project-Specific Help
+
 - Check `docs/` folder for project documentation
 - Run `.\scripts\check.ps1 --help` for script options
 - Use Debug Console for runtime debugging
@@ -230,4 +254,4 @@ Our workspace organizes files logically:
 
 **Happy Coding! 🎉**
 
-Your VS Code is now optimized for AI development with automatic formatting, linting, and intelligent code suggestions. 
+Your VS Code is now optimized for AI development with automatic formatting, linting, and intelligent code suggestions.

@@ -3,6 +3,7 @@
 This document provides solutions to common issues encountered when developing models for the "AI From Scratch to Scale" project. It's designed to help AI assistants quickly troubleshoot problems and maintain development momentum.
 
 ## **Table of Contents**
+
 1. [Environment Setup Issues](#environment-setup-issues)
 2. [Import and Dependency Problems](#import-and-dependency-problems)
 3. [Training Issues](#training-issues)
@@ -19,9 +20,11 @@ This document provides solutions to common issues encountered when developing mo
 ## **Environment Setup Issues**
 
 ### **Q: Virtual environment creation fails**
+
 **Problem**: `python -m venv .venv` fails with permission errors or module not found.
 
 **Solutions**:
+
 ```powershell
 # Ensure Python is properly installed
 python --version
@@ -38,9 +41,11 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
 ### **Q: Virtual environment activation fails**
+
 **Problem**: `.venv\Scripts\activate` gives execution policy errors.
 
 **Solutions**:
+
 ```powershell
 # Option 1: Change execution policy
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
@@ -57,9 +62,11 @@ where python
 ```
 
 ### **Q: Shared packages installation fails**
+
 **Problem**: `pip install -e ..\..` fails with import errors.
 
 **Solutions**:
+
 ```powershell
 # Ensure you're in the model directory
 cd models\XX_modelname
@@ -78,9 +85,11 @@ python -c "from data_utils import load_dataset; print('Success')"
 ```
 
 ### **Q: Package version conflicts**
+
 **Problem**: Conflicting package versions between model requirements and shared packages.
 
 **Solutions**:
+
 ```powershell
 # Check for conflicts
 pip check
@@ -103,9 +112,11 @@ pip install -e ..\..
 ## **Import and Dependency Problems**
 
 ### **Q: Cannot import shared modules**
+
 **Problem**: `ImportError: No module named 'data_utils'` when trying to import shared packages.
 
 **Solutions**:
+
 ```python
 # 1. Verify virtual environment is activated
 import sys
@@ -127,9 +138,11 @@ sys.path.append(r'C:\path\to\ai-from-scratch-to-scale')
 ```
 
 ### **Q: CUDA/PyTorch installation issues**
+
 **Problem**: PyTorch not using GPU or CUDA version mismatch.
 
 **Solutions**:
+
 ```python
 # Check CUDA availability
 import torch
@@ -146,9 +159,11 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 ```
 
 ### **Q: Missing dependencies for specific models**
+
 **Problem**: Model-specific dependencies not installed.
 
 **Solutions**:
+
 ```powershell
 # Check model's requirements.txt
 cat requirements.txt
@@ -171,9 +186,11 @@ pip install torch-geometric
 ## **Training Issues**
 
 ### **Q: Training crashes immediately**
+
 **Problem**: Training script exits with errors before starting.
 
 **Debugging Steps**:
+
 ```python
 # 1. Check configuration
 python -c "from src.config import get_config; print(get_config('xor'))"
@@ -189,9 +206,11 @@ python src\train.py --experiment debug_small --epochs 1
 ```
 
 ### **Q: Loss becomes NaN during training**
+
 **Problem**: Training loss becomes NaN after a few iterations.
 
 **Solutions**:
+
 ```python
 # 1. Check learning rate
 config = get_config('experiment_name')
@@ -215,9 +234,11 @@ criterion = torch.nn.CrossEntropyLoss(reduction='mean')
 ```
 
 ### **Q: Training is extremely slow**
+
 **Problem**: Training takes much longer than expected.
 
 **Solutions**:
+
 ```python
 # 1. Check device usage
 print(f"Using device: {torch.cuda.is_available()}")
@@ -244,9 +265,11 @@ with torch.profiler.profile() as prof:
 ```
 
 ### **Q: Model not learning (loss plateaus)**
+
 **Problem**: Training loss doesn't decrease after initial epochs.
 
 **Solutions**:
+
 ```python
 # 1. Check learning rate
 if config['learning_rate'] < 1e-5:
@@ -269,9 +292,11 @@ print(f"Model parameters: {sum(p.numel() for p in model.parameters())}")
 ```
 
 ### **Q: Early stopping triggers too early**
+
 **Problem**: Training stops before model has converged.
 
 **Solutions**:
+
 ```python
 # 1. Increase patience
 config['early_stopping_patience'] = 50  # Default was 20
@@ -296,9 +321,11 @@ config['early_stopping_patience'] = 999999
 ## **Data Loading Problems**
 
 ### **Q: Dataset not found error**
+
 **Problem**: `FileNotFoundError` when loading datasets.
 
 **Solutions**:
+
 ```python
 # 1. Check data directory structure
 import os
@@ -320,9 +347,11 @@ data_path = os.path.abspath('data/raw/mnist')
 ```
 
 ### **Q: Data loading is very slow**
+
 **Problem**: DataLoader takes too long to iterate through data.
 
 **Solutions**:
+
 ```python
 # 1. Increase num_workers
 train_loader = DataLoader(
@@ -353,9 +382,11 @@ def load_sample(idx):
 ```
 
 ### **Q: Out of memory during data loading**
+
 **Problem**: System runs out of memory when loading large datasets.
 
 **Solutions**:
+
 ```python
 # 1. Reduce batch size
 config['batch_size'] = 16  # or smaller
@@ -384,9 +415,11 @@ torch.cuda.empty_cache()  # For GPU memory
 ## **Model Implementation Issues**
 
 ### **Q: Model architecture errors**
+
 **Problem**: Shape mismatches or layer incompatibilities.
 
 **Solutions**:
+
 ```python
 # 1. Print tensor shapes during forward pass
 def forward(self, x):
@@ -415,9 +448,11 @@ except Exception as e:
 ```
 
 ### **Q: Parameter initialization issues**
+
 **Problem**: Poor initial weights causing training problems.
 
 **Solutions**:
+
 ```python
 # 1. Use proper initialization
 import torch.nn.init as init
@@ -440,9 +475,11 @@ for name, param in model.named_parameters():
 ```
 
 ### **Q: Model saving/loading issues**
+
 **Problem**: Errors when saving or loading model checkpoints.
 
 **Solutions**:
+
 ```python
 # 1. Save model state dict, not entire model
 torch.save(model.state_dict(), 'model_checkpoint.pth')
@@ -476,9 +513,11 @@ model.to(device)
 ## **Visualization and Logging Problems**
 
 ### **Q: Plots not generating**
+
 **Problem**: `--visualize` flag doesn't create expected plots.
 
 **Solutions**:
+
 ```python
 # 1. Check plot directory exists
 import os
@@ -503,9 +542,11 @@ def generate_visualization(data, plot_type):
 ```
 
 ### **Q: Wandb logging not working**
+
 **Problem**: Training metrics not appearing in wandb dashboard.
 
 **Solutions**:
+
 ```python
 # 1. Check wandb initialization
 import wandb
@@ -526,9 +567,11 @@ wandb.init(mode='offline')
 ```
 
 ### **Q: Log files empty or missing**
+
 **Problem**: Training logs not being written to files.
 
 **Solutions**:
+
 ```python
 # 1. Check logging configuration
 import logging
@@ -560,9 +603,11 @@ logger.info("Test log message")
 ## **Performance Issues**
 
 ### **Q: High memory usage during training**
+
 **Problem**: System runs out of memory during training.
 
 **Solutions**:
+
 ```python
 # 1. Reduce batch size
 config['batch_size'] = 16  # or smaller
@@ -589,9 +634,11 @@ with torch.no_grad():
 ```
 
 ### **Q: Slow GPU utilization**
+
 **Problem**: GPU usage is low during training.
 
 **Solutions**:
+
 ```python
 # 1. Check data transfer bottlenecks
 # Use pin_memory and non_blocking transfer
@@ -615,9 +662,11 @@ with torch.profiler.profile(
 ```
 
 ### **Q: Training time much longer than expected**
+
 **Problem**: Training takes significantly longer than benchmarks.
 
 **Solutions**:
+
 ```python
 # 1. Profile the training loop
 import time
@@ -647,9 +696,11 @@ def profile_training():
 ## **Testing and Validation Problems**
 
 ### **Q: Tests failing after code changes**
+
 **Problem**: Previously passing tests now fail.
 
 **Solutions**:
+
 ```powershell
 # 1. Run specific failing test
 pytest tests/unit/test_model.py::TestModel::test_forward_pass -v
@@ -666,9 +717,11 @@ pytest tests/unit/test_model.py::TestModel::test_forward_pass --forked
 ```
 
 ### **Q: Tests pass locally but fail in CI**
+
 **Problem**: Tests work on local machine but fail in GitHub Actions.
 
 **Solutions**:
+
 ```yaml
 # 1. Check Python version in CI
 - name: Set up Python
@@ -700,9 +753,11 @@ env:
 ## **Windows-Specific Issues**
 
 ### **Q: Path separator issues**
+
 **Problem**: Linux-style paths don't work on Windows.
 
 **Solutions**:
+
 ```python
 # 1. Use pathlib for cross-platform paths
 from pathlib import Path
@@ -720,9 +775,11 @@ windows_path = r'C:\Users\user\data\mnist'
 ```
 
 ### **Q: PowerShell execution policy errors**
+
 **Problem**: Cannot run PowerShell scripts due to execution policy.
 
 **Solutions**:
+
 ```powershell
 # 1. Check current policy
 Get-ExecutionPolicy
@@ -740,9 +797,11 @@ call .venv\Scripts\activate.bat
 ```
 
 ### **Q: Long path issues**
+
 **Problem**: Windows path length limits causing errors.
 
 **Solutions**:
+
 ```python
 # 1. Use shorter path names
 # Instead of: very_long_descriptive_model_name
@@ -764,6 +823,7 @@ call .venv\Scripts\activate.bat
 ### **Systematic Debugging Process**
 
 #### **1. Initial Triage**
+
 ```python
 # Step 1: Reproduce the issue
 python src\train.py --experiment debug_small --epochs 1
@@ -778,6 +838,7 @@ python -c "from src.model import ModelClass; print('Model OK')"
 ```
 
 #### **2. Training Issues Debug Flow**
+
 ```python
 # Debug training problems systematically
 def debug_training():
@@ -812,6 +873,7 @@ debug_training()
 ```
 
 #### **3. Data Issues Debug Flow**
+
 ```python
 def debug_data():
     print("1. Checking data directory...")
@@ -843,6 +905,7 @@ debug_data()
 ```
 
 #### **4. Model Issues Debug Flow**
+
 ```python
 def debug_model():
     print("1. Testing model instantiation...")
@@ -904,6 +967,7 @@ Test-NetConnection api.wandb.ai -Port 443
 #### **Common Error Types and Solutions**
 
 **ImportError patterns**:
+
 ```
 "No module named 'src'" → Check PYTHONPATH and virtual environment
 "cannot import name 'X' from 'Y'" → Check for circular imports
@@ -911,6 +975,7 @@ Test-NetConnection api.wandb.ai -Port 443
 ```
 
 **RuntimeError patterns**:
+
 ```
 "CUDA out of memory" → Reduce batch size or clear cache
 "Expected tensor to be on device X" → Check device placement
@@ -918,6 +983,7 @@ Test-NetConnection api.wandb.ai -Port 443
 ```
 
 **ValueError patterns**:
+
 ```
 "Target X is out of bounds" → Check label encoding
 "Expected input batch_size (X) to match target batch_size (Y)" → Check data loading
@@ -930,6 +996,7 @@ Test-NetConnection api.wandb.ai -Port 443
 ### **If Everything Breaks**
 
 1. **Nuclear Option - Fresh Start**:
+
 ```powershell
 # Save your work first!
 git add .
@@ -949,6 +1016,7 @@ pip install -e ..\..
 ```
 
 2. **Minimum Viable Test**:
+
 ```python
 # Test absolute minimum functionality
 import torch
@@ -965,6 +1033,7 @@ print("Basic PyTorch working!")
 ```
 
 3. **Incremental Recovery**:
+
 ```python
 # Test components one by one
 # 1. Basic imports
@@ -980,12 +1049,14 @@ print("Basic PyTorch working!")
 ## **Getting Help**
 
 ### **When to Ask for Help**
+
 - Spent >30 minutes on environment setup issues
 - Reproducible errors with clear error messages
 - Performance issues with specific metrics
 - Test failures with detailed error logs
 
 ### **How to Ask for Help**
+
 ```python
 # Include this information:
 print("=== Debug Information ===")
@@ -1007,4 +1078,4 @@ print("=== End Debug Info ===")
 
 ---
 
-This FAQ should help you quickly resolve most common issues. When in doubt, start with the debugging workflows to systematically identify the problem area. 
+This FAQ should help you quickly resolve most common issues. When in doubt, start with the debugging workflows to systematically identify the problem area.

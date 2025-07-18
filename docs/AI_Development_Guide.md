@@ -1,6 +1,7 @@
 # AI Development Guide
 
-This guide provides comprehensive instructions for developing AI models in the "AI From Scratch to Scale" project, following our unified approach that supports both engine-based and simple implementation patterns.
+This guide provides comprehensive instructions for developing AI models in the "AI From Scratch to Scale"
+project, following our unified approach that supports both engine-based and simple implementation patterns.
 
 ## Table of Contents
 
@@ -16,7 +17,9 @@ This guide provides comprehensive instructions for developing AI models in the "
 
 ## Project Overview
 
-The "AI From Scratch to Scale" project implements neural networks from first principles, progressing from simple perceptrons to complex modern architectures. Our goal is to provide both educational value and production-ready implementations.
+The "AI From Scratch to Scale" project implements neural networks from first principles,
+progressing from simple perceptrons to complex modern architectures. Our goal is to provide both
+educational value and production-ready implementations.
 
 ### Key Principles
 
@@ -28,11 +31,13 @@ The "AI From Scratch to Scale" project implements neural networks from first pri
 
 ## Development Patterns
 
-We support two main development patterns to accommodate different needs:
+We support two main development patterns to accommodate different needs. **For detailed comparison and
+implementation guidance, see [`Implementation_Patterns_Guide.md`](Implementation_Patterns_Guide.md)**.
 
-### Pattern 1: Simple Implementation (Basic)
+### Pattern 1: Simple Implementation - Educational
 
-**Use when**: Quick prototyping, educational demonstrations, or when engine framework is not available.
+**Use when**: Educational demonstrations, conceptual studies, quick prototyping, or when engine framework is not
+available.
 
 **Characteristics**:
 
@@ -42,7 +47,7 @@ We support two main development patterns to accommodate different needs:
 - Self-contained functionality
 - Minimal dependencies
 
-**Example**: `models/03_MLP/` (simple implementation)
+**Examples**: `models/03_mlp/` (simple implementation), **Recommended for**: `models/02_adaline/`
 
 **Key Files**:
 
@@ -51,7 +56,7 @@ We support two main development patterns to accommodate different needs:
 - `train.py`: Manual training loops
 - `constants.py`: Model metadata and validation
 
-### Pattern 2: Engine-Based Implementation (Advanced)
+### Pattern 2: Engine-Based Implementation - Advanced
 
 **Use when**: Production deployments, unified training pipelines, or advanced features needed.
 
@@ -110,7 +115,7 @@ class ModelName(nn.Module):
         pass
 ```
 
-### Advanced Model Structure (Engine Integration)
+### Advanced Model Structure - Engine Integration
 
 For engine-based implementations:
 
@@ -156,7 +161,7 @@ Each model should include:
 
 ## Configuration Management
 
-### Simple Configuration (Dataclass Pattern)
+### Simple Configuration - Dataclass Pattern
 
 ```python
 @dataclass
@@ -170,7 +175,7 @@ class SimpleExperimentConfig:
     # ... other parameters
 ```
 
-### Advanced Configuration (Engine Pattern)
+### Advanced Configuration - Engine Pattern
 
 ```python
 def get_training_config(experiment_name: str, **overrides) -> TrainingConfig:
@@ -432,6 +437,9 @@ The templates have been updated to align with successful implementations:
 
 ## Conclusion
 
-This guide provides a comprehensive framework for developing AI models in our project. By following these guidelines, you'll create models that are both educational and production-ready, supporting our mission to build AI from scratch to scale.
+This guide provides a comprehensive framework for developing AI models in our project. By following these guidelines,
+you'll create models that are both educational and production-ready, supporting our mission to build AI from scratch to
+scale.
 
-For specific implementation details, refer to the individual model directories and the template files in `docs/templates/`.
+For specific implementation details, refer to the individual model directories and the template files
+in `docs/templates/`.

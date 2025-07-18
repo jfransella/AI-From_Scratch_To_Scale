@@ -44,6 +44,7 @@ For each Keystone and Side-quest model, we will implement a set of three distinc
 #### **Expected Structure and Sections**
 
 **Cell 1: Title and Introduction**
+
 ```markdown
 # [Model Name]: Theory and Intuition
 
@@ -63,6 +64,7 @@ By the end of this notebook, you will understand:
 ```
 
 **Cell 2: Historical Context**
+
 ```markdown
 # 1. Historical Context
 
@@ -80,6 +82,7 @@ What was the key breakthrough or innovation?
 ```
 
 **Cell 3: Mathematical Foundation**
+
 ```python
 # 2. Mathematical Foundation
 
@@ -118,6 +121,7 @@ X, y = demonstrate_key_concept()
 ```
 
 **Cell 4: Architectural Intuition**
+
 ```python
 # 3. Architectural Intuition
 
@@ -169,6 +173,7 @@ visualize_architecture()
 ```
 
 **Cell 5: Step-by-Step Mathematical Walkthrough**
+
 ```python
 # 4. Step-by-Step Mathematical Walkthrough
 
@@ -225,6 +230,7 @@ output = step_by_step_forward_pass()
 ```
 
 **Cell 6: Conceptual Limitations**
+
 ```markdown
 # 5. Theoretical Limitations
 
@@ -245,6 +251,7 @@ Based on these limitations, what kind of model would we need next?
 #### **Expected Structure and Sections**
 
 **Cell 1: Setup and Imports**
+
 ```python
 # Code Walkthrough: [Model Name]
 
@@ -274,6 +281,7 @@ print(f"CUDA available: {torch.cuda.is_available()}")
 ```
 
 **Cell 2: Configuration Deep Dive**
+
 ```python
 # 1. Configuration Deep Dive
 
@@ -317,6 +325,7 @@ print(f"• Activation ({config.activation}): {config.activation.upper()} - {'No
 ```
 
 **Cell 3: Model Architecture Exploration**
+
 ```python
 # 2. Model Architecture Exploration
 
@@ -357,6 +366,7 @@ with torch.no_grad():
 ```
 
 **Cell 4: Single Training Step Demonstration**
+
 ```python
 # 3. Single Training Step Demonstration
 
@@ -431,6 +441,7 @@ with torch.no_grad():
 ```
 
 **Cell 5: Feature Visualization**
+
 ```python
 # 4. Feature Visualization (if applicable)
 
@@ -474,6 +485,7 @@ else:
 ```
 
 **Cell 6: Code Quality Analysis**
+
 ```python
 # 5. Code Quality Analysis
 
@@ -508,6 +520,7 @@ print(f"✓ Model can handle batch processing: {True}")  # Already tested above
 #### **Expected Structure and Sections**
 
 **Cell 1: Setup and Data Loading**
+
 ```python
 # Empirical Analysis: [Model Name]
 
@@ -551,6 +564,7 @@ if not log_files:
 ```
 
 **Cell 2: Training Log Analysis**
+
 ```python
 # 1. Training Log Analysis
 
@@ -645,6 +659,7 @@ else:
 ```
 
 **Cell 3: Visualization Analysis**
+
 ```python
 # 2. Visualization Analysis
 
@@ -707,6 +722,7 @@ else:
 ```
 
 **Cell 4: Model Performance Evaluation**
+
 ```python
 # 3. Model Performance Evaluation
 
@@ -783,6 +799,7 @@ else:
 ```
 
 **Cell 5: Strengths and Weaknesses Analysis**
+
 ```python
 # 4. Strengths and Weaknesses Analysis
 
@@ -857,6 +874,7 @@ for i, observation in enumerate(observations, 1):
 ```
 
 **Cell 6: Next Steps and Conclusions**
+
 ```python
 # 5. Next Steps and Conclusions
 
@@ -935,28 +953,32 @@ print("="*40)
 ## **4. Notebook Quality Standards**
 
 ### **Code Quality Requirements**
-- **Reproducibility**: All cells must run in order without errors
-- **Clear Documentation**: Each cell has markdown explanation
-- **Consistent Style**: Follow PEP 8 and project coding standards
-- **Error Handling**: Graceful handling of missing files or failed operations
+
+* **Reproducibility**: All cells must run in order without errors
+* **Clear Documentation**: Each cell has markdown explanation
+* **Consistent Style**: Follow PEP 8 and project coding standards
+* **Error Handling**: Graceful handling of missing files or failed operations
 
 ### **Educational Value Requirements**
-- **Progressive Complexity**: Build understanding step by step
-- **Visual Learning**: Include plots, diagrams, and visualizations
-- **Interactive Elements**: Allow experimentation and exploration
-- **Clear Explanations**: Connect theory to implementation
+
+* **Progressive Complexity**: Build understanding step by step
+* **Visual Learning**: Include plots, diagrams, and visualizations
+* **Interactive Elements**: Allow experimentation and exploration
+* **Clear Explanations**: Connect theory to implementation
 
 ### **Technical Requirements**
-- **Efficient Code**: Avoid unnecessary computations
-- **Memory Management**: Clear variables when no longer needed
-- **Cross-Platform**: Work on Windows, Mac, and Linux
-- **Version Control**: Notebooks must be git-friendly (clear outputs before commit)
+
+* **Efficient Code**: Avoid unnecessary computations
+* **Memory Management**: Clear variables when no longer needed
+* **Cross-Platform**: Work on Windows, Mac, and Linux
+* **Version Control**: Notebooks must be git-friendly (clear outputs before commit)
 
 ---
 
 ## **5. Validation Guidelines**
 
 ### **Pre-Commit Validation Checklist**
+
 ```python
 # Notebook validation script
 def validate_notebook(notebook_path):
@@ -980,11 +1002,13 @@ def validate_notebook(notebook_path):
 ```
 
 ### **Content Validation Standards**
-- **Theory Notebooks**: Mathematical accuracy, clear explanations
-- **Code Notebooks**: Working imports, successful execution
-- **Analysis Notebooks**: Results interpretation, conclusions drawn
+
+* **Theory Notebooks**: Mathematical accuracy, clear explanations
+* **Code Notebooks**: Working imports, successful execution
+* **Analysis Notebooks**: Results interpretation, conclusions drawn
 
 ### **Automated Validation**
+
 ```powershell
 # Notebook validation script
 function Test-Notebooks {
@@ -1012,6 +1036,7 @@ function Test-Notebooks {
 ## **6. Best Practices Summary**
 
 ### **Notebook Development Workflow**
+
 1. **Start with Theory**: Begin with 01_Theory_and_Intuition.ipynb
 2. **Implement Model**: Create working model in src/
 3. **Document Code**: Complete 02_Code_Walkthrough.ipynb
@@ -1021,17 +1046,19 @@ function Test-Notebooks {
 7. **Clear Outputs**: Clear outputs before committing
 
 ### **Common Pitfalls to Avoid**
-- **Long Code Cells**: Keep cells focused and concise
-- **Missing Explanations**: Every code cell needs markdown context
-- **Hardcoded Paths**: Use relative paths and path validation
-- **Missing Error Handling**: Check for file existence before loading
-- **Unclear Conclusions**: Always summarize key findings
+
+* **Long Code Cells**: Keep cells focused and concise
+* **Missing Explanations**: Every code cell needs markdown context
+* **Hardcoded Paths**: Use relative paths and path validation
+* **Missing Error Handling**: Check for file existence before loading
+* **Unclear Conclusions**: Always summarize key findings
 
 ### **Maintenance Guidelines**
-- **Update Regularly**: Keep notebooks current with code changes
-- **Test Periodically**: Run validation checks monthly
-- **Document Changes**: Update notebooks when model implementation changes
-- **Archive Old Versions**: Keep historical versions for reference
+
+* **Update Regularly**: Keep notebooks current with code changes
+* **Test Periodically**: Run validation checks monthly
+* **Document Changes**: Update notebooks when model implementation changes
+* **Archive Old Versions**: Keep historical versions for reference
 
 ---
 
@@ -1040,10 +1067,12 @@ function Test-Notebooks {
 For models designated as "Conceptual" in your project charter, only the 01_Theory_and_Intuition.ipynb notebook needs to be created. This captures the essential learning without the overhead of a full implementation and analysis.
 
 ### **Conceptual Model Template**
+
 Follow the Theory and Intuition template but add:
-- **Comparison Section**: How does this compare to implemented models?
-- **Implementation Notes**: What would be needed for full implementation?
-- **Modern Relevance**: How does this relate to current approaches?
+
+* **Comparison Section**: How does this compare to implemented models?
+* **Implementation Notes**: What would be needed for full implementation?
+* **Modern Relevance**: How does this relate to current approaches?
 
 ---
 

@@ -11,7 +11,8 @@
         "./plotting",
         "./utils",
         "./models/01_perceptron/src",
-        "./models/03_MLP/src"
+        "./models/02_adaline/src",
+        "./models/03_mlp/src"
     ],
     "python.analysis.autoImportCompletions": true,
     "python.analysis.autoSearchPaths": true,
@@ -190,5 +191,101 @@
             ]
         }
     },
-    "terminal.integrated.defaultProfile.windows": "PowerShell"
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    // Markdown Configuration
+    "markdownlint.config": {
+        "default": true,
+        "MD013": {
+            "line_length": 120,
+            "code_blocks": false,
+            "tables": false
+        },
+        "MD024": {
+            "siblings_only": true
+        },
+        "MD025": {
+            "front_matter_title": ""
+        },
+        "MD033": {
+            "allowed_elements": [
+                "kbd",
+                "br",
+                "hr"
+            ]
+        },
+        "MD041": false,
+        "MD046": {
+            "style": "fenced"
+        },
+        "MD047": false,
+        "MD048": {
+            "style": "backtick"
+        },
+        "MD049": {
+            "style": "consistent"
+        },
+        "MD050": {
+            "style": "consistent"
+        },
+        "MD051": false,
+        "MD052": false,
+        "MD053": false
+    },
+    // Markdown linting and formatting
+    "markdownlint.enable": true,
+    "markdownlint.fixAll": true,
+    "markdownlint.run": "onType",
+    "markdownlint.ignore": [
+        "**/node_modules/**",
+        "**/.git/**",
+        "**/venv/**",
+        "**/.venv/**",
+        "**/__pycache__/**",
+        "**/.pytest_cache/**",
+        "**/build/**",
+        "**/dist/**",
+        "**/*.egg-info/**",
+        "**/.mypy_cache/**",
+        "**/test_outputs/**",
+        "**/outputs/**",
+        "**/wandb/**",
+        "**/mlruns/**"
+    ],
+    // Markdown-specific editor settings
+    "[markdown]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll.markdownlint": "explicit"
+        },
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.wordWrap": "bounded",
+        "editor.wordWrapColumn": 120,
+        "editor.rulers": [
+            120
+        ]
+    },
+    // Markdown preview settings
+    "markdown.preview.breaks": true,
+    "markdown.preview.fontSize": 14,
+    "markdown.preview.lineHeight": 1.6,
+    "markdown.preview.scrollPreviewWithEditor": true,
+    "markdown.preview.scrollEditorWithPreview": false,
+    // Markdown extensions
+    "markdown.extension.toc.levels": "1..6",
+    "markdown.extension.toc.orderedList": false,
+    "markdown.extension.toc.updateOnSave": true,
+    "markdown.extension.toc.plaintext": false,
+    "markdown.extension.toc.includeAnchor": true,
+    "markdown.extension.toc.anchorLink": true,
+    "markdown.extension.toc.anchorLinkSpace": false,
+    "markdown.extension.toc.anchorLinkStyle": "github",
+    "markdown.extension.toc.anchorLinkSymbol": "#",
+    "markdown.extension.toc.anchorLinkBefore": false,
+    "markdown.extension.toc.anchorLinkAfter": true,
+    "markdown.extension.toc.anchorLinkSpace": false,
+    "markdown.extension.toc.anchorLinkStyle": "github",
+    "markdown.extension.toc.anchorLinkSymbol": "#",
+    "markdown.extension.toc.anchorLinkBefore": false,
+    "markdown.extension.toc.anchorLinkAfter": true
 }

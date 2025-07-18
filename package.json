@@ -1,0 +1,34 @@
+{
+    "name": "ai-from-scratch-to-scale",
+    "version": "1.0.0",
+    "description": "AI From Scratch To Scale - A comprehensive machine learning project",
+    "scripts": {
+        "lint:markdown": "markdownlint --config .markdownlint.json \"**/*.md\"",
+        "fix:markdown": "markdownlint --config .markdownlint.json --fix \"**/*.md\"",
+        "check:markdown": "markdownlint --config .markdownlint.json \"**/*.md\"",
+        "format:all": "npm run fix:markdown",
+        "quality:check": "npm run lint:markdown"
+    },
+    "devDependencies": {
+        "markdownlint-cli": "^0.37.0"
+    },
+    "engines": {
+        "node": ">=14.0.0",
+        "npm": ">=6.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yourusername/ai-from-scratch-to-scale.git"
+    },
+    "keywords": [
+        "machine-learning",
+        "ai",
+        "python",
+        "perceptron",
+        "adaline",
+        "mlp",
+        "neural-networks"
+    ],
+    "author": "Your Name",
+    "license": "MIT"
+}

@@ -46,11 +46,27 @@ Every model project will be a new directory within our main GitHub repository an
 
 ## **5\. Naming Conventions**
 
-* **Variables & Functions**: snake\_case (e.g., learning\_rate, calculate\_loss).  
+### **Directory and File Naming**
+
+* **Model Directories**: `XX_modelname/` format where XX is two-digit number and modelname is lowercase
+  * Examples: `01_perceptron/`, `02_adaline/`, `03_mlp/`
+  * **Rationale**: Consistent with Unix/Linux conventions, PEP 8 compliant, easier to type
+* **Python Files**: snake_case (e.g., `model.py`, `train.py`, `config.py`)
+* **Documentation Files**: Title case with underscores (`README.md`, `Implementation_Guide.md`)
+* **Notebooks**: Numbered with descriptive names (`01_Theory_and_Intuition.ipynb`)
+
+### **Code Naming**
+
+* **Variables & Functions**: snake_case (e.g., learning_rate, calculate_loss).  
 * **Classes**: PascalCase (e.g., Perceptron, ConvolutionalLayer).  
-* **Constants**: ALL\_CAPS (e.g., LEARNING\_RATE, BATCH\_SIZE in config.py).  
-* **Files & Directories**: snake\_case (e.g., data\_loader.py).  
-* **Clarity over Brevity**: Variable names should be descriptive (e.g., use learning\_rate instead of lr).
+* **Constants**: ALL_CAPS (e.g., LEARNING_RATE, BATCH_SIZE in config.py).  
+* **Clarity over Brevity**: Variable names should be descriptive (e.g., use learning_rate instead of lr).
+
+### **Virtual Environment Strategy**
+
+* **Early models** (01_perceptron, 02_adaline, 03_mlp): Use `01_perceptron/.venv` for shared development
+* **Later models**: Individual virtual environments as complexity increases
+* **Rationale**: Reduces setup overhead for foundational models with similar dependencies
 
 ## **6\. Documentation & Commenting**
 

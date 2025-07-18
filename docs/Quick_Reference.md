@@ -1,12 +1,13 @@
 # **Quick Reference Cards: AI From Scratch to Scale**
 
-This document provides quick reference cards for common patterns, commands, and configurations used in the "AI From Scratch to Scale" project. Keep this handy for rapid development and troubleshooting.
+This document provides quick reference cards for common patterns, commands, and configurations used in the "AI From
+Scratch to Scale" project. Keep this handy for rapid development and troubleshooting.
 
 ## **📁 Directory Structure Reference**
 
 ### **Project Root Structure**
-```
-ai-from-scratch-to-scale\
+
+```text`nai-from-scratch-to-scale\
 ├── data_utils\              # SHARED: Dataset loading & transformations
 ├── engine\                  # SHARED: Training/evaluation engine with wandb
 ├── plotting\                # SHARED: Visualization generation
@@ -17,11 +18,9 @@ ai-from-scratch-to-scale\
 ├── .gitignore
 ├── README.md
 └── requirements-dev.txt     # Development dependencies
-```
+```text`n### **Model Directory Structure**
 
-### **Model Directory Structure**
-```
-models\XX_modelname\
+```text`nmodels\XX_modelname\
 ├── src\
 │   ├── __init__.py
 │   ├── constants.py         # Fixed values for this model
@@ -40,11 +39,15 @@ models\XX_modelname\
 ├── .venv\                  # Model-specific virtual environment
 ├── requirements.txt        # Model-specific dependencies
 └── README.md              # Model documentation
-```
+```text`n### **Current Implementation Status**
 
-### **Documentation Structure**
-```
-docs\
+```text`nmodels\
+├── 01_perceptron\          # ✅ Engine-based pattern (Advanced)
+├── 02_adaline\             # 📋 Next - Simple pattern (Educational)  
+└── 03_mlp\                 # ✅ Simple pattern (Educational)
+```text`n### **Documentation Structure**
+
+```text`ndocs\
 ├── README.md                    # Documentation guide
 ├── AI_Development_Guide.md      # Main entry point
 ├── Quick_Reference.md           # This file
@@ -62,13 +65,12 @@ docs\
     ├── config.py
     ├── constants.py
     └── requirements.txt
-```
-
----
+```text`n---
 
 ## **⚡ Command Patterns Reference**
 
 ### **Environment Setup Commands**
+
 ```powershell
 # Create new model directory
 New-Item -ItemType Directory -Force -Path "models\XX_modelname\src"
@@ -89,9 +91,8 @@ pip install -e ..\..
 
 # Verify installation
 python -c "from data_utils import load_dataset; print('OK')"
-```
+```text`n### **Training Commands**
 
-### **Training Commands**
 ```powershell
 # Basic training
 python src\train.py --experiment xor
@@ -107,9 +108,8 @@ python src\train.py --experiment debug_small --debug
 
 # Training with wandb logging
 python src\train.py --experiment xor --wandb
-```
+```text`n### **Evaluation Commands**
 
-### **Evaluation Commands**
 ```powershell
 # Basic evaluation
 python src\evaluate.py --checkpoint outputs\models\model.pth --experiment xor
@@ -122,9 +122,8 @@ $experiments = @("xor", "iris_multiclass", "mnist_binary")
 foreach ($exp in $experiments) {
     python src\evaluate.py --checkpoint "outputs\models\${exp}_model.pth" --experiment $exp
 }
-```
+```text`n### **Testing Commands**
 
-### **Testing Commands**
 ```powershell
 # Run all tests
 pytest ..\..\tests\ -v
@@ -139,9 +138,8 @@ pytest ..\..\tests\unit\test_modelname.py -v
 
 # Run with coverage
 pytest ..\..\tests\ -v --cov=src --cov-report=html
-```
+```text`n### **Code Quality Commands**
 
-### **Code Quality Commands**
 ```powershell
 # Format code
 black src\
@@ -155,24 +153,70 @@ mypy src\
 
 # Run all quality checks
 black src\ && flake8 src\ && pytest ..\..\tests\smoke\ -v
-```
-
----
+```text`n---
 
 ## **🔧 Configuration Reference**
 
-### **Model Configuration Hierarchy**
-```
-BaseConfig (Universal defaults)
-├── LinearConfig (Perceptron, ADALINE)
-├── MLPConfig (Multi-Layer Perceptron)
-├── CNNConfig (LeNet, AlexNet, ResNet)
-├── RNNConfig (RNN, LSTM, GRU)
-├── TransformerConfig (Transformer, BERT)
-└── GenerativeConfig (VAE, GAN, DDPM)
-```
+## **🎯 Implementation Patterns Reference**
 
-### **Configuration Creation Pattern**
+### **Pattern 1: Engine-Based (Advanced)**
+
+**Used by**: `01_perceptron`  
+**Best for**: Production deployment, advanced research, unified pipelines
+
+```python
+# Engine-based model structure
+class YourModel(nn.Module, BaseModel):
+    def forward(self, x): ...
+    def predict(self, x): ...
+    def get_model_info(self): ...
+    def fit(self, x_data, y_target): ...
+
+# Configuration
+def get_training_config(experiment_name: str) -> TrainingConfig:
+    return TrainingConfig(experiment_name=experiment_name, ...)
+
+# Training
+trainer = Trainer(ModelAdapter(model), config, train_loader, val_loader)
+result = trainer.train()
+```text`n### **Pattern 2: Simple (Educational)**
+
+**Used by**: `03_mlp`, **Recommended for**: `02_adaline`  
+**Best for**: Educational demonstrations, quick prototyping, conceptual studies
+
+```python
+# Simple model structure
+class YourModel(nn.Module):
+    def forward(self, x): ...
+    def predict(self, x): ...
+    def get_model_info(self): ...
+
+# Configuration
+ (2)
+@dataclass
+class ExperimentConfig:
+    name: str
+    learning_rate: float = 0.01
+    # ... other parameters
+
+# Training
+ (2)
+for epoch in range(config.epochs):
+    # Manual training loop
+    optimizer.step()
+```text`n### **Model Configuration Hierarchy**
+
+```text`nEngine-Based Models:
+├── TrainingConfig + ModelConfig pattern
+├── BaseModel interface requirements
+└── Engine framework integration
+
+Simple Models:
+├── Dataclass configurations
+├── Direct parameter management
+└── Manual training loops
+```text`n### **Configuration Creation Pattern**
+
 ```python
 # Using factory function
 from templates.config import create_config
@@ -194,9 +238,8 @@ config = MLPConfig(
     learning_rate=0.01,
     batch_size=32
 )
-```
+```text`n### **Common Configuration Parameters**
 
-### **Common Configuration Parameters**
 | Parameter | Default | Description | Valid Values |
 |-----------|---------|-------------|--------------|
 | `learning_rate` | 0.01 | Learning rate for optimizer | 1e-6 to 1.0 |
@@ -208,6 +251,7 @@ config = MLPConfig(
 | `seed` | 42 | Random seed | Any integer |
 
 ### **Experiment Name Patterns**
+
 | Pattern | Description | Example |
 |---------|-------------|---------|
 | `debug_small` | Quick debug with tiny dataset | `debug_small` |
@@ -220,6 +264,7 @@ config = MLPConfig(
 ## **📊 Dataset Reference**
 
 ### **Dataset Categories**
+
 | Category | Examples | Storage Format | Use Cases |
 |----------|----------|----------------|-----------|
 | **Synthetic** | XOR, circles, moons | NPZ, CSV | Algorithm validation |
@@ -229,6 +274,7 @@ config = MLPConfig(
 | **Graph** | Cora, social networks | NPZ, JSON | Graph models |
 
 ### **Dataset Loading Pattern**
+
 ```python
 from data_utils import load_dataset
 
@@ -246,9 +292,8 @@ train_loader, val_loader = load_dataset(
     dataset_params={'classes': [0, 1], 'flatten': True},
     batch_size=64
 )
-```
+```text`n### **Common Dataset Parameters**
 
-### **Common Dataset Parameters**
 | Dataset | Common Parameters | Example |
 |---------|-------------------|---------|
 | `xor` | `n_samples`, `noise` | `{'n_samples': 1000, 'noise': 0.1}` |
@@ -261,6 +306,7 @@ train_loader, val_loader = load_dataset(
 ## **🧪 Testing Reference**
 
 ### **Test Categories**
+
 | Category | Purpose | Location | Run Command |
 |----------|---------|----------|-------------|
 | **Unit** | Test individual functions | `tests\unit\` | `pytest tests\unit\ -v` |
@@ -269,6 +315,7 @@ train_loader, val_loader = load_dataset(
 | **Performance** | Performance benchmarking | `tests\performance\` | `pytest tests\performance\ -v` |
 
 ### **Test Naming Conventions**
+
 | Element | Format | Example |
 |---------|--------|---------|
 | **File** | `test_{component}_{functionality}.py` | `test_model_forward_pass.py` |
@@ -276,6 +323,7 @@ train_loader, val_loader = load_dataset(
 | **Class** | `Test{Component}{Functionality}` | `TestModelForwardPass` |
 
 ### **Common Test Patterns**
+
 ```python
 # Basic test structure
 def test_model_forward_pass_returns_correct_shape():
@@ -293,13 +341,12 @@ def test_model_handles_different_batch_sizes(batch_size):
     input_data = torch.randn(batch_size, 10)
     output = model(input_data)
     assert output.shape == (batch_size, 1)
-```
-
----
+```text`n---
 
 ## **📈 Visualization Reference**
 
 ### **Plot Types**
+
 | Plot Type | Purpose | When to Use |
 |-----------|---------|-------------|
 | `loss_curve` | Training progress | All experiments |
@@ -309,6 +356,7 @@ def test_model_handles_different_batch_sizes(batch_size):
 | `attention_weights` | Attention visualization | Sequence models |
 
 ### **Visualization Generation**
+
 ```python
 # Enable visualization in training
 python src\train.py --experiment xor --visualize
@@ -318,23 +366,20 @@ from plotting import generate_loss_curve, generate_decision_boundary
 
 generate_loss_curve(train_losses, val_losses, save_path='loss_curve.png')
 generate_decision_boundary(model, X, y, save_path='boundary.png')
-```
+```text`n### **Plot File Organization**
 
-### **Plot File Organization**
-```
-outputs\visualizations\
+```text`noutputs\visualizations\
 ├── loss_curve.png           # Training/validation loss
 ├── decision_boundary.png    # Classification boundaries
 ├── confusion_matrix.png     # Multi-class accuracy
 ├── feature_importance.png   # Feature analysis
 └── attention_weights.png    # Attention visualization
-```
-
----
+```text`n---
 
 ## **🔍 Debugging Reference**
 
 ### **Common Issues and Quick Fixes**
+
 | Issue | Symptom | Quick Fix |
 |-------|---------|-----------|
 | **Import Error** | `ModuleNotFoundError: No module named 'src'` | `pip install -e ..\..` |
@@ -344,6 +389,7 @@ outputs\visualizations\
 | **Slow Training** | Very slow epochs | Increase `num_workers` in DataLoader |
 
 ### **Debug Commands**
+
 ```powershell
 # Quick environment check
 python -c "import torch; print(f'PyTorch: {torch.__version__}')"
@@ -355,9 +401,8 @@ python -c "import torch; print(f'CUDA memory: {torch.cuda.memory_allocated()/1e9
 
 # Quick training test
 python src\train.py --experiment debug_small --epochs 1 --debug
-```
+```text`n### **Debugging Workflow**
 
-### **Debugging Workflow**
 1. **Check Environment**: Virtual environment activated, packages installed
 2. **Test Imports**: All modules can be imported without errors
 3. **Test Configuration**: Configuration loads and validates correctly
@@ -371,6 +416,7 @@ python src\train.py --experiment debug_small --epochs 1 --debug
 ## **🚀 Performance Reference**
 
 ### **Performance Optimization Checklist**
+
 - [ ] Use appropriate batch size (16-128 for most models)
 - [ ] Set `num_workers` in DataLoader (2-8 recommended)
 - [ ] Enable `pin_memory=True` for GPU training
@@ -379,6 +425,7 @@ python src\train.py --experiment debug_small --epochs 1 --debug
 - [ ] Monitor GPU utilization (`nvidia-smi`)
 
 ### **Memory Management**
+
 ```python
 # Reduce memory usage
 config.batch_size = 16  # Smaller batches
@@ -390,9 +437,8 @@ torch.cuda.empty_cache()
 # Monitor memory
 import psutil
 print(f"Memory usage: {psutil.virtual_memory().percent}%")
-```
+```text`n### **Performance Monitoring**
 
-### **Performance Monitoring**
 ```powershell
 # GPU monitoring
 nvidia-smi -l 1  # Update every second
@@ -402,13 +448,12 @@ Get-Process python | Select-Object CPU,WorkingSet
 
 # Training speed benchmark
 Measure-Command { python src\train.py --experiment debug_small --epochs 5 }
-```
-
----
+```text`n---
 
 ## **📝 Common Code Patterns**
 
 ### **Model Implementation Pattern**
+
 ```python
 # Standard model structure
 class ModelName(nn.Module):
@@ -430,9 +475,8 @@ class ModelName(nn.Module):
     def forward(self, x):
         # Forward pass
         return output
-```
+```text`n### **Training Script Pattern**
 
-### **Training Script Pattern**
 ```python
 # Standard training script structure
 def main():
@@ -453,9 +497,8 @@ def main():
     # Create trainer and train
     trainer = Trainer(model, config, train_loader, val_loader)
     trainer.train()
-```
+```text`n### **Configuration Pattern**
 
-### **Configuration Pattern**
 ```python
 # Configuration loading pattern
 def get_config(experiment_name: str):
@@ -467,13 +510,12 @@ def get_config(experiment_name: str):
         hidden_size=64,
         num_layers=2
     )
-```
-
----
+```text`n---
 
 ## **📚 Documentation Patterns**
 
 ### **README Template**
+
 ```markdown
 # Model Name
 
@@ -489,15 +531,13 @@ python src\train.py --experiment strength_dataset --visualize
 
 # Train on weakness dataset  
 python src\train.py --experiment weakness_dataset --visualize
-```
+```text`n## Key Results
 
-## Key Results
 - **Strengths**: What the model does well
 - **Weaknesses**: What the model struggles with
 - **Next Model**: What model addresses these weaknesses
-```
 
-### **Docstring Pattern**
+```text`n### **Docstring Pattern**
 ```python
 def function_name(param1: type, param2: type) -> return_type:
     """
@@ -514,13 +554,12 @@ def function_name(param1: type, param2: type) -> return_type:
         ExceptionType: Description of when this exception is raised
     """
     pass
-```
-
----
+```text`n---
 
 ## **🎯 Workflow Checklists**
 
 ### **New Model Implementation Checklist**
+
 - [ ] Create directory structure
 - [ ] Set up virtual environment
 - [ ] Implement `constants.py` with model metadata
@@ -537,6 +576,7 @@ def function_name(param1: type, param2: type) -> return_type:
 - [ ] Run code quality checks
 
 ### **Training Experiment Checklist**
+
 - [ ] Configuration loads correctly
 - [ ] Data loading works
 - [ ] Model instantiation succeeds
@@ -550,6 +590,7 @@ def function_name(param1: type, param2: type) -> return_type:
 - [ ] Final model saved
 
 ### **Code Quality Checklist**
+
 - [ ] Code formatted with black
 - [ ] No linting errors (flake8)
 - [ ] All imports work
@@ -564,6 +605,7 @@ def function_name(param1: type, param2: type) -> return_type:
 ## **📞 Quick Help**
 
 ### **Emergency Commands**
+
 ```powershell
 # Nuclear option - fresh start
 Remove-Item -Recurse -Force .venv
@@ -577,19 +619,21 @@ pip install -e ..\..
 python -c "from src.model import ModelClass; print('Model OK')"
 python -c "from src.config import get_config; print('Config OK')"
 python src\train.py --experiment debug_small --epochs 1
-```
+```text`n### **Where to Find Help**
 
-### **Where to Find Help**
 1. **This Reference**: Common patterns and commands
 2. **Development FAQ**: Detailed troubleshooting (docs/Development_FAQ.md)
 3. **AI Development Guide**: Comprehensive development guide (docs/AI_Development_Guide.md)
 4. **Architecture Guide**: Technical architecture details (docs/technical/Codebase_Architecture.md)
 
 ### **Getting Support**
+
 Include this information when asking for help:
+
 ```powershell
 # System information
-python -c "import sys, platform, torch; print(f'Python: {sys.version}'); print(f'Platform: {platform.system()} {platform.release()}'); print(f'PyTorch: {torch.__version__}')"
+python -c "import sys, platform, torch; print(f'Python: {sys.version}'); print(f'Platform: {platform.system()}
+{platform.release()}'); print(f'PyTorch: {torch.__version__}')"
 
 # Working directory
 pwd
@@ -599,15 +643,14 @@ python -c "import sys; print(f'Python executable: {sys.executable}')"
 
 # Package versions
 pip list | grep -E "(torch|numpy|matplotlib)"
-```
-
----
+```text`n---
 
 **💡 Pro Tips**:
+
 - Keep this reference open during development
 - Use Ctrl+F to quickly find specific commands
 - Bookmark the FAQ for detailed troubleshooting
 - Create custom shortcuts for frequently used commands
 - Always test with `debug_small` first before running full experiments
 
-This reference is designed to be your go-to resource for rapid development and troubleshooting. Happy coding! 🚀 
+This reference is designed to be your go-to resource for rapid development and troubleshooting. Happy coding! 🚀

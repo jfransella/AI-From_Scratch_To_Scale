@@ -50,10 +50,25 @@ This roadmap is designed to be a marathon, not a sprint. We will tackle it in lo
 
 *The goal here is to understand the basic mechanics of a neuron and a learning algorithm.*
 
-* **1\. The Perceptron** (Keystone)  
-* **2\. ADALINE** (Conceptual study of the Delta Rule)  
-* **3\. Multi-Layer Perceptron (MLP)** (Keystone)  
-* **4\. Hopfield Network** (Side-quest: understand a different paradigm)
+* **1\. The Perceptron** (Keystone) ✅ **COMPLETED**
+  * Engine-based implementation with full BaseModel interface
+  * Comprehensive experiment suite (strength/weakness analysis)
+  * Complete documentation and notebooks
+  * Demonstrates linear limitations (XOR ~53% accuracy)
+  
+* **2\. ADALINE** (Conceptual study of the Delta Rule) 📋 **NEXT**
+  * Simple pattern implementation (educational focus)
+  * Comparison with Perceptron learning approach
+  * Educational analysis of continuous vs. discrete learning
+  * Focus on Delta Rule vs. Perceptron Learning Rule
+  
+* **3\. Multi-Layer Perceptron (MLP)** (Keystone) ✅ **COMPLETED**
+  * Simple implementation pattern demonstration
+  * XOR breakthrough capability (75% accuracy vs. 53%)
+  * Complete visualization and analysis suite
+  * Shows power of hidden layers and backpropagation
+  
+* **4\. Hopfield Network** (Side-quest: understand a different paradigm) 📋 **PLANNED**
 
 ### Module 2: The CNN Revolution (Intro to Frameworks)
 

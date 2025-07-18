@@ -33,8 +33,12 @@
             "path": "./models/01_perceptron"
         },
         {
+            "name": "02️⃣ ADALINE",
+            "path": "./models/02_adaline"
+        },
+        {
             "name": "03️⃣ MLP",
-            "path": "./models/03_MLP"
+            "path": "./models/03_mlp"
         },
         {
             "name": "📚 Documentation",
@@ -106,11 +110,28 @@
                     "--experiment",
                     "debug_small",
                     "--epochs",
-                    "10"
+                    "10",
+                    "--visualize"
                 ],
                 "console": "integratedTerminal",
-                "cwd": "${workspaceFolder}",
-                "python": "${workspaceFolder}/models/02_adaline/.venv/Scripts/python.exe"
+                "cwd": "${workspaceFolder}/models/02_adaline",
+                "python": "${workspaceFolder}/models/01_perceptron/.venv/Scripts/python.exe"
+            },
+            {
+                "name": "02 - ADALINE vs Perceptron",
+                "type": "python",
+                "request": "launch",
+                "program": "${workspaceFolder}/models/02_adaline/src/compare_with_perceptron.py",
+                "args": [
+                    "--experiment",
+                    "perceptron_comparison",
+                    "--epochs",
+                    "50",
+                    "--visualize"
+                ],
+                "console": "integratedTerminal",
+                "cwd": "${workspaceFolder}/models/02_adaline",
+                "python": "${workspaceFolder}/models/01_perceptron/.venv/Scripts/python.exe"
             },
             {
                 "name": "03 - MLP Training",

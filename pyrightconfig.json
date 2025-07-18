@@ -14,7 +14,8 @@
     "extraPaths": [
         ".",
         "models/01_perceptron/src",
-        "models/03_MLP/src"
+        "models/02_adaline/src",
+        "models/03_mlp/src"
     ],
     "pythonVersion": "3.13",
     "pythonPlatform": "Windows",
@@ -32,6 +33,18 @@
         },
         {
             "root": "models/01_perceptron",
+            "pythonVersion": "3.13",
+            "extraPaths": [
+                ".",
+                "src",
+                "../../utils",
+                "../../data_utils",
+                "../../engine",
+                "../../plotting"
+            ]
+        },
+        {
+            "root": "models/02_adaline",
             "pythonVersion": "3.13",
             "extraPaths": [
                 ".",

@@ -88,6 +88,24 @@ def load_dataset(dataset_name: str, dataset_params: Optional[Dict[str, Any]] = N
             random_state=42
         )
     
+    elif dataset_name == 'simple_linear':
+        return generate_linear_dataset(
+            n_samples=kwargs.get('n_samples', 200),
+            n_features=kwargs.get('n_features', 2),
+            n_classes=kwargs.get('n_classes', 2),
+            noise=kwargs.get('noise', 0.05),
+            random_state=kwargs.get('random_state', 42)
+        )
+    
+    elif dataset_name == 'noisy_linear':
+        return generate_linear_dataset(
+            n_samples=kwargs.get('n_samples', 500),
+            n_features=kwargs.get('n_features', 2),
+            n_classes=kwargs.get('n_classes', 2),
+            noise=kwargs.get('noise', 0.15),
+            random_state=kwargs.get('random_state', 42)
+        )
+    
     # Real datasets
     elif dataset_name == 'iris_binary':
         # Only pass supported parameters
@@ -95,6 +113,20 @@ def load_dataset(dataset_name: str, dataset_params: Optional[Dict[str, Any]] = N
         if 'random_state' in kwargs:
             iris_kwargs['random_state'] = kwargs['random_state']
         return _load_iris_binary(**iris_kwargs)
+    
+    elif dataset_name == 'iris_setosa_versicolor':
+        # Only pass supported parameters
+        iris_kwargs = {}
+        if 'random_state' in kwargs:
+            iris_kwargs['random_state'] = kwargs['random_state']
+        return _load_iris_setosa_versicolor(**iris_kwargs)
+    
+    elif dataset_name == 'iris_versicolor_virginica':
+        # Only pass supported parameters
+        iris_kwargs = {}
+        if 'random_state' in kwargs:
+            iris_kwargs['random_state'] = kwargs['random_state']
+        return _load_iris_versicolor_virginica(**iris_kwargs)
     
     elif dataset_name == 'breast_cancer_binary' or dataset_name == 'breast_cancer':
         # Only pass supported parameters  
@@ -169,12 +201,40 @@ def get_dataset_info(dataset_name: str) -> Dict[str, Any]:
             'linearly_separable': True,
             'description': 'Medium linearly separable dataset for debugging'
         },
+        'simple_linear': {
+            'type': 'synthetic',
+            'n_classes': 2,
+            'n_features': 2,
+            'linearly_separable': True,
+            'description': 'Simple linearly separable dataset for ADALINE demonstrations'
+        },
+        'noisy_linear': {
+            'type': 'synthetic',
+            'n_classes': 2,
+            'n_features': 2,
+            'linearly_separable': True,
+            'description': 'Noisy linearly separable dataset for convergence studies'
+        },
         'iris_binary': {
             'type': 'real',
             'n_classes': 2,
             'n_features': 4,
             'linearly_separable': True,
             'description': 'Iris dataset binary classification (setosa vs non-setosa)'
+        },
+        'iris_setosa_versicolor': {
+            'type': 'real',
+            'n_classes': 2,
+            'n_features': 4,
+            'linearly_separable': True,
+            'description': 'Iris dataset (setosa vs versicolor) - linearly separable'
+        },
+        'iris_versicolor_virginica': {
+            'type': 'real',
+            'n_classes': 2,
+            'n_features': 4,
+            'linearly_separable': False,
+            'description': 'Iris dataset (versicolor vs virginica) - not linearly separable'
         },
         'breast_cancer_binary': {
             'type': 'real',
@@ -212,7 +272,8 @@ def list_available_datasets() -> List[str]:
     """
     return [
         'xor_problem', 'circles_dataset', 'linear_separable',
-        'debug_small', 'debug_linear', 'iris_binary', 
+        'debug_small', 'debug_linear', 'simple_linear', 'noisy_linear',
+        'iris_binary', 'iris_setosa_versicolor', 'iris_versicolor_virginica',
         'breast_cancer_binary', 'mnist_subset'
     ]
 
@@ -293,6 +354,90 @@ def _load_iris_binary(random_state: Optional[int] = None) -> Tuple[np.ndarray, n
         y_binary = y_binary[indices]
         
         logger.info(f"Loaded Iris binary: {X_scaled.shape}, classes: {np.unique(y_binary)}")
+        return X_scaled, y_binary
+        
+    except ImportError:
+        logger = get_logger(__name__)
+        logger.warning("scikit-learn not available, generating synthetic iris-like dataset")
+        return _generate_iris_like_dataset()
+
+
+def _load_iris_setosa_versicolor(random_state: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+    """Load Iris dataset for binary classification (setosa vs versicolor)."""
+    try:
+        from sklearn.datasets import load_iris
+        from sklearn.preprocessing import StandardScaler
+        
+        logger = get_logger(__name__)
+        logger.debug("Loading Iris dataset (setosa vs versicolor)")
+        
+        # Load full iris dataset
+        iris = load_iris()
+        X, y = iris.data, iris.target
+        
+        # Filter for setosa (0) and versicolor (1) only
+        mask = (y == 0) | (y == 1)
+        X_filtered = X[mask]
+        y_filtered = y[mask]
+        
+        # Convert to binary: setosa (0) vs versicolor (1)
+        y_binary = y_filtered  # Already 0 and 1
+        
+        # Standardize features
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X_filtered)
+        
+        # Shuffle dataset
+        if random_state is not None:
+            set_random_seed(random_state)
+        
+        indices = np.random.permutation(len(X_scaled))
+        X_scaled = X_scaled[indices]
+        y_binary = y_binary[indices]
+        
+        logger.info(f"Loaded Iris setosa vs versicolor: {X_scaled.shape}, classes: {np.unique(y_binary)}")
+        return X_scaled, y_binary
+        
+    except ImportError:
+        logger = get_logger(__name__)
+        logger.warning("scikit-learn not available, generating synthetic iris-like dataset")
+        return _generate_iris_like_dataset()
+
+
+def _load_iris_versicolor_virginica(random_state: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+    """Load Iris dataset for binary classification (versicolor vs virginica)."""
+    try:
+        from sklearn.datasets import load_iris
+        from sklearn.preprocessing import StandardScaler
+        
+        logger = get_logger(__name__)
+        logger.debug("Loading Iris dataset (versicolor vs virginica)")
+        
+        # Load full iris dataset
+        iris = load_iris()
+        X, y = iris.data, iris.target
+        
+        # Filter for versicolor (1) and virginica (2) only
+        mask = (y == 1) | (y == 2)
+        X_filtered = X[mask]
+        y_filtered = y[mask]
+        
+        # Convert to binary: versicolor (0) vs virginica (1)
+        y_binary = (y_filtered == 2).astype(int)  # 0 for versicolor, 1 for virginica
+        
+        # Standardize features
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X_filtered)
+        
+        # Shuffle dataset
+        if random_state is not None:
+            set_random_seed(random_state)
+        
+        indices = np.random.permutation(len(X_scaled))
+        X_scaled = X_scaled[indices]
+        y_binary = y_binary[indices]
+        
+        logger.info(f"Loaded Iris versicolor vs virginica: {X_scaled.shape}, classes: {np.unique(y_binary)}")
         return X_scaled, y_binary
         
     except ImportError:

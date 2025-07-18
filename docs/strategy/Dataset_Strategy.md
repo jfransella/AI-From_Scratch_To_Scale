@@ -1,6 +1,8 @@
 # **Project Dataset Strategy**
 
-This document contains the experimental design for all 25 neural network models, specifying which datasets demonstrate each model's strengths and weaknesses, plus the technical implementation standards for data preprocessing, loading, and management.
+This document contains the experimental design for all 25 neural network models, specifying which datasets demonstrate
+each model's strengths and weaknesses, plus the technical implementation standards for data preprocessing, loading, and
+management.
 
 ## **Table of Contents**
 
@@ -89,9 +91,7 @@ CIFAR10_TRANSFORMS = {
         Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
     ]
 }
-```
-
-### **Text Preprocessing Standards**
+```text`n### **Text Preprocessing Standards**
 
 ```python
 # Tokenization and encoding patterns
@@ -108,9 +108,7 @@ TEXT_PREPROCESSING = {
         'oov_token': '<UNK>'
     }
 }
-```
-
-### **Normalization Standards**
+```text`n### **Normalization Standards**
 
 - **Images**: [0, 1] range with dataset-specific mean/std
 - **Tabular**: StandardScaler for continuous, OneHot for categorical
@@ -143,9 +141,7 @@ class BaseDataset:
         if self.transform:
             sample = self.transform(sample)
         return sample
-```
-
-### **DataLoader Configuration Standards**
+```text`n### **DataLoader Configuration Standards**
 
 ```python
 DATALOADER_CONFIGS = {
@@ -169,9 +165,7 @@ DATALOADER_CONFIGS = {
         'persistent_workers': True
     }
 }
-```
-
-### **Caching Strategy**
+```text`n### **Caching Strategy**
 
 - **Generated Data**: Cache in `data\cache\` with timestamp validation
 - **Processed Data**: HDF5 files for large datasets, pickle for small
@@ -184,7 +178,7 @@ DATALOADER_CONFIGS = {
 
 ### **Directory Structure**
 
-```
+```text
 data\
 ├── raw\                    # Original, unprocessed data
 │   ├── cifar10\
@@ -203,9 +197,7 @@ data\
 ├── cache\                  # Temporary cached data
 ├── external\               # External dataset downloads
 └── validation\             # Dataset validation reports
-```
-
-### **File Naming Conventions**
+```text`n### **File Naming Conventions**
 
 - **Raw Data**: `{dataset_name}_raw.{ext}`
 - **Processed Data**: `{dataset_name}_{split}.{ext}`
@@ -229,9 +221,7 @@ data\
     "created_at": "2024-01-01T00:00:00Z",
     "checksum": "abc123def456"
 }
-```
-
----
+```text`n---
 
 ## **Performance & Optimization**
 
@@ -415,9 +405,7 @@ def validate_dataset(dataset_path, expected_schema):
         'preprocessing_validity': validate_preprocessing(dataset_path)
     }
     return checks
-```
-
-### **Quality Metrics**
+```text`n### **Quality Metrics**
 
 - **Completeness**: No missing values in required fields
 - **Consistency**: Uniform data types and ranges across splits
@@ -459,9 +447,7 @@ def load_cifar10(data_dir, split='train', batch_size=128):
     )
     
     return dataloader
-```
-
-### **Generating XOR Dataset**
+```text`n### **Generating XOR Dataset**
 
 ```python
 def generate_xor_data(n_samples=1000, noise_level=0.1):
@@ -473,9 +459,7 @@ def generate_xor_data(n_samples=1000, noise_level=0.1):
     X += np.random.normal(0, noise_level, X.shape)
     
     return X.astype(np.float32), y.astype(np.int64)
-```
-
-### **Text Dataset with Tokenization**
+```text`n### **Text Dataset with Tokenization**
 
 ```python
 def prepare_text_dataset(text_file, vocab_size=10000, seq_length=512):
@@ -490,9 +474,7 @@ def prepare_text_dataset(text_file, vocab_size=10000, seq_length=512):
     sequences = create_sequences(tokenizer.encode(text), seq_length)
     
     return sequences, tokenizer
-```
-
----
+```text`n---
 
 ## **Best Practices Summary**
 

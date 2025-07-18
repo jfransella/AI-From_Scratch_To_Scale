@@ -1,6 +1,7 @@
 # **Validation System for "AI From Scratch to Scale"**
 
-This directory contains comprehensive validation tools to ensure code quality, project structure compliance, and implementation standards across all model implementations.
+This directory contains comprehensive validation tools to ensure code quality, project structure compliance, and
+implementation standards across all model implementations.
 
 ## **Overview**
 
@@ -20,9 +21,7 @@ python docs\validation\quick_validate.py check-model 01_perceptron
 
 # Detailed validation
 python docs\validation\validate_project.py --model models\01_perceptron
-```
-
-### **Check Project Structure**
+```text`n### **Check Project Structure**
 
 ```powershell
 # Quick structure check
@@ -30,9 +29,7 @@ python docs\validation\quick_validate.py check-structure
 
 # Detailed structure check
 python docs\validation\validate_project.py --check structure
-```
-
-### **Check Everything**
+```text`n### **Check Everything**
 
 ```powershell
 # Quick full validation
@@ -40,16 +37,12 @@ python docs\validation\quick_validate.py check-all
 
 # Detailed full validation
 python docs\validation\validate_project.py --all
-```
-
-### **Fix Model Structure**
+```text`n### **Fix Model Structure**
 
 ```powershell
 # Create missing directories and files
 python docs\validation\quick_validate.py fix-structure new_model_name
-```
-
----
+```text`n---
 
 ## **Tools Overview**
 
@@ -82,9 +75,7 @@ python validate_project.py --check templates
 
 # Export results to JSON
 python validate_project.py --all --export results.json
-```
-
-#### **Output:**
+```text`n#### **Output:**
 
 - **Detailed console output** with success/warning/error messages
 - **File-specific issues** with line numbers and suggestions
@@ -96,6 +87,7 @@ python validate_project.py --all --export results.json
 Fast validation tool for development workflow and CI/CD integration.
 
 #### **Features:**
+ (2)
 
 - **Fast Checks** - Optimized for speed over detail
 - **Simple Commands** - Easy to remember and use
@@ -104,6 +96,7 @@ Fast validation tool for development workflow and CI/CD integration.
 - **Template Generation** - Creates proper README, requirements.txt, etc.
 
 #### **Usage:**
+ (2)
 
 ```powershell
 # Check specific model
@@ -117,9 +110,7 @@ python quick_validate.py check-all
 
 # Fix model structure
 python quick_validate.py fix-structure new_model_name
-```
-
-#### **Output:**
+```text`n#### **Output:**
 
 - **Concise console output** with emoji indicators
 - **Pass/fail status** with error counts
@@ -182,9 +173,7 @@ python docs\validation\quick_validate.py check-model your_model_name
 
 # If issues found, run detailed check
 python docs\validation\validate_project.py --model models\your_model_name
-```
-
-### **CI/CD Integration**
+```text`n### **CI/CD Integration**
 
 Example GitHub Actions workflow:
 
@@ -207,9 +196,7 @@ jobs:
     - name: Validate project
       run: |
         python docs/validation/quick_validate.py check-all
-```
-
-### **New Model Development**
+```text`n### **New Model Development**
 
 When starting a new model:
 
@@ -225,9 +212,7 @@ python docs\validation\quick_validate.py check-model new_model_name
 
 # 4. Fix any issues and re-validate
 python docs\validation\validate_project.py --model models\new_model_name
-```
-
----
+```text`n---
 
 ## **Validation Levels**
 
@@ -265,47 +250,35 @@ python docs\validation\validate_project.py --model models\new_model_name
 
 ### **Structure Issues**
 
-```
-❌ Missing required directory: models/XX_model/src
+```text`n❌ Missing required directory: models/XX_model/src
 
 Solution:
 python docs\validation\quick_validate.py fix-structure XX_model
-```
+```text`n### **Import Issues**
 
-### **Import Issues**
-
-```
-❌ Config import failed: Cannot import from config.py
+```text`n❌ Config import failed: Cannot import from config.py
 
 Solution:
 - Check Python path setup
 - Verify template imports
 - Ensure virtual environment is activated
-```
+```text`n### **Code Quality Issues**
 
-### **Code Quality Issues**
-
-```
-⚠️ Code style issues found
+```text`n⚠️ Code style issues found
 
 Solution:
 - Run: black src/
 - Run: flake8 src/
 - Fix reported issues
-```
+```text`n### **Configuration Issues**
 
-### **Configuration Issues**
-
-```
-❌ get_config function missing
+```text`n❌ get_config function missing
 
 Solution:
 - Copy template config.py
 - Implement get_config() function
 - Add experiment definitions
-```
-
----
+```text`n---
 
 ## **Advanced Usage**
 
@@ -319,9 +292,7 @@ def validate_custom_requirement(self, model_dir: Path):
     """Add custom validation logic."""
     # Your custom validation code here
     pass
-```
-
-### **Batch Validation**
+```text`n### **Batch Validation**
 
 Validate multiple models:
 
@@ -331,9 +302,7 @@ $models = Get-ChildItem -Path "models" -Directory
 foreach ($model in $models) {
     python docs\validation\quick_validate.py check-model $model.Name
 }
-```
-
-### **Export and Analysis**
+```text`n### **Export and Analysis**
 
 Export validation results for analysis:
 
@@ -343,9 +312,7 @@ python docs\validation\validate_project.py --all --export validation_results.jso
 
 # Process with external tools
 python analyze_validation_results.py validation_results.json
-```
-
----
+```text`n---
 
 ## **Best Practices**
 
@@ -378,27 +345,18 @@ python analyze_validation_results.py validation_results.json
 
 #### **Python Path Issues**
 
-```
-ImportError: No module named 'src'
-```
-
-**Solution:** Ensure proper Python path and virtual environment setup.
+```text`nImportError: No module named 'src'
+```text`n**Solution:** Ensure proper Python path and virtual environment setup.
 
 #### **Missing Dependencies**
 
-```
-ModuleNotFoundError: No module named 'torch'
-```
-
-**Solution:** Install required dependencies: `pip install -r requirements.txt`
+```text`nModuleNotFoundError: No module named 'torch'
+```text`n**Solution:** Install required dependencies: `pip install -r requirements.txt`
 
 #### **Permission Issues**
 
-```
-PermissionError: [Errno 13] Permission denied
-```
-
-**Solution:** Check file permissions and run with appropriate privileges.
+```text`nPermissionError: [Errno 13] Permission denied
+```text`n**Solution:** Check file permissions and run with appropriate privileges.
 
 ### **Getting Help**
 
@@ -441,4 +399,6 @@ To add new validation checks:
 
 ---
 
-This validation system ensures high code quality and consistency across all model implementations in the "AI From Scratch to Scale" project. Use it early, use it often, and let it guide you toward better code and documentation practices!
+This validation system ensures high code quality and consistency across all model implementations in the "AI From
+Scratch to Scale" project. Use it early, use it often, and let it guide you toward better code and documentation
+practices!

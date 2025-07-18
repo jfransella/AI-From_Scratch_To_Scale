@@ -1,6 +1,7 @@
 # Visualization Implementation Guide
 
-This guide provides step-by-step instructions for integrating visualizations into model training and evaluation workflows. It ensures consistency, reproducibility, and ease of use across all models in the project.
+This guide provides step-by-step instructions for integrating visualizations into model training and evaluation
+workflows. It ensures consistency, reproducibility, and ease of use across all models in the project.
 
 ---
 
@@ -9,7 +10,8 @@ This guide provides step-by-step instructions for integrating visualizations int
 - **Add a `--visualize` flag** to all training and evaluation scripts (e.g., `train.py`, `evaluate.py`).
 - **Parse the flag** using your argument parser (e.g., argparse).
 - **Determine required plots** for the current experiment using the mapping in `config.py` or the Playbooks.
-- **Call the appropriate functions** from the `/plotting` package at the end of training/evaluation, passing all necessary data (e.g., losses, predictions, model, etc.).
+- **Call the appropriate functions** from the `/plotting` package at the end of training/evaluation, passing all
+necessary data (e.g., losses, predictions, model, etc.).
 
 ---
 
@@ -19,9 +21,8 @@ This guide provides step-by-step instructions for integrating visualizations int
 
   ```python
   from plotting import plot_learning_curve, plot_confusion_matrix, ...
-  ```
+  ```text`n- **Follow naming conventions** and docstring standards as described in `Coding_Standards.md`.
 
-- **Follow naming conventions** and docstring standards as described in `Coding_Standards.md`.
 - **Pass all required arguments** (e.g., model, data, save_path) to each plotting function.
 - **Set random seeds** for reproducibility in plots involving randomness (e.g., t-SNE, UMAP).
 
@@ -50,4 +51,5 @@ This guide provides step-by-step instructions for integrating visualizations int
 
 ---
 
-For a summary of required visualizations by model type, see `docs/visualization/Playbooks.md`. For interpretive guidance, see `docs/strategy/Visualization_Ideas.md`.
+For a summary of required visualizations by model type, see `docs/visualization/Playbooks.md`. For interpretive
+guidance, see `docs/strategy/Visualization_Ideas.md`.

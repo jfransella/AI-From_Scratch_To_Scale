@@ -1,12 +1,15 @@
 # **01_Perceptron: The Foundation of Neural Networks**
 
-> **Historical Significance**: The first artificial neural network capable of learning, introduced by Frank Rosenblatt in 1957. The Perceptron launched the field of machine learning and remains fundamental to understanding modern deep learning.
+> **Historical Significance**: The first artificial neural network capable of learning, introduced by Frank Rosenblatt
+in 1957. The Perceptron launched the field of machine learning and remains fundamental to understanding modern deep
+learning.
 
 ## **📋 Overview**
 
 ### **What is the Perceptron?**
 
-The Perceptron is a linear binary classifier that learns to separate data into two classes using a simple learning rule. It consists of:
+The Perceptron is a linear binary classifier that learns to separate data into two classes using a simple learning
+rule. It consists of:
 
 - **Input layer**: Receives feature vectors
 - **Linear transformation**: Weighted sum of inputs plus bias
@@ -29,9 +32,7 @@ The **Perceptron Learning Rule**: A simple, guaranteed-to-converge algorithm for
 If prediction is wrong:
     w = w + η * (target - prediction) * input
     b = b + η * (target - prediction)
-```
-
----
+```text`n---
 
 ## **🚀 Quick Start**
 
@@ -50,9 +51,7 @@ pip install -r requirements.txt
 
 # Verify installation
 python -c "from src.model import create_perceptron; print('✓ Setup complete')"
-```
-
-### **Training Commands**
+```text`n### **Training Commands**
 
 #### **Strength Demonstrations (Linearly Separable Data)**
 
@@ -65,9 +64,7 @@ $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --experiment iris_bin
 
 # Breast cancer dataset (medical application)
 $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --experiment breast_cancer_binary --epochs 100
-```
-
-#### **Limitation Demonstrations (Non-linearly Separable Data)**
+```text`n#### **Limitation Demonstrations (Non-linearly Separable Data)**
 
 ```powershell
 # XOR problem (classic limitation)
@@ -78,9 +75,7 @@ $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --experiment circles_
 
 # MNIST subset (high-dimensional limitation)
 $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --experiment mnist_subset --epochs 200
-```
-
-#### **Advanced Options**
+```text`n#### **Advanced Options**
 
 ```powershell
 # With visualization
@@ -91,25 +86,21 @@ $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --experiment iris_bin
 
 # Custom hyperparameters
 $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --experiment iris_binary --epochs 200 --learning-rate 0.05
-```
-
-### **Evaluation Commands**
+```text`n### **Evaluation Commands**
 
 ```powershell
 # Evaluate trained model
-$env:PYTHONPATH="src;$env:PYTHONPATH"; python src/evaluate.py --checkpoint outputs/models/iris_binary_final.pth --experiment iris_binary
+$env:PYTHONPATH="src;$env:PYTHONPATH"; python src/evaluate.py --checkpoint outputs/models/iris_binary_final.pth
+--experiment iris_binary
 
 # With detailed analysis
-$env:PYTHONPATH="src;$env:PYTHONPATH"; python src/evaluate.py --checkpoint outputs/models/iris_binary_final.pth --experiment iris_binary --visualize --verbose
-```
-
-### **List Available Experiments**
+$env:PYTHONPATH="src;$env:PYTHONPATH"; python src/evaluate.py --checkpoint outputs/models/iris_binary_final.pth
+--experiment iris_binary --visualize --verbose
+```text`n### **List Available Experiments**
 
 ```powershell
 $env:PYTHONPATH="src;$env:PYTHONPATH"; python src/train.py --list-experiments
-```
-
----
+```text`n---
 
 ## **�� Expected Results**
 
@@ -168,9 +159,7 @@ class Perceptron(nn.Module, BaseModel):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         output = self.linear(x)
         return self._apply_activation(output)  # Step function or sigmoid
-```
-
-### **Key Components**
+```text`n### **Key Components**
 
 #### **1. Linear Transformation**
 
@@ -235,11 +224,10 @@ models/01_perceptron/
 │   └── visualizations/   # Generated plots
 ├── requirements.txt      # Dependencies
 └── README.md            # This file
-```
+```text`n## 📊 Visualizations
 
-## 📊 Visualizations
-
-The following visualizations are required for the Perceptron model (see Visualization Playbooks in `docs/visualization/Playbooks.md`):
+The following visualizations are required for the Perceptron model (see Visualization Playbooks in
+`docs/visualization/Playbooks.md`):
 
 - **Learning Curves** (training/validation loss and accuracy)
 - **Confusion Matrix** (for classification tasks)
@@ -251,9 +239,7 @@ The following visualizations are required for the Perceptron model (see Visualiz
 
   ```powershell
   python src/train.py --experiment iris_binary --visualize
-  ```
-
-- All plots will be saved to `outputs/visualizations/`.
+  ```text`n- All plots will be saved to `outputs/visualizations/`.
 - For detailed analysis, see the analysis notebook in `notebooks/`.
 
 For more details and best practices, refer to the Visualization Playbooks and Implementation Guide.
@@ -311,13 +297,16 @@ For more details and best practices, refer to the Visualization Playbooks and Im
 
 ### **Original Papers**
 
-- **Rosenblatt, F. (1957)**. "The Perceptron: A Perceiving and Recognizing Automaton". Cornell Aeronautical Laboratory Report 85-460-1.
-- **Rosenblatt, F. (1958)**. "The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain". Psychological Review, 65(6), 386-408.
+- **Rosenblatt, F. (1957)**. "The Perceptron: A Perceiving and Recognizing Automaton". Cornell Aeronautical Laboratory
+Report 85-460-1.
+- **Rosenblatt, F. (1958)**. "The Perceptron: A Probabilistic Model for Information Storage and Organization in the
+Brain". Psychological Review, 65(6), 386-408.
 - **Minsky, M. & Papert, S. (1969)**. "Perceptrons: An Introduction to Computational Geometry". MIT Press.
 
-### **Historical Context**
+### **Historical Context** (2)
 
-- **McCulloch, W.S. & Pitts, W. (1943)**. "A Logical Calculus of Ideas Immanent in Nervous Activity". Bulletin of Mathematical Biophysics, 5, 115-133.
+- **McCulloch, W.S. & Pitts, W. (1943)**. "A Logical Calculus of Ideas Immanent in Nervous Activity". Bulletin of
+Mathematical Biophysics, 5, 115-133.
 - **Hebb, D.O. (1949)**. "The Organization of Behavior". Wiley.
 - **Block, H.D. (1962)**. "The Perceptron: A Model for Brain Functioning". Reviews of Modern Physics, 34, 123-135.
 
@@ -330,7 +319,8 @@ For more details and best practices, refer to the Visualization Playbooks and Im
 
 - **Perceptron Learning Algorithm Proof**: [Wikipedia - Perceptron](https://en.wikipedia.org/wiki/Perceptron)
 - **Interactive Visualizations**: [Tensorflow Playground](https://playground.tensorflow.org/)
-- **Historical Timeline**: [History of Neural Networks](https://cs.stanford.edu/people/eroberts/courses/soco/projects/neural-networks/History/history1.html)
+- **Historical Timeline**: [History of Neural
+Networks](https://cs.stanford.edu/people/eroberts/courses/soco/projects/neural-networks/History/history1.html)
 
 ---
 
@@ -383,4 +373,5 @@ After mastering the Perceptron, explore:
 
 ---
 
-**🎯 Remember**: The Perceptron isn't just a simple classifier - it's the foundation that launched the entire field of neural networks. Every modern deep learning architecture builds upon the principles first established here in 1957.
+**🎯 Remember**: The Perceptron isn't just a simple classifier - it's the foundation that launched the entire field of
+neural networks. Every modern deep learning architecture builds upon the principles first established here in 1957.

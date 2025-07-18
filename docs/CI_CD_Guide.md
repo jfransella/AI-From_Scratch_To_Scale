@@ -1,10 +1,12 @@
 # **CI/CD Guide: Automated Testing and Deployment**
 
-This guide provides comprehensive CI/CD configuration and workflow guidance for the "AI From Scratch to Scale" project, including GitHub Actions workflows, automated validation, and deployment strategies.
+This guide provides comprehensive CI/CD configuration and workflow guidance for the "AI From Scratch to
+Scale" project, including GitHub Actions workflows, automated validation, and deployment strategies.
 
 ## **📋 Overview**
 
-Continuous Integration and Continuous Deployment (CI/CD) ensures code quality, automates testing, and streamlines deployment processes. This guide covers:
+Continuous Integration and Continuous Deployment (CI/CD) ensures code quality, automates testing, and
+streamlines deployment processes. This guide covers:
 
 - **GitHub Actions workflows** for automated testing
 - **Validation pipelines** for code quality
@@ -99,9 +101,7 @@ jobs:
       with:
         name: validation-results-${{ matrix.python-version }}
         path: validation_results.json
-```
-
-### **2. Model-Specific Testing Workflow**
+```text`n### **2. Model-Specific Testing Workflow**
 
 Create `.github/workflows/model-testing.yml`:
 
@@ -180,9 +180,7 @@ jobs:
       with:
         name: test-results-${{ matrix.model }}
         path: models/${{ matrix.model }}/outputs/
-```
-
-### **3. Code Quality Workflow**
+```text`n### **3. Code Quality Workflow**
 
 Create `.github/workflows/code-quality.yml`:
 
@@ -239,9 +237,7 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
-```
-
-### **4. Documentation Workflow**
+```text`n### **4. Documentation Workflow**
 
 Create `.github/workflows/documentation.yml`:
 
@@ -312,9 +308,7 @@ jobs:
             lines = len(f.read_text().splitlines())
             print(f'{f.relative_to(docs_dir)}: {lines} lines')
         "
-```
-
-### **5. Release Workflow**
+```text`n### **5. Release Workflow**
 
 Create `.github/workflows/release.yml`:
 
@@ -389,9 +383,7 @@ jobs:
         body_path: RELEASE_NOTES.md
         draft: false
         prerelease: false
-```
-
----
+```text`n---
 
 ## **🔧 Local Development Workflow**
 
@@ -429,9 +421,7 @@ repos:
         entry: python docs/validation/quick_validate.py check-structure
         language: system
         pass_filenames: false
-```
-
-### **Setup Script**
+```text`n### **Setup Script**
 
 Create `scripts/setup-dev.ps1`:
 
@@ -454,9 +444,7 @@ Write-Host "Running initial validation..." -ForegroundColor Yellow
 python docs/validation/quick_validate.py check-structure
 
 Write-Host "Development environment setup complete!" -ForegroundColor Green
-```
-
-### **Development Workflow Commands**
+```text`n### **Development Workflow Commands**
 
 Create `scripts/dev-commands.ps1`:
 
@@ -493,9 +481,7 @@ function New-Model {
 
 # Export functions
 Export-ModuleMember -Function Test-Project, Test-Model, Format-Code, Run-Tests, New-Model
-```
-
----
+```text`n---
 
 ## **📊 Monitoring and Metrics**
 
@@ -560,9 +546,7 @@ jobs:
       with:
         name: project-metrics
         path: project_metrics.json
-```
-
-### **Quality Metrics Tracking**
+```text`n### **Quality Metrics Tracking**
 
 Create `scripts/quality-metrics.py`:
 
@@ -682,9 +666,7 @@ if __name__ == '__main__':
     print(f"Quality score: {metrics['quality_score']:.1f}/100")
     print(f"Test coverage: {metrics['code_quality']['test_coverage']:.1f}%")
     print(f"Code issues: {metrics['code_quality']['flake8_issues']}")
-```
-
----
+```text`n---
 
 ## **🚀 Deployment Strategies**
 
@@ -734,9 +716,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs-build
-```
-
-### **Environment Configuration**
+```text`n### **Environment Configuration**
 
 Create `config/environments.yml`:
 
@@ -758,9 +738,7 @@ environments:
     log_level: WARNING
     validation_strict: true
     monitoring_enabled: true
-```
-
----
+```text`n---
 
 ## **📈 Performance Monitoring**
 
@@ -857,9 +835,7 @@ jobs:
       with:
         name: performance-results
         path: performance_results.json
-```
-
----
+```text`n---
 
 ## **🔍 Troubleshooting CI/CD**
 
@@ -875,9 +851,7 @@ jobs:
     pip list
     ls -la
     echo "Current directory: $(pwd)"
-```
-
-#### **2. Permission Issues**
+```text`n#### **2. Permission Issues**
 
 ```yaml
 # Fix permissions for scripts
@@ -885,9 +859,7 @@ jobs:
   run: |
     chmod +x scripts/*.py
     chmod +x scripts/*.sh
-```
-
-#### **3. Timeout Issues**
+```text`n#### **3. Timeout Issues**
 
 ```yaml
 # Increase timeout for long-running tasks
@@ -895,9 +867,7 @@ jobs:
   run: |
     timeout 1800 python long_running_script.py
   timeout-minutes: 30
-```
-
-#### **4. Memory Issues**
+```text`n#### **4. Memory Issues**
 
 ```yaml
 # Monitor memory usage
@@ -905,9 +875,7 @@ jobs:
   run: |
     free -h
     python -c "import psutil; print(f'Memory: {psutil.virtual_memory().percent}%')"
-```
-
-### **Debugging Workflows**
+```text`n### **Debugging Workflows**
 
 Create `scripts/debug-ci.py`:
 
@@ -975,9 +943,7 @@ if __name__ == '__main__':
     check_environment()
     check_dependencies()
     check_validation()
-```
-
----
+```text`n---
 
 ## **📋 CI/CD Checklist**
 
@@ -1043,4 +1009,6 @@ if __name__ == '__main__':
 
 ---
 
-This comprehensive CI/CD guide ensures automated quality assurance, streamlined development processes, and reliable deployment procedures for the "AI From Scratch to Scale" project. Follow these practices to maintain high code quality and efficient development workflows!
+This comprehensive CI/CD guide ensures automated quality assurance, streamlined development processes, and
+reliable deployment procedures for the "AI From Scratch to Scale" project. Follow these practices to
+maintain high code quality and efficient development workflows!

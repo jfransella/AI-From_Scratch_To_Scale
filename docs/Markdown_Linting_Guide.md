@@ -4,7 +4,8 @@ This guide explains the automated markdown linting setup for the AI From Scratch
 
 ## Overview
 
-The project uses `markdownlint` to ensure consistent markdown formatting across all 53+ markdown files. The setup includes:
+The project uses `markdownlint` to ensure consistent markdown formatting across all 53+ markdown files. The setup
+includes:
 
 - **VS Code Integration**: Automatic linting and fixing on save
 - **Bulk Scripts**: PowerShell scripts for project-wide operations
@@ -21,9 +22,7 @@ npm install -g markdownlint-cli
 
 # Or install as project dependency
 npm install
-```
-
-### 2. VS Code Extension
+```text`n### 2. VS Code Extension
 
 Install the `markdownlint` extension in VS Code:
 
@@ -41,9 +40,7 @@ npm run fix:markdown
 
 # Or use the PowerShell script
 .\scripts\fix_markdown.ps1 -CheckOnly
-```
-
-## Configuration
+```text`n## Configuration
 
 ### `.markdownlint.json`
 
@@ -84,9 +81,7 @@ The main configuration file with rules optimized for documentation:
   "MD052": false,
   "MD053": false
 }
-```
-
-### Key Rule Explanations
+```text`n### Key Rule Explanations
 
 - **MD013**: Line length limit of 120 characters (relaxed for code blocks and tables)
 - **MD024**: Allow duplicate headings if they're not siblings
@@ -131,14 +126,12 @@ Access via `Ctrl+Shift+P` → "Tasks: Run Task":
 # Check all files for issues
 .\scripts\fix_markdown.ps1 -CheckOnly
 
-# Fix all auto-fixable issues
+# Fix all auto-fixable issues (2)
 .\scripts\fix_markdown.ps1
 
 # Verbose output
 .\scripts\fix_markdown.ps1 -Verbose
-```
-
-### 4. NPM Scripts
+```text`n### 4. NPM Scripts
 
 **Package.json Commands:**
 
@@ -154,9 +147,7 @@ npm run lint:markdown
 
 # Quality check (alias for lint)
 npm run quality:check
-```
-
-## VS Code Settings
+```text`n## VS Code Settings
 
 The `.vscode/settings.json` includes comprehensive markdown configuration:
 
@@ -168,9 +159,7 @@ The `.vscode/settings.json` includes comprehensive markdown configuration:
   "markdownlint.fixAll": true,
   "markdownlint.run": "onType"
 }
-```
-
-### Editor Settings for Markdown
+```text`n### Editor Settings for Markdown
 
 ```json
 {
@@ -186,9 +175,7 @@ The `.vscode/settings.json` includes comprehensive markdown configuration:
     "editor.rulers": [120]
   }
 }
-```
-
-## Ignored Files
+```text`n## Ignored Files
 
 The following directories are automatically ignored:
 
@@ -242,9 +229,7 @@ jobs:
           node-version: '18'
       - run: npm install
       - run: npm run lint:markdown
-```
-
-### Pre-commit Hook
+```text`n### Pre-commit Hook
 
 The project includes an automated pre-commit hook that runs markdown linting before each commit.
 
@@ -261,9 +246,7 @@ The pre-commit hook is automatically installed when you run:
 
 ```powershell
 .\scripts\setup_pre_commit.ps1
-```
-
-#### Manual Installation
+```text`n#### Manual Installation
 
 If you need to install manually:
 
@@ -271,15 +254,11 @@ If you need to install manually:
 
    ```powershell
    Copy-Item "scripts\pre-commit.ps1" ".git\hooks\pre-commit"
-   ```
-
-2. **Make it executable** (if needed):
+   ```text`n2. **Make it executable** (if needed):
 
    ```powershell
    # On Windows, this is usually not necessary
-   ```
-
-#### Testing the Hook
+   ```text`n#### Testing the Hook
 
 1. **Make a change** to any `.md` file
 2. **Stage the file**: `git add <filename>`
@@ -296,9 +275,7 @@ If you need to install manually:
   - docs/example.md
 🔧 Running markdownlint on staged files...
 ✅ All markdown files pass linting!
-```
-
-**❌ Failed Case**:
+```text`n**❌ Failed Case**:
 
 ```text
 🔍 Running pre-commit markdown linting...
@@ -316,17 +293,13 @@ docs/example.md:5 MD013/line-length Line length [Expected: 120; Actual: 150]
 
 🔧 Auto-fixable issues have been automatically fixed.
    Please review and commit the changes.
-```
-
-#### Bypassing the Hook
+```text`n#### Bypassing the Hook
 
 If you need to bypass the hook temporarily:
 
 ```bash
 git commit --no-verify -m "emergency commit"
-```
-
-**⚠️ Warning**: Only use this for emergency situations. The hook exists to maintain code quality.
+```text`n**⚠️ Warning**: Only use this for emergency situations. The hook exists to maintain code quality.
 
 ## Best Practices
 
@@ -362,15 +335,11 @@ git commit --no-verify -m "emergency commit"
 
    ```bash
    npm install -g markdownlint-cli
-   ```
-
-2. **Permission denied on scripts**
+   ```text`n2. **Permission denied on scripts**
 
    ```powershell
    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-   ```
-
-3. **VS Code extension not working**
+   ```text`n3. **VS Code extension not working**
    - Reload VS Code
    - Check extension is installed
    - Verify settings.json configuration
@@ -389,4 +358,5 @@ git commit --no-verify -m "emergency commit"
 - **Scripts**: 1 PowerShell script
 - **VS Code Tasks**: 3 tasks for different operations
 
-This setup provides comprehensive markdown quality assurance for the entire project while maintaining flexibility for different use cases and team preferences.
+This setup provides comprehensive markdown quality assurance for the entire project while maintaining flexibility for
+different use cases and team preferences.

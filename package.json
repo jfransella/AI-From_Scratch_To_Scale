@@ -3,9 +3,9 @@
     "version": "1.0.0",
     "description": "AI From Scratch To Scale - A comprehensive machine learning project",
     "scripts": {
-        "lint:markdown": "markdownlint --config .markdownlint.json \"**/*.md\"",
-        "fix:markdown": "markdownlint --config .markdownlint.json --fix \"**/*.md\"",
-        "check:markdown": "markdownlint --config .markdownlint.json \"**/*.md\"",
+        "lint:markdown": "markdownlint --config .markdownlint.json --ignore node_modules --ignore venv --ignore .git --ignore ai_from_scratch_to_scale.egg-info --ignore data_utils.egg-info --ignore engine.egg-info --ignore plotting.egg-info --ignore utils.egg-info \"**/*.md\"",
+        "fix:markdown": "markdownlint --config .markdownlint.json --fix --ignore node_modules --ignore venv --ignore .git --ignore ai_from_scratch_to_scale.egg-info --ignore data_utils.egg-info --ignore engine.egg-info --ignore plotting.egg-info --ignore utils.egg-info \"**/*.md\"",
+        "check:markdown": "markdownlint --config .markdownlint.json --ignore node_modules --ignore venv --ignore .git --ignore ai_from_scratch_to_scale.egg-info --ignore data_utils.egg-info --ignore engine.egg-info --ignore plotting.egg-info --ignore utils.egg-info \"**/*.md\"",
         "format:all": "npm run fix:markdown",
         "quality:check": "npm run lint:markdown"
     },

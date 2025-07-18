@@ -2,7 +2,9 @@
 
 ## **1\. Guiding Philosophy: A Scalable & Focused Architecture**
 
-This architecture is designed to support the project's core mission: "learning by building." It achieves this by separating **shared, reusable infrastructure** from **unique, model-specific code**. The primary goals are to focus on learning, maximize consistency, and minimize repetition.
+This architecture is designed to support the project's core mission: "learning by building." It achieves this by
+separating **shared, reusable infrastructure** from **unique, model-specific code**. The primary goals are to focus on
+learning, maximize consistency, and minimize repetition.
 
 ## **2\. Top-Level Directory Structure**
 
@@ -35,29 +37,39 @@ ai-from-scratch-to-scale\
 * **Contents:**  
   * ISSUE\_TEMPLATE/: Templates for bug reports and feature requests.  
   * PULL\_REQUEST\_TEMPLATE.md: A checklist and guide for new pull requests.  
-  * workflows/: GitHub Actions for Continuous Integration (e.g., running black for formatting checks, flake8 for linting, and pytest for testing).  
+* workflows/: GitHub Actions for Continuous Integration (e.g., running black for formatting checks, flake8 for
+linting, and pytest for testing).
   * CONTRIBUTING.md: Guidelines for how others can contribute.  
   * dependabot.yml: Configuration for automated dependency updates.  
   * copilot-instructions.md: Context for GitHub Copilot to improve its suggestions within the repo.
 
 ### **/data\_utils, /engine, /plotting, /utils**
 
-These packages contain the shared, reusable code for data handling, training, visualization, and general utilities, respectively.
+These packages contain the shared, reusable code for data handling, training, visualization, and general utilities,
+respectively.
 
 ### **3.1. Dependency & Environment Management**
 
-To ensure historical accuracy and prevent dependency conflicts, we will adopt a **per-model virtual environment** strategy.
+To ensure historical accuracy and prevent dependency conflicts, we will adopt a **per-model virtual environment**
+strategy.
 
-* **Model Dependencies (requirements.txt):** Each model project inside models\ will have its own requirements.txt file, listing only the specific libraries and versions needed for that model.  
-* **Development Dependencies (requirements-dev.txt):** A single requirements-dev.txt file at the project root will define dependencies needed only for development and testing: pytest for testing, black for code formatting, and flake8 for linting.  
-* **Workflow for Shared Code:** To work on or test the shared packages, you will use a model's virtual environment as the "host." The process is:  
+* **Model Dependencies (requirements.txt):** Each model project inside models\ will have its own requirements.txt file,
+listing only the specific libraries and versions needed for that model.
+* **Development Dependencies (requirements-dev.txt):** A single requirements-dev.txt file at the project root will
+define dependencies needed only for development and testing: pytest for testing, black for code formatting, and flake8
+for linting.
+* **Workflow for Shared Code:** To work on or test the shared packages, you will use a model's virtual environment as
+the "host." The process is:
   1. Activate a chosen model's virtual environment.  
   2. Install the development dependencies using `pip install -r ..\..\requirements-dev.txt` from the model directory.  
-  3. Install the project in editable mode using `pip install -e ..\..` from the model directory. This makes the shared packages available within the active environment.
+
+1. Install the project in editable mode using `pip install -e ..\..` from the model directory. This makes the shared
+packages available within the active environment.
 
 ### **3.3. Shared Package Dependency Matrix**
 
-Each model type uses different combinations of shared packages. This matrix shows which packages are required for different model categories:
+Each model type uses different combinations of shared packages. This matrix shows which packages are required for
+different model categories:
 
 | Model Type | data_utils | engine | plotting | utils | Primary Framework |
 |------------|------------|---------|----------|-------|------------------|
@@ -90,53 +102,76 @@ from utils import setup_logging, set_random_seed
 import torch
 import torch.nn as nn
 import torch.optim as optim
-```
+```text`n### **3.2. Testing Strategy**
 
-### **3.2. Testing Strategy**
+To ensure the reliability and correctness of the shared infrastructure, we will adopt a formal testing strategy using
+the **pytest** framework.
 
-To ensure the reliability and correctness of the shared infrastructure, we will adopt a formal testing strategy using the **pytest** framework.
-
-* **Unit Tests:** These will test individual functions in the shared packages (/utils, /plotting, /data\_utils) in isolation.  
-* **Integration Tests:** These will test that the core components work together. The most important will be a "smoke test" for the /engine that runs a dummy model for a single epoch to ensure the entire training pipeline is functional.  
-* **Automation (CI):** The GitHub Actions workflow (/.github/workflows/ci.yml) will be configured to run all tests automatically on every pull request, acting as a quality gate to prevent regressions.
+* **Unit Tests:** These will test individual functions in the shared packages (/utils, /plotting, /data\_utils) in
+isolation.
+* **Integration Tests:** These will test that the core components work together. The most important will be a "smoke
+test" for the /engine that runs a dummy model for a single epoch to ensure the entire training pipeline is functional.
+* **Automation (CI):** The GitHub Actions workflow (/.github/workflows/ci.yml) will be configured to run all tests
+automatically on every pull request, acting as a quality gate to prevent regressions.
 
 ## **4\. Dual-System Logging Strategy**
 
-To capture both a human-readable narrative and structured metrics, we will use two systems in parallel, orchestrated by the /engine.
+To capture both a human-readable narrative and structured metrics, we will use two systems in parallel, orchestrated by
+the /engine.
 
 * **System 1: Python logging (The Narrative Log)**  
 * **System 2: Weights & Biases (wandb) (The Metrics Database)**
 
 ## 5.1 Visualization as a Core Architectural Component
 
-Visualization is a first-class citizen in this project, serving as both a diagnostic and interpretive tool for all models. The following guidelines ensure that visualization is systematically integrated into the workflow:
+Visualization is a first-class citizen in this project, serving as both a diagnostic and interpretive tool for all
+models. The following guidelines ensure that visualization is systematically integrated into the workflow:
 
-* **Centralized Utilities:** All reusable plotting and visualization utilities must reside in the shared `/plotting` package. This includes functions for generating learning curves, confusion matrices, decision boundaries, feature maps, Grad-CAM, t-SNE/UMAP projections, and more. Model-specific visualizations should be implemented in the model’s notebook or in a dedicated script within the model’s directory, but should leverage shared utilities whenever possible.
-* **Activation:** Visualization generation is triggered by the `--visualize` command-line flag in training and evaluation scripts. This flag should be supported in all model scripts, and its logic should be handled in accordance with the selection logic described above.
-* **Outputs:** All generated figures must be saved to the standardized `outputs/visualizations/` directory within each model’s project. This ensures reproducibility and easy access for analysis and reporting.
-* **Documentation:** Every model’s README and analysis notebook must include a section on visualizations, listing required plots and referencing the Visualization Playbooks (see `docs/visualization/Playbooks.md`).
-* **Extensibility:** When new visualization types are needed, they should be added to the `/plotting` package with clear, reusable APIs and documented in the Implementation Guide (`docs/visualization/Implementation_Guide.md`).
-* **Best Practices:** Visualization code should follow the standards outlined in `Coding_Standards.md`, including naming conventions, docstrings, and reproducibility (e.g., setting random seeds for t-SNE/UMAP).
+* **Centralized Utilities:** All reusable plotting and visualization utilities must reside in the shared `/plotting`
+package. This includes functions for generating learning curves, confusion matrices, decision boundaries, feature maps,
+Grad-CAM, t-SNE/UMAP projections, and more. Model-specific visualizations should be implemented in the model’s notebook
+or in a dedicated script within the model’s directory, but should leverage shared utilities whenever possible.
+* **Activation:** Visualization generation is triggered by the `--visualize` command-line flag in training and
+evaluation scripts. This flag should be supported in all model scripts, and its logic should be handled in accordance
+with the selection logic described above.
+* **Outputs:** All generated figures must be saved to the standardized `outputs/visualizations/` directory within each
+model’s project. This ensures reproducibility and easy access for analysis and reporting.
+* **Documentation:** Every model’s README and analysis notebook must include a section on visualizations, listing
+required plots and referencing the Visualization Playbooks (see `docs/visualization/Playbooks.md`).
+* **Extensibility:** When new visualization types are needed, they should be added to the `/plotting` package with
+clear, reusable APIs and documented in the Implementation Guide (`docs/visualization/Implementation_Guide.md`).
+* **Best Practices:** Visualization code should follow the standards outlined in `Coding_Standards.md`, including
+naming conventions, docstrings, and reproducibility (e.g., setting random seeds for t-SNE/UMAP).
 
-This approach ensures that visualization is not an afterthought, but a systematic, reproducible, and extensible part of the project’s architecture, supporting both automated and interactive analysis workflows.
+This approach ensures that visualization is not an afterthought, but a systematic, reproducible, and extensible part of
+the project’s architecture, supporting both automated and interactive analysis workflows.
 
 ## **6\. Model Checkpointing & Loading**
 
-Saving a model checkpoint after a training run is the default, mandatory behavior to ensure results are preserved. Loading a checkpoint is an optional input for fine-tuning or evaluation.
+Saving a model checkpoint after a training run is the default, mandatory behavior to ensure results are preserved.
+Loading a checkpoint is an optional input for fine-tuning or evaluation.
 
-* **Primary Method: wandb Artifacts**: When wandb is enabled, the trained model's state_dict will be saved as a versioned wandb Artifact.  
-* **Local Fallback**: If wandb is disabled, the model's state_dict will be saved to the local `outputs\models\` directory.  
-* **Error Recovery**: Checkpoint loading uses the recovery patterns from section 9.4, gracefully handling corrupted or missing checkpoints.  
-* **Template Integration**: The model.py template (section 8.1) includes built-in methods for saving and loading checkpoints with proper error handling.
+* **Primary Method: wandb Artifacts**: When wandb is enabled, the trained model's state_dict will be saved as a
+versioned wandb Artifact.
+* **Local Fallback**: If wandb is disabled, the model's state_dict will be saved to the local `outputs\models\`
+directory.
+* **Error Recovery**: Checkpoint loading uses the recovery patterns from section 9.4, gracefully handling corrupted or
+missing checkpoints.
+* **Template Integration**: The model.py template (section 8.1) includes built-in methods for saving and loading
+checkpoints with proper error handling.
 
 ## **7\. Dedicated Evaluation Workflow**
 
-To cleanly separate the act of training from analysis, each model will have a dedicated evaluate.py script following the template patterns.
+To cleanly separate the act of training from analysis, each model will have a dedicated evaluate.py script following
+the template patterns.
 
 * **Purpose**: To load a pre-trained model checkpoint and evaluate its performance on a specified test dataset.  
-* **Core Logic**: The script will instantiate the model, load the checkpoint using recovery patterns from section 9.4, fetch the test data, and use the Evaluator class from the shared `engine\` to compute and log final metrics.  
-* **Key Arguments**: The script will be driven by arguments like `--checkpoint` (required, path or wandb ID), `--experiment` (required, to select the dataset), and `--visualize` (optional).  
-* **Error Handling**: Uses the same error handling patterns as training (section 9) to gracefully handle missing checkpoints, data loading failures, and evaluation errors.
+* **Core Logic**: The script will instantiate the model, load the checkpoint using recovery patterns from section 9.4,
+fetch the test data, and use the Evaluator class from the shared `engine\` to compute and log final metrics.
+* **Key Arguments**: The script will be driven by arguments like `--checkpoint` (required, path or wandb ID),
+`--experiment` (required, to select the dataset), and `--visualize` (optional).
+* **Error Handling**: Uses the same error handling patterns as training (section 9) to gracefully handle missing
+checkpoints, data loading failures, and evaluation errors.
 
 ## **8\. The Model-Specific Project Structure**
 
@@ -160,11 +195,10 @@ models\01_perceptron\
 |-- .venv\                # Model-specific virtual environment (in .gitignore).  
 |-- requirements.txt      # Model-specific dependencies.  
 |-- README.md
-```
+```text`n### **8.1. File Templates and Expected Structure**
 
-### **8.1. File Templates and Expected Structure**
-
-To ensure consistency across all model implementations, comprehensive templates are provided in `docs\templates\`. These templates should be copied to each new model directory and customized.
+To ensure consistency across all model implementations, comprehensive templates are provided in `docs\templates\`.
+These templates should be copied to each new model directory and customized.
 
 **Template Files Available:**
 
@@ -189,9 +223,7 @@ OUTPUT_DIR = MODEL_DIR / "outputs"
 MODELS_DIR = OUTPUT_DIR / "models"
 LOGS_DIR = OUTPUT_DIR / "logs"
 VISUALIZATIONS_DIR = OUTPUT_DIR / "visualizations"
-```
-
-**config.py** - Experiment configuration:
+```text`n**config.py** - Experiment configuration:
 
 ```python
 def get_config(experiment_name: str) -> dict:
@@ -212,9 +244,7 @@ def get_config(experiment_name: str) -> dict:
     }
     
     return {**base_config, **experiments[experiment_name]}
-```
-
-**model.py** - Neural network implementation:
+```text`n**model.py** - Neural network implementation:
 
 ```python
 import torch
@@ -234,9 +264,7 @@ class YourModel(nn.Module):
     def save_checkpoint(self, filepath, epoch=None):
         # Checkpoint saving logic
         pass
-```
-
-**train.py** - Training script:
+```text`n**train.py** - Training script:
 
 ```python
 import argparse
@@ -256,11 +284,10 @@ def main():
     model = create_model(config)
     trainer = Trainer(model, optimizer, criterion, device, config)
     trainer.train(train_loader, val_loader, config['epochs'])
-```
+```text`n## **9\. Error Handling Patterns**
 
-## **9\. Error Handling Patterns**
-
-To ensure robust and maintainable code across all models, standardized error handling patterns are enforced throughout the codebase.
+To ensure robust and maintainable code across all models, standardized error handling patterns are enforced throughout
+the codebase.
 
 ### **9.1. Exception Hierarchy**
 
@@ -287,9 +314,7 @@ class ConfigError(AIFromScratchError):
 class TrainingError(AIFromScratchError):
     """Training loop and optimization errors"""
     pass
-```
-
-### **9.2. Error Handling by Component**
+```text`n### **9.2. Error Handling by Component**
 
 **Model Implementation (model.py):**
 
@@ -312,9 +337,7 @@ def forward(self, x):
     except Exception as e:
         logger.error(f"Forward pass failed: {e}")
         raise ModelError(f"Forward pass failed: {e}") from e
-```
-
-**Configuration Management (config.py):**
+```text`n**Configuration Management (config.py):**
 
 ```python
 def get_config(experiment_name: str) -> dict:
@@ -335,9 +358,7 @@ def get_config(experiment_name: str) -> dict:
     except Exception as e:
         logger.error(f"Configuration failed: {e}")
         raise ConfigError(f"Configuration failed: {e}") from e
-```
-
-**Training Script (train.py):**
+```text`n**Training Script (train.py):**
 
 ```python
 def main():
@@ -378,9 +399,7 @@ def main():
         # Save debug information
         save_debug_info(locals(), config)
         sys.exit(1)
-```
-
-### **9.3. Graceful Degradation Patterns**
+```text`n### **9.3. Graceful Degradation Patterns**
 
 **Data Loading Fallbacks:**
 
@@ -397,9 +416,7 @@ def load_dataset(dataset_name, **kwargs):
         except DataError:
             logger.error(f"All data sources failed for {dataset_name}")
             raise
-```
-
-**Device Fallbacks:**
+```text`n**Device Fallbacks:**
 
 ```python
 def setup_device(device_arg='auto'):
@@ -424,9 +441,7 @@ def setup_device(device_arg='auto'):
     except Exception as e:
         logger.warning(f"Device setup failed: {e}, falling back to CPU")
         return torch.device('cpu')
-```
-
-### **9.4. Recovery and Cleanup Patterns**
+```text`n### **9.4. Recovery and Cleanup Patterns**
 
 **Checkpoint Recovery:**
 
@@ -443,9 +458,7 @@ def resume_training(checkpoint_path, model, optimizer):
         logger.error(f"Failed to resume from checkpoint: {e}")
         logger.info("Starting training from scratch")
         return 0
-```
-
-**Resource Cleanup:**
+```text`n**Resource Cleanup:**
 
 ```python
 def cleanup_resources():
@@ -466,11 +479,10 @@ def cleanup_resources():
                 
     except Exception as e:
         print(f"Cleanup failed: {e}")  # Use print since logger might be closed
-```
+```text`n## **10\. Parameterized Experiment Execution**
 
-## **10\. Parameterized Experiment Execution**
-
-The train.py script is the "Execution Interface" for a run, configured via command-line arguments following the template patterns defined in section 8.1.
+The train.py script is the "Execution Interface" for a run, configured via command-line arguments following the
+template patterns defined in section 8.1.
 
 | Argument | Description | Example |
 | :---- | :---- | :---- |
@@ -478,8 +490,10 @@ The train.py script is the "Execution Interface" for a run, configured via comma
 | `--epochs` | Overrides the default number of epochs. | `--epochs 200` |
 | `--batch-size` | Overrides the default batch size. | `--batch-size 64` |
 | `--learning-rate` | Overrides the default learning rate. | `--learning-rate 0.001` |
-| `--load-checkpoint` | Path or wandb artifact ID to load model weights from before training. | `--load-checkpoint outputs\models\model.pth` |
-| `--no-save-checkpoint` | A flag to prevent saving the final model checkpoint, useful for debugging. | `--no-save-checkpoint` |
+| `--load-checkpoint` | Path or wandb artifact ID to load model weights from before training. | `--load-checkpoint
+outputs\models\model.pth` |
+| `--no-save-checkpoint` | A flag to prevent saving the final model checkpoint, useful for debugging. |
+`--no-save-checkpoint` |
 | `--no-wandb` | A flag to disable wandb logging for the run. | `--no-wandb` |
 | `--seed` | Sets the random seed for reproducibility. | `--seed 42` |
 | `--tags` | Attaches tags to the wandb run for easy filtering. | `--tags experiment baseline` |
@@ -497,9 +511,7 @@ python src\train.py --experiment iris-hard --epochs 300 --batch-size 16 --visual
 
 # Resume training from checkpoint
 python src\train.py --experiment xor --load-checkpoint outputs\models\xor_checkpoint.pth
-```
-
-## **11\. The End-to-End Workflow in Practice**
+```text`n## **11\. The End-to-End Workflow in Practice**
 
 ### **11.1. Initial Setup**
 
@@ -523,8 +535,8 @@ python src\train.py --experiment xor --load-checkpoint outputs\models\xor_checkp
    * Calls helpers from `utils\`, fetches data from `data_utils\`
    * Instantiates the model and passes everything to the Trainer in `engine\`
    * The Trainer runs the training loop with automatic checkpointing
-2. **Monitoring**: Watch logs and wandb dashboard for training progress
-3. **Error Recovery**: If training fails, use checkpoint recovery patterns from section 9.4
+1. **Monitoring**: Watch logs and wandb dashboard for training progress
+2. **Error Recovery**: If training fails, use checkpoint recovery patterns from section 9.4
 
 ### **11.4. Evaluation Workflow**
 
@@ -532,7 +544,7 @@ python src\train.py --experiment xor --load-checkpoint outputs\models\xor_checkp
    * Loads the model using the checkpoint recovery patterns
    * Uses the Evaluator from `engine\` to compute test metrics
    * Applies the same error handling patterns as training
-2. **Analysis**: Generated logs, visualizations, and metrics are available:
+1. **Analysis**: Generated logs, visualizations, and metrics are available:
    * Local files: `outputs\logs\`, `outputs\visualizations\`, `outputs\models\`
    * Wandb dashboard: For structured metrics and experiment comparison
    * Notebooks: For detailed analysis using the three-notebook approach

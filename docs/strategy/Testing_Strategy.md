@@ -1,8 +1,9 @@
-# **Testing Strategy for AI From Scratch to Scale**
+# Testing Strategy for AI From Scratch to Scale
 
-This document defines the comprehensive testing approach for the "AI From Scratch to Scale" project, ensuring reliability, maintainability, and educational value across all 25 neural network implementations.
+This document defines the comprehensive testing approach for the "AI From Scratch to Scale" project, ensuring
+reliability, maintainability, and educational value across all 25 neural network implementations.
 
-## **Table of Contents**
+## Table of Contents
 
 1. [Testing Philosophy](#testing-philosophy)
 2. [Test Categories & Organization](#test-categories--organization)
@@ -15,16 +16,16 @@ This document defines the comprehensive testing approach for the "AI From Scratc
 
 ---
 
-## **Testing Philosophy**
+## Testing Philosophy
 
-### **Educational Testing Approach**
+### Educational Testing Approach
 
 Our testing strategy serves dual purposes:
 
 1. **Reliability**: Ensure code works correctly across different environments
 2. **Learning**: Tests serve as executable documentation and examples
 
-### **Testing Priorities**
+### Testing Priorities
 
 1. **Shared Infrastructure**: Most critical - affects all models
 2. **Model Integration**: Ensure models work with shared systems
@@ -32,7 +33,7 @@ Our testing strategy serves dual purposes:
 4. **Performance**: Ensure acceptable training/inference speeds
 5. **Robustness**: Handle edge cases and error conditions
 
-### **Test-Driven Development**
+### Test-Driven Development
 
 - Write tests before implementing complex functionality
 - Use tests to validate mathematical correctness
@@ -40,22 +41,22 @@ Our testing strategy serves dual purposes:
 
 ---
 
-## **Test Categories & Organization**
+## Test Categories & Organization
 
-### **1. Unit Tests** (`tests/unit/`)
+### 1. Unit Tests (`tests/unit/`)
 
 Test individual functions and classes in isolation.
 
-#### **Categories:**
+#### Unit Test Categories
 
 - **Mathematical Functions**: Activation functions, loss functions, optimizers
 - **Data Processing**: Transformations, normalization, augmentation
 - **Model Components**: Individual layers, forward passes, parameter updates
 - **Utilities**: Logging, seeding, device management, configuration loading
 
-#### **Structure:**
+#### Unit Test Structure
 
-```
+```text
 tests/unit/
 ├── test_data_utils.py       # Data loading and preprocessing
 ├── test_engine.py           # Training and evaluation components
@@ -71,20 +72,20 @@ tests/unit/
     └── mock_models.py
 ```
 
-### **2. Integration Tests** (`tests/integration/`)
+### 2. Integration Tests (`tests/integration/`)
 
 Test interactions between multiple components.
 
-#### **Categories:**
+#### Integration Test Categories
 
 - **Data Pipeline**: End-to-end data loading → preprocessing → model input
 - **Training Pipeline**: Model + optimizer + loss + data → training step
 - **Evaluation Pipeline**: Trained model + test data → metrics
 - **Logging Pipeline**: Training events → logs + wandb + visualizations
 
-#### **Structure:**
+#### Integration Test Structure
 
-```
+```text
 tests/integration/
 ├── test_training_pipeline.py    # Full training workflow
 ├── test_evaluation_pipeline.py  # Full evaluation workflow
@@ -93,20 +94,20 @@ tests/integration/
 └── test_model_lifecycle.py      # Save/load/checkpoint workflows
 ```
 
-### **3. Smoke Tests** (`tests/smoke/`)
+### 3. Smoke Tests (`tests/smoke/`)
 
 Fast end-to-end tests that verify basic functionality.
 
-#### **Categories:**
+#### Smoke Test Categories
 
 - **Quick Training**: Single epoch training on tiny datasets
 - **Model Instantiation**: All models can be created without errors
 - **Data Loading**: All datasets can be loaded successfully
 - **Command Line**: All CLI commands execute without crashing
 
-#### **Structure:**
+#### Smoke Test Structure
 
-```
+```text
 tests/smoke/
 ├── test_quick_training.py       # 1-epoch training tests
 ├── test_model_creation.py       # Model instantiation
@@ -115,20 +116,20 @@ tests/smoke/
 └── test_shared_imports.py       # Import all shared modules
 ```
 
-### **4. Performance Tests** (`tests/performance/`)
+### 4. Performance Tests (`tests/performance/`)
 
 Measure and validate performance characteristics.
 
-#### **Categories:**
+#### Performance Test Categories
 
 - **Training Speed**: Iterations per second, memory usage
 - **Inference Speed**: Predictions per second, latency
 - **Memory Usage**: Peak memory, memory leaks
 - **Scalability**: Performance with different batch sizes
 
-#### **Structure:**
+#### Performance Test Structure
 
-```
+```text
 tests/performance/
 ├── test_training_speed.py       # Training performance benchmarks
 ├── test_inference_speed.py      # Inference performance benchmarks
@@ -140,20 +141,20 @@ tests/performance/
     └── memory_benchmarks.json
 ```
 
-### **5. Regression Tests** (`tests/regression/`)
+### 5. Regression Tests (`tests/regression/`)
 
 Ensure model outputs remain consistent across code changes.
 
-#### **Categories:**
+#### Regression Test Categories
 
 - **Model Outputs**: Verify identical outputs for same inputs
 - **Training Curves**: Compare loss curves across versions
 - **Final Metrics**: Ensure final accuracy doesn't degrade
 - **Visualization**: Compare generated plots across versions
 
-#### **Structure:**
+#### Regression Test Structure
 
-```
+```text
 tests/regression/
 ├── test_model_outputs.py        # Output consistency tests
 ├── test_training_curves.py      # Training curve comparisons
@@ -168,9 +169,9 @@ tests/regression/
 
 ---
 
-## **Naming Conventions**
+## Naming Conventions
 
-### **Test File Names**
+### Test File Names
 
 - **Format**: `test_{component}_{functionality}.py`
 - **Examples**:
@@ -179,7 +180,7 @@ tests/regression/
   - `test_engine_training.py`
   - `test_plotting_visualization.py`
 
-### **Test Function Names**
+### Test Function Names
 
 - **Format**: `test_{what}_{condition}_{expected_result}`
 - **Examples**:
@@ -188,7 +189,7 @@ tests/regression/
   - `test_trainer_early_stopping_triggers_correctly()`
   - `test_optimizer_zero_lr_no_parameter_update()`
 
-### **Test Class Names**
+### Test Class Names
 
 - **Format**: `Test{Component}{Functionality}`
 - **Examples**:
@@ -197,7 +198,7 @@ tests/regression/
   - `TestEngineTraining`
   - `TestPlottingVisualization`
 
-### **Test Data Names**
+### Test Data Names
 
 - **Format**: `{test_type}_{size}_{description}`
 - **Examples**:
@@ -208,9 +209,9 @@ tests/regression/
 
 ---
 
-## **Template Test Files**
+## Template Test Files
 
-### **Unit Test Template**
+### Unit Test Template
 
 ```python
 """
@@ -344,7 +345,7 @@ def mock_config():
     }
 ```
 
-### **Integration Test Template**
+### Integration Test Template
 
 ```python
 """
@@ -512,7 +513,7 @@ class TestTrainingPipeline:
         pass
 ```
 
-### **Performance Test Template**
+### Performance Test Template
 
 ```python
 """
@@ -722,37 +723,37 @@ class TestPerformanceBenchmarks:
 
 ---
 
-## **Performance Benchmarking**
+## Performance Benchmarking
 
-### **Benchmark Categories**
+### Benchmark Categories
 
-#### **1. Training Performance**
+#### 1. Training Performance
 
 - **Metrics**: Samples/second, epochs/hour, GPU utilization
 - **Baselines**: Historical performance data for each model
 - **Thresholds**: Alert if performance drops >10% from baseline
 
-#### **2. Inference Performance**
+#### 2. Inference Performance
 
 - **Metrics**: Predictions/second, latency percentiles, memory usage
 - **Baselines**: Target inference speeds for different model sizes
 - **Thresholds**: Real-time requirements for interactive applications
 
-#### **3. Memory Efficiency**
+#### 3. Memory Efficiency
 
 - **Metrics**: Peak memory usage, memory growth over time
 - **Baselines**: Expected memory usage for different batch sizes
 - **Thresholds**: Alert if memory usage exceeds 80% of available RAM
 
-#### **4. Convergence Speed**
+#### 4. Convergence Speed
 
 - **Metrics**: Time to reach target accuracy, training stability
 - **Baselines**: Historical convergence times for each dataset/model
 - **Thresholds**: Alert if convergence time increases >50%
 
-### **Benchmarking Infrastructure**
+### Benchmarking Infrastructure
 
-#### **Performance Test Runner**
+#### Performance Test Runner
 
 ```python
 # tests/performance/benchmark_runner.py
@@ -818,9 +819,9 @@ class BenchmarkRunner:
 
 ---
 
-## **Automated Testing Pipeline**
+## Automated Testing Pipeline
 
-### **GitHub Actions Workflow**
+### GitHub Actions Workflow
 
 ```yaml
 # .github/workflows/test.yml
@@ -877,7 +878,7 @@ jobs:
         name: codecov-umbrella
 ```
 
-### **Pre-commit Hooks**
+### Pre-commit Hooks
 
 ```yaml
 # .pre-commit-config.yaml
@@ -912,9 +913,9 @@ repos:
 
 ---
 
-## **Testing Infrastructure**
+## Testing Infrastructure
 
-### **Test Configuration**
+### Test Configuration
 
 ```python
 # tests/conftest.py
@@ -972,7 +973,7 @@ def set_random_seeds():
         torch.cuda.manual_seed(42)
 ```
 
-### **Test Data Management**
+### Test Data Management
 
 ```python
 # tests/fixtures/data_fixtures.py
@@ -1035,27 +1036,27 @@ class TestDataLoader:
 
 ---
 
-## **Quality Assurance Standards**
+## Quality Assurance Standards
 
-### **Code Coverage Requirements**
+### Code Coverage Requirements
 
 - **Minimum Coverage**: 80% for shared infrastructure
 - **Target Coverage**: 90% for core functionality
 - **Critical Components**: 95% coverage for training and evaluation
 
-### **Test Quality Metrics**
+### Test Quality Metrics
 
 - **Test-to-Code Ratio**: At least 1:2 (one test line per two code lines)
 - **Test Execution Time**: Unit tests <5 minutes, Integration tests <15 minutes
 - **Test Reliability**: <1% flaky test rate
 
-### **Documentation Standards**
+### Documentation Standards
 
 - **Test Documentation**: Every test file must have module-level docstring
 - **Test Case Documentation**: Complex test cases must have detailed docstrings
 - **Failure Messages**: All assertions must have descriptive failure messages
 
-### **Continuous Integration Requirements**
+### Continuous Integration Requirements
 
 - **All Tests Pass**: 100% test pass rate required for merge
 - **Performance Regression**: <10% performance degradation allowed
@@ -1063,30 +1064,30 @@ class TestDataLoader:
 
 ---
 
-## **Testing Best Practices**
+## Testing Best Practices
 
-### **Test Organization**
+### Testing Organization
 
 1. **Group Related Tests**: Use test classes to group related functionality
 2. **Use Descriptive Names**: Test names should clearly describe what they test
 3. **Keep Tests Independent**: Each test should be able to run in isolation
 4. **Use Fixtures**: Share common setup code using pytest fixtures
 
-### **Test Data Management**
+### Testing Data Management
 
 1. **Use Small Data**: Keep test data small for fast execution
 2. **Use Realistic Data**: Test data should represent real-world scenarios
 3. **Cache Test Data**: Cache generated test data to improve performance
 4. **Clean Up Resources**: Always clean up temporary files and resources
 
-### **Performance Testing**
+### Performance Testing
 
 1. **Establish Baselines**: Create performance baselines for comparison
 2. **Monitor Trends**: Track performance over time
 3. **Test Different Conditions**: Test with various batch sizes and inputs
 4. **Use Consistent Environment**: Ensure consistent testing conditions
 
-### **Error Testing**
+### Error Testing
 
 1. **Test Edge Cases**: Test boundary conditions and edge cases
 2. **Test Error Conditions**: Verify proper error handling
@@ -1095,9 +1096,9 @@ class TestDataLoader:
 
 ---
 
-## **Implementation Checklist**
+## Implementation Checklist
 
-### **Setting Up Testing**
+### Setting Up Testing
 
 - [ ] Create test directory structure
 - [ ] Set up pytest configuration
@@ -1105,7 +1106,7 @@ class TestDataLoader:
 - [ ] Set up CI/CD pipeline
 - [ ] Create baseline performance metrics
 
-### **Writing Tests**
+### Writing Tests
 
 - [ ] Write unit tests for all functions
 - [ ] Write integration tests for workflows
@@ -1113,7 +1114,7 @@ class TestDataLoader:
 - [ ] Write performance tests for critical paths
 - [ ] Write regression tests for bug fixes
 
-### **Test Maintenance**
+### Test Maintenance
 
 - [ ] Update tests when code changes
 - [ ] Monitor test execution times
@@ -1121,7 +1122,7 @@ class TestDataLoader:
 - [ ] Review and refactor old tests
 - [ ] Document test failures and fixes
 
-### **Quality Assurance**
+### Quality Assurance
 
 - [ ] Achieve target code coverage
 - [ ] Monitor test reliability
@@ -1131,4 +1132,6 @@ class TestDataLoader:
 
 ---
 
-This comprehensive testing strategy ensures that the "AI From Scratch to Scale" project maintains high quality, reliability, and performance across all 25 neural network implementations while serving as an educational resource for the AI community.
+This comprehensive testing strategy ensures that the "AI From Scratch to Scale" project maintains high quality,
+reliability, and performance across all 25 neural network implementations while serving as an educational resource for
+the AI community.

@@ -1,10 +1,12 @@
 # **Development Checklist: New Model Implementation**
 
-This checklist ensures complete and correct implementation of new models in the "AI From Scratch to Scale" project. Follow each step systematically to maintain quality and consistency.
+This checklist ensures complete and correct implementation of new models in the "AI From Scratch to Scale" project.
+Follow each step systematically to maintain quality and consistency.
 
 ## **📋 Overview**
 
-Use this checklist when implementing any new model. Each section builds upon the previous one, so complete them in order. The checklist includes validation commands to verify each step.
+Use this checklist when implementing any new model. Each section builds upon the previous one, so complete them in
+order. The checklist includes validation commands to verify each step.
 
 **Estimated Time:** 4-6 hours for a complete implementation  
 **Difficulty:** Intermediate to Advanced  
@@ -43,14 +45,10 @@ This project uses a VS Code workspace file (`ai-from-scratch-to-scale.code-works
   ```powershell
   # Navigate to wherever you cloned the repository
   Set-Location path\to\your\AI-From_Scratch_To_Scale
-  ```
-
-  ```bash
+  ```text`n  ```bash
   # Navigate to wherever you cloned the repository
   cd path/to/your/AI-From_Scratch_To_Scale
-  ```
-
-  **Alternative methods to find your project root:**
+  ```text`n  **Alternative methods to find your project root:**
   - Use `pwd` (bash) or `Get-Location` (PowerShell) to see current directory
   - Look for the `ai-from-scratch-to-scale.code-workspace` file
   - Ensure you can see `docs/`, `models/`, `engine/` folders
@@ -61,35 +59,24 @@ This project uses a VS Code workspace file (`ai-from-scratch-to-scale.code-works
 
   ```powershell
   python docs\validation\quick_validate.py check-structure
-  ```
-
-  ```bash
+  ```text`n  ```bash
   python docs/validation/quick_validate.py check-structure
-  ```
-
-- [ ] **Verify templates are available**
+  ```text`n- [ ] **Verify templates are available**
 
   ```powershell
   Get-ChildItem docs\templates\ -Name
-  ```
-
-  ```bash
+  ```text`n  ```bash
   ls docs/templates/
-  ```
-
-- [ ] **Confirm validation system works**
+  ```text`n- [ ] **Confirm validation system works**
 
   ```powershell
   python docs\validation\quick_validate.py check-all
-  ```
-
-  ```bash
+  ```text`n  ```bash
   python docs/validation/quick_validate.py check-all
-  ```
-
-### **1.2 Model Planning**
+  ```text`n### **1.2 Model Planning**
 
 - [ ] **Choose model name** (format: `XX_modelname`)
+
   - [ ] Use chronological number (01, 02, 03, etc.)
   - [ ] Use descriptive name (perceptron, mlp, cnn, etc.)
   - [ ] Check name doesn't conflict with existing models
@@ -109,45 +96,30 @@ This project uses a VS Code workspace file (`ai-from-scratch-to-scale.code-works
 
   ```powershell
   python docs\validation\quick_validate.py fix-structure XX_modelname
-  ```
-
-  ```bash
+  ```text`n  ```bash
   python docs/validation/quick_validate.py fix-structure XX_modelname
-  ```
-
-- [ ] **Verify directory creation**
+  ```text`n- [ ] **Verify directory creation**
 
   ```powershell
   tree models\XX_modelname /F
-  ```
-
-  ```bash
+  ```text`n  ```bash
   find models/XX_modelname -type f
-  ```
-
-- [ ] **Check initial structure**
+  ```text`n- [ ] **Check initial structure**
 
   ```powershell
   python docs\validation\quick_validate.py check-model XX_modelname
-  ```
-
-  ```bash
+  ```text`n  ```bash
   python docs/validation/quick_validate.py check-model XX_modelname
-  ```
-
-**✅ Phase 1 Validation:**
+  ```text`n**✅ Phase 1 Validation:**
 
 ```powershell
 # Should show newly created structure
 python docs\validation\validate_project.py --model models\XX_modelname
-```
-
-```bash
+```text`n```bash
 # Should show newly created structure  
+ (2)
 python docs/validation/validate_project.py --model models/XX_modelname
-```
-
----
+```text`n---
 
 ## **🔧 Phase 2: Core Implementation**
 
@@ -157,13 +129,9 @@ python docs/validation/validate_project.py --model models/XX_modelname
 
   ```powershell
   Set-Location models\XX_modelname
-  ```
-
-  ```bash
+  ```text`n  ```bash
   cd models/XX_modelname
-  ```
-
-  **Note:** In VS Code workspace, you can work directly in the "🧠 Models" or specific model folder view.
+  ```text`n  **Note:** In VS Code workspace, you can work directly in the "🧠 Models" or specific model folder view.
 
 - [ ] **Edit `src/constants.py`**
   - [ ] **Model Metadata**
@@ -216,9 +184,7 @@ python docs/validation/validate_project.py --model models/XX_modelname
 
     ```powershell
     python -c "from src.config import get_config; print(get_config('debug_small'))"
-    ```
-
-### **2.3 Model Implementation**
+    ```text`n### **2.3 Model Implementation**
 
 - [ ] **Edit `src/model.py`**
   - [ ] **Class definition**
@@ -249,9 +215,7 @@ python docs/validation/validate_project.py --model models/XX_modelname
 
     ```powershell
     python -c "from src.model import *; from src.config import get_config; model = create_model(get_config('debug_small')); print(model)"
-    ```
-
-### **2.4 Training Script Implementation**
+    ```text`n### **2.4 Training Script Implementation**
 
 - [ ] **Edit `src/train.py`**
   - [ ] **Imports and setup**
@@ -279,13 +243,9 @@ python docs/validation/validate_project.py --model models/XX_modelname
 
     ```powershell
     python src\train.py --experiment debug_small --epochs 2 --debug
-    ```
-
-    ```bash
+    ```text`n    ```bash
     python src/train.py --experiment debug_small --epochs 2 --debug
-    ```
-
-    **Workspace Alternative:** Use the "Current Model Training" debug configuration in VS Code for interactive debugging.
+    ```text`n    **Workspace Alternative:** Use the "Current Model Training" debug configuration in VS Code for interactive debugging.
 
 ### **2.5 Evaluation Script Implementation**
 
@@ -308,16 +268,12 @@ python docs/validation/validate_project.py --model models/XX_modelname
     ```powershell
     # After training completes
     python src\evaluate.py --checkpoint outputs\models\debug_small_model.pth --experiment debug_small
-    ```
-
-**✅ Phase 2 Validation:**
+    ```text`n**✅ Phase 2 Validation:**
 
 ```powershell
 # Should show successful implementation
 python docs\validation\validate_project.py --model models\XX_modelname
-```
-
----
+```text`n---
 
 ## **📊 Phase 3: Dataset Integration**
 
@@ -343,10 +299,10 @@ python docs\validation\validate_project.py --model models\XX_modelname
 - [ ] **Test data loading**
 
   ```powershell
-  python -c "from data_utils import load_dataset; from src.config import get_config; config = get_config('debug_small'); train_loader, val_loader = load_dataset(config.dataset, config.dataset_params); print(f'Train: {len(train_loader)}, Val: {len(val_loader)}')"
-  ```
-
-- [ ] **Verify dataset parameters**
+python -c "from data_utils import load_dataset; from src.config import get_config; config =
+get_config('debug_small'); train_loader, val_loader = load_dataset(config.dataset, config.dataset_params);
+print(f'Train: {len(train_loader)}, Val: {len(val_loader)}')"
+  ```text`n- [ ] **Verify dataset parameters**
   - [ ] Check input/output dimensions
   - [ ] Verify data types
   - [ ] Test batch sizes
@@ -361,9 +317,7 @@ python docs\validation\validate_project.py --model models\XX_modelname
   python src\train.py --experiment debug_small --epochs 1
   python src\train.py --experiment strength_dataset1 --epochs 1
   python src\train.py --experiment weakness_dataset1 --epochs 1
-  ```
-
-- [ ] **Verify expected behavior**
+  ```text`n- [ ] **Verify expected behavior**
   - [ ] Strength experiments should show progress
   - [ ] Weakness experiments should struggle
   - [ ] Debug experiments should run quickly
@@ -373,9 +327,7 @@ python docs\validation\validate_project.py --model models\XX_modelname
 ```powershell
 # Should show all datasets working
 python docs\validation\validate_project.py --model models\XX_modelname
-```
-
----
+```text`n---
 
 ## **📚 Phase 4: Documentation**
 
@@ -476,9 +428,7 @@ python docs\validation\validate_project.py --model models\XX_modelname
 ```powershell
 # Should show good documentation scores
 python docs\validation\validate_project.py --model models\XX_modelname
-```
-
----
+```text`n---
 
 ## **🧪 Phase 5: Testing**
 
@@ -515,23 +465,17 @@ python docs\validation\validate_project.py --model models\XX_modelname
   python src\train.py --experiment debug_small --epochs 1
   python src\train.py --experiment strength_dataset1 --epochs 1
   python src\train.py --experiment weakness_dataset1 --epochs 1
-  ```
-
-- [ ] **Test evaluation pipeline**
+  ```text`n- [ ] **Test evaluation pipeline**
 
   ```powershell
   python src\evaluate.py --checkpoint outputs\models\debug_small_model.pth --experiment debug_small
-  ```
-
-### **5.4 Performance Tests**
+  ```text`n### **5.4 Performance Tests**
 
 - [ ] **Test training speed**
 
   ```powershell
   Measure-Command { python src\train.py --experiment debug_small --epochs 5 }
-  ```
-
-- [ ] **Test memory usage**
+  ```text`n- [ ] **Test memory usage**
   - [ ] Monitor during training
   - [ ] Check for memory leaks
   - [ ] Verify garbage collection
@@ -541,9 +485,7 @@ python docs\validation\validate_project.py --model models\XX_modelname
 ```powershell
 # Should show all tests passing
 pytest tests\ -v
-```
-
----
+```text`n---
 
 ## **🎨 Phase 6: Visualization & Analysis**
 
@@ -558,31 +500,23 @@ pytest tests\ -v
 
   ```powershell
   python src\train.py --experiment debug_small --epochs 5 --visualize
-  ```
-
-- [ ] **Verify plot outputs**
+  ```text`n- [ ] **Verify plot outputs**
 
   ```powershell
   Get-ChildItem outputs\visualizations\
-  ```
-
-### **6.2 Comprehensive Experiments**
+  ```text`n### **6.2 Comprehensive Experiments**
 
 - [ ] **Run strength experiments**
 
   ```powershell
   python src\train.py --experiment strength_dataset1 --visualize
   python src\train.py --experiment strength_dataset2 --visualize
-  ```
-
-- [ ] **Run weakness experiments**
+  ```text`n- [ ] **Run weakness experiments**
 
   ```powershell
   python src\train.py --experiment weakness_dataset1 --visualize
   python src\train.py --experiment weakness_dataset2 --visualize
-  ```
-
-- [ ] **Verify expected results**
+  ```text`n- [ ] **Verify expected results**
   - [ ] Strength experiments show good performance
   - [ ] Weakness experiments show limitations
   - [ ] Visualizations clearly demonstrate differences
@@ -604,9 +538,7 @@ pytest tests\ -v
 ```powershell
 # Should show comprehensive results
 python docs\validation\validate_project.py --model models\XX_modelname
-```
-
----
+```text`n---
 
 ## **🔍 Phase 7: Quality Assurance**
 
@@ -616,21 +548,15 @@ python docs\validation\validate_project.py --model models\XX_modelname
 
   ```powershell
   flake8 src\ tests\
-  ```
-
-- [ ] **Run formatting**
+  ```text`n- [ ] **Run formatting**
 
   ```powershell
   black src\ tests\
-  ```
-
-- [ ] **Check type hints**
+  ```text`n- [ ] **Check type hints**
 
   ```powershell
   mypy src\ # if type hints are used
-  ```
-
-### **7.2 Documentation Quality**
+  ```text`n### **7.2 Documentation Quality**
 
 - [ ] **Review all documentation**
   - [ ] README completeness
@@ -648,9 +574,7 @@ python docs\validation\validate_project.py --model models\XX_modelname
 
   ```powershell
   python docs\validation\validate_project.py --model models\XX_modelname
-  ```
-
-- [ ] **Address all errors**
+  ```text`n- [ ] **Address all errors**
   - [ ] Fix any red (ERROR) items
   - [ ] Address yellow (WARNING) items if possible
   - [ ] Ensure green (SUCCESS) for critical items
@@ -664,9 +588,7 @@ python docs\validation\validate_project.py --model models\XX_modelname
 ```powershell
 # Should show mostly green results
 python docs\validation\validate_project.py --model models\XX_modelname
-```
-
----
+```text`n---
 
 ## **🚀 Phase 8: Deployment & Integration**
 
@@ -678,15 +600,11 @@ python docs\validation\validate_project.py --model models\XX_modelname
   # From the model directory
   python -m venv .venv
   .venv\Scripts\activate
-  ```
-
-  ```bash
+  ```text`n  ```bash
   # From the model directory
   python -m venv .venv
   source .venv/bin/activate
-  ```
-
-  **Note:** When using the workspace, you may prefer a single project-level virtual environment.
+  ```text`n  **Note:** When using the workspace, you may prefer a single project-level virtual environment.
 
 - [ ] **Install dependencies**
 
@@ -695,34 +613,24 @@ python docs\validation\validate_project.py --model models\XX_modelname
   pip install -r requirements.txt
   pip install -r ..\..\requirements-dev.txt
   pip install -e ..\..
-  ```
-
-  ```bash
+  ```text`n  ```bash
   # Model-specific approach
   pip install -r requirements.txt
   pip install -r ../../requirements-dev.txt
   pip install -e ../..
-  ```
-
-  **Alternative - Project-level approach:**
+  ```text`n  **Alternative - Project-level approach:**
 
   ```powershell
   # From project root
   pip install -r requirements.txt
   pip install -e .
-  ```
-
-- [ ] **Test environment**
+  ```text`n- [ ] **Test environment**
 
   ```powershell
   python -c "from src.model import *; print('Import successful')"
-  ```
-
-  ```bash
+  ```text`n  ```bash
   python -c "from src.model import *; print('Import successful')"
-  ```
-
-### **8.2 Project Integration**
+  ```text`n### **8.2 Project Integration**
 
 - [ ] **Update project documentation**
   - [ ] Add model to main README
@@ -740,9 +648,7 @@ python docs\validation\validate_project.py --model models\XX_modelname
   ```powershell
   # In fresh environment
   python src\train.py --experiment debug_small --epochs 2
-  ```
-
-- [ ] **Cross-platform testing**
+  ```text`n- [ ] **Cross-platform testing**
   - [ ] Test on different machines if possible
   - [ ] Check path handling
   - [ ] Verify dependencies
@@ -752,9 +658,7 @@ python docs\validation\validate_project.py --model models\XX_modelname
 ```powershell
 # Should show complete, working implementation
 python docs\validation\quick_validate.py check-all
-```
-
----
+```text`n---
 
 ## **📋 Final Checklist Summary**
 
@@ -822,61 +726,45 @@ python docs\validation\quick_validate.py check-all
 
 ```text
 ImportError: No module named 'src'
-```
-
-**Solution:** Ensure virtual environment is activated and project is installed with `pip install -e ../..`
+```text`n**Solution:** Ensure virtual environment is activated and project is installed with `pip install -e ../..`
 
 #### **Workspace-Specific Issues**
 
 ```text
 Path not found when using workspace folders
-```
-
-**Solution:** Commands are relative to project root. In workspace, ensure terminal is opened from correct folder context or use absolute paths.
+```text`n**Solution:** Commands are relative to project root. In workspace, ensure terminal is opened from correct folder context or use absolute paths.
 
 ```text
 Debugging configuration not working
-```
-
-**Solution:** Ensure you're using the workspace file and that Python interpreter is correctly set for the model's virtual environment.
+```text`n**Solution:** Ensure you're using the workspace file and that Python interpreter is correctly set for the model's virtual environment.
 
 ```text
 File nesting hiding important files
-```
-
-**Solution:** Expand file nesting groups in Explorer or disable file nesting in workspace settings.
+```text`n**Solution:** Expand file nesting groups in Explorer or disable file nesting in workspace settings.
 
 #### **Configuration Errors**
 
 ```text
 ValueError: Unknown experiment: test_experiment
-```
-
-**Solution:** Add experiment to `ALL_EXPERIMENTS` in `constants.py`
+```text`n**Solution:** Add experiment to `ALL_EXPERIMENTS` in `constants.py`
 
 #### **Training Failures**
 
 ```text
 RuntimeError: size mismatch
-```
-
-**Solution:** Check input/output dimensions in configuration and model
+```text`n**Solution:** Check input/output dimensions in configuration and model
 
 #### **Validation Failures**
 
 ```text
 ❌ Model check failed: Forward method missing
-```
-
-**Solution:** Implement required methods in model class
+```text`n**Solution:** Implement required methods in model class
 
 #### **Performance Issues**
 
 ```text
 Training too slow / Memory issues
-```
-
-**Solution:** Reduce batch size, check for memory leaks, optimize data loading
+```text`n**Solution:** Reduce batch size, check for memory leaks, optimize data loading
 
 ### **Getting Help**
 
@@ -916,15 +804,20 @@ When you complete this checklist, you will have:
 
 **Congratulations! You've successfully implemented a model following the "AI From Scratch to Scale" standards.**
 
-Use this checklist for every new model implementation to ensure consistency, quality, and educational value across the entire project.
+Use this checklist for every new model implementation to ensure consistency, quality, and educational value across the
+entire project.
 
-- [ ] **Saved Artifacts**: All outputs generated by a run—visualizations, logs, and model weights—must be saved to the appropriate subdirectory within /outputs/.
+- [ ] **Saved Artifacts**: All outputs generated by a run—visualizations, logs, and model weights—must be saved to the
+appropriate subdirectory within /outputs/.
 
 ### **Visualization & Analysis Requirements**
 
-- [ ] **Implement all required visualizations for the model type as specified in the Visualization Playbooks (docs/visualization/Playbooks.md).**
+- [ ] **Implement all required visualizations for the model type as specified in the Visualization Playbooks
+(docs/visualization/Playbooks.md).**
 - [ ] **Integrate visualization generation into training/evaluation scripts using the --visualize flag.**
-- [ ] **Save all generated figures to the model’s outputs/visualizations/ directory with clear, descriptive filenames.**
+- [ ] **Save all generated figures to the model’s outputs/visualizations/ directory with clear, descriptive
+filenames.**
 - [ ] **Include a 'Visualizations' section in the model’s README.md listing required and implemented plots.**
-- [ ] **Ensure the analysis notebook includes code cells to generate and display all required visualizations, with markdown interpretation.**
+- [ ] **Ensure the analysis notebook includes code cells to generate and display all required visualizations, with
+markdown interpretation.**
 - [ ] **Verify that all visualizations are referenced in the final report/notebook and are reproducible.**

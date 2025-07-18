@@ -1,6 +1,7 @@
 # **Complete Perceptron Example Implementation**
 
-This directory contains a complete, working implementation of the Perceptron model that demonstrates all the patterns, templates, and best practices established in the "AI From Scratch to Scale" project.
+This directory contains a complete, working implementation of the Perceptron model that demonstrates all the patterns,
+templates, and best practices established in the "AI From Scratch to Scale" project.
 
 ## **Purpose**
 
@@ -88,9 +89,7 @@ python src\train.py --experiment xor --visualize
 
 # Evaluate trained model
 python src\evaluate.py --checkpoint outputs\models\and_gate_model.pth --experiment and_gate --visualize
-```
-
-## **Learning Objectives**
+```text`n## **Learning Objectives**
 
 By studying this example, you will understand:
 
@@ -116,8 +115,7 @@ By studying this example, you will understand:
 
 ## **File Structure**
 
-```
-docs\examples\01_perceptron_complete_example\
+```text`ndocs\examples\01_perceptron_complete_example\
 ├── README.md                           # This file
 ├── src\                               # Source code
 │   ├── __init__.py
@@ -141,9 +139,7 @@ docs\examples\01_perceptron_complete_example\
 ├── .venv\                            # Virtual environment
 ├── requirements.txt                   # Dependencies
 └── setup_instructions.md             # Detailed setup guide
-```
-
-## **Using as Reference**
+```text`n## **Using as Reference**
 
 This example is designed to be:
 
@@ -192,4 +188,5 @@ If you encounter issues with this example:
 3. Ensure all dependencies are installed correctly
 4. Verify virtual environment is activated
 
-This example represents the gold standard for model implementation in this project. Use it as your reference for creating high-quality, educational, and maintainable code.
+This example represents the gold standard for model implementation in this project. Use it as your reference for
+creating high-quality, educational, and maintainable code.

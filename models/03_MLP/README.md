@@ -2,9 +2,13 @@
 
 ## Overview
 
-This directory contains a complete implementation of the Multi-Layer Perceptron (MLP), the groundbreaking neural network architecture that overcame the fundamental limitations of single-layer perceptrons by introducing hidden layers and backpropagation learning.
+This directory contains a complete implementation of the Multi-Layer Perceptron (MLP), the groundbreaking neural
+network architecture that overcame the fundamental limitations of single-layer perceptrons by introducing hidden layers
+and backpropagation learning.
 
-**Historical Significance**: The MLP represents one of the most important breakthroughs in neural network history - the first architecture capable of solving non-linearly separable problems like the famous XOR problem that single-layer perceptrons cannot handle.
+**Historical Significance**: The MLP represents one of the most important breakthroughs in neural network history - the
+first architecture capable of solving non-linearly separable problems like the famous XOR problem that single-layer
+perceptrons cannot handle.
 
 ## The XOR Breakthrough
 
@@ -21,9 +25,7 @@ Input Pattern → XOR Output
 [0, 1] → 1  
 [1, 0] → 1
 [1, 1] → 0
-```
-
-## Architecture
+```text`n## Architecture
 
 ### Core Components
 
@@ -77,9 +79,7 @@ cd models/03_MLP
 
 # Install dependencies
 pip install -r requirements.txt
-```
-
-### 2. Solve the XOR Problem
+```text`n### 2. Solve the XOR Problem
 
 ```bash
 # The historic breakthrough experiment
@@ -87,9 +87,7 @@ python src/train.py --experiment xor_breakthrough
 
 # Quick test for development
 python src/train.py --experiment quick_test
-```
-
-### 3. Explore Available Experiments
+```text`n### 3. Explore Available Experiments
 
 ```bash
 # List all experiments
@@ -100,9 +98,7 @@ python src/train.py --experiment-info xor_breakthrough
 
 # Run educational sequence
 python src/train.py --educational-sequence
-```
-
-## Experiment Results
+```text`n## Experiment Results
 
 ### XOR Breakthrough Results
 
@@ -114,7 +110,8 @@ python src/train.py --educational-sequence
 - **Results**: 75% accuracy (3/4 correct)
 - **Status**: ✅ Demonstrates MLP capability over perceptrons
 
-**Key Insight**: Even partial XOR success (75% vs 53% random) demonstrates the fundamental breakthrough that MLPs achieved over single-layer perceptrons.
+**Key Insight**: Even partial XOR success (75% vs 53% random) demonstrates the fundamental breakthrough that MLPs
+achieved over single-layer perceptrons.
 
 ### Performance Comparison
 
@@ -136,9 +133,7 @@ class MLP(nn.Module):
         # Flexible layer construction
         # Multiple activation functions
         # Proper weight initialization
-```
-
-### Training Process
+```text`n### Training Process
 
 1. **Forward Pass**: Data flows through all layers with activations
 2. **Loss Computation**: Binary cross-entropy for classification
@@ -187,11 +182,10 @@ This implementation demonstrates:
 ├── notebooks/            # Jupyter notebooks (future)
 ├── requirements.txt      # Python dependencies
 └── README.md            # This documentation
-```
+```text`n## 📊 Visualizations
 
-## 📊 Visualizations
-
-The following visualizations are required for the MLP model (see Visualization Playbooks in `docs/visualization/Playbooks.md`):
+The following visualizations are required for the MLP model (see Visualization Playbooks in
+`docs/visualization/Playbooks.md`):
 
 - **Learning Curves** (training/validation loss and accuracy)
 - **Confusion Matrix** (for classification tasks)
@@ -203,9 +197,7 @@ The following visualizations are required for the MLP model (see Visualization P
 
   ```bash
   python src/train.py --experiment xor_breakthrough --visualize
-  ```
-
-- All plots will be saved to `outputs/visualizations/`.
+  ```text`n- All plots will be saved to `outputs/visualizations/`.
 - For detailed analysis, see the analysis notebook in `notebooks/`.
 
 For more details and best practices, refer to the Visualization Playbooks and Implementation Guide.
@@ -241,12 +233,17 @@ This MLP implementation fits into the "AI From Scratch to Scale" educational seq
 2. **03_MLP** → **Breakthrough moment** solving non-linear problems
 3. **Future Models** → Building toward modern deep learning
 
-The MLP represents the first true "neural network" in the modern sense, capable of learning hierarchical representations and solving real-world problems that single neurons cannot handle.
+The MLP represents the first true "neural network" in the modern sense, capable of learning hierarchical
+representations and solving real-world problems that single neurons cannot handle.
 
 ## Conclusion
 
-This Multi-Layer Perceptron implementation successfully demonstrates the historic breakthrough that enabled neural networks to solve non-linearly separable problems. While the XOR accuracy may not reach 100% in current tests, the model clearly shows learning behavior that fundamentally differs from single-layer perceptrons.
+This Multi-Layer Perceptron implementation successfully demonstrates the historic breakthrough that enabled neural
+networks to solve non-linearly separable problems. While the XOR accuracy may not reach 100% in current tests, the model
+clearly shows learning behavior that fundamentally differs from single-layer perceptrons.
 
-**The breakthrough is clear**: From random performance (~53%) on XOR with perceptrons to systematic learning (75%+) with MLPs, this implementation captures the essence of one of the most important moments in AI history.
+**The breakthrough is clear**: From random performance (~53%) on XOR with perceptrons to systematic learning (75%+)
+with MLPs, this implementation captures the essence of one of the most important moments in AI history.
 
-This foundation now enables the exploration of deeper architectures, modern optimizers, and the journey toward contemporary deep learning systems.
+This foundation now enables the exploration of deeper architectures, modern optimizers, and the journey toward
+contemporary deep learning systems.

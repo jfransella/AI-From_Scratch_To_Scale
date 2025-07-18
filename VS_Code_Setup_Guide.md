@@ -1,12 +1,14 @@
 # VS Code Setup Guide for AI From Scratch to Scale
 
-This guide will help you set up VS Code for optimal development with our AI project, including Flake8 linting, Black formatting, and more.
+This guide will help you set up VS Code for optimal development with our AI project, including Flake8 linting, Black
+formatting, and more.
 
 ## 🚀 Quick Setup
 
 ### 1. Install Recommended Extensions
 
-When you open the project in VS Code, you'll be prompted to install recommended extensions. Click **"Install All"** or install manually:
+When you open the project in VS Code, you'll be prompted to install recommended extensions. Click **"Install All"** or
+install manually:
 
 **Essential Extensions:**
 
@@ -20,11 +22,8 @@ When you open the project in VS Code, you'll be prompted to install recommended 
 
 For best experience, open the **workspace file** instead of just the folder:
 
-```
-File → Open Workspace from File → ai-from-scratch-to-scale.code-workspace
-```
-
-This provides:
+```text`nFile → Open Workspace from File → ai-from-scratch-to-scale.code-workspace
+```text`nThis provides:
 
 - ✅ Organized folder structure
 - ✅ Pre-configured settings
@@ -49,26 +48,20 @@ This provides:
 
 Our Flake8 setup includes:
 
-```
-✅ Compatible with Black formatting
+```text`n✅ Compatible with Black formatting
 ✅ 88 character line length
 ✅ Project-specific ignore rules
 ✅ Complexity checking (max 10)
 ✅ Import order validation
-```
-
-### Formatting Configuration
+```text`n### Formatting Configuration
 
 Our Black setup:
 
-```
-✅ 88 character line length (PEP 8 extended)
+```text`n✅ 88 character line length (PEP 8 extended)
 ✅ Automatic string quote normalization
 ✅ Compatible with isort
 ✅ Python 3.8+ target versions
-```
-
-## 🎯 Using the Development Tools
+```text`n## 🎯 Using the Development Tools
 
 ### Tasks (Ctrl+Shift+P → "Tasks: Run Task")
 
@@ -108,9 +101,7 @@ code ai-from-scratch-to-scale.code-workspace
 ✅ Show linting errors in real-time
 ✅ Format code on save
 ✅ Organize imports on save
-```
-
-### 2. Before Committing
+```text`n### 2. Before Committing
 
 ```powershell
 # Run comprehensive check
@@ -118,9 +109,7 @@ Ctrl+Shift+P → "Tasks: Run Task" → "Quality Check"
 
 # Or use terminal:
 .\scripts\check.ps1 models\01_perceptron\src\
-```
-
-### 3. Debugging Issues
+```text`n### 3. Debugging Issues
 
 ```powershell
 # Set breakpoints and press F5
@@ -128,9 +117,7 @@ Ctrl+Shift+P → "Tasks: Run Task" → "Quality Check"
 
 # For linting issues:
 Ctrl+Shift+P → "Tasks: Run Task" → "Lint Code"
-```
-
-## 🎨 Editor Features
+```text`n## 🎨 Editor Features
 
 ### Real-time Feedback
 
@@ -166,9 +153,7 @@ Ctrl+Shift+P → "Python: Select Interpreter"
 # In terminal:
 .venv\Scripts\activate
 flake8 --version
-```
-
-### Formatting Not Working?
+```text`n### Formatting Not Working?
 
 ```powershell
 # Check Black installation
@@ -176,9 +161,7 @@ black --version
 
 # Manual format:
 Shift+Alt+F
-```
-
-### Virtual Environment Issues?
+```text`n### Virtual Environment Issues?
 
 ```powershell
 # Reload window
@@ -186,9 +169,7 @@ Ctrl+Shift+P → "Developer: Reload Window"
 
 # Re-select interpreter
 Ctrl+Shift+P → "Python: Select Interpreter"
-```
-
-### Import Issues?
+```text`n### Import Issues?
 
 ```powershell
 # Check PYTHONPATH
@@ -196,14 +177,11 @@ Ctrl+Shift+P → "Python: Select Interpreter"
 
 # Reload window after changing PYTHONPATH
 Ctrl+Shift+P → "Developer: Reload Window"
-```
-
-## 📁 File Organization
+```text`n## 📁 File Organization
 
 Our workspace organizes files logically:
 
-```
-🏠 Project Root          # Main configuration files
+```text`n🏠 Project Root          # Main configuration files
 📊 Data Utils           # Shared data loading
 ⚙️ Engine               # Training/evaluation engine  
 📈 Plotting             # Visualization utilities
@@ -212,9 +190,7 @@ Our workspace organizes files logically:
 🧠 Models               # Model implementations
 01️⃣ Perceptron         # First model (active)
 📚 Documentation        # Project docs
-```
-
-## 🎯 Pro Tips
+```text`n## 🎯 Pro Tips
 
 ### Productivity Shortcuts
 

@@ -1,8 +1,9 @@
-# **Development FAQ: AI From Scratch to Scale**
+# Development FAQ: AI From Scratch to Scale
 
-This document provides solutions to common issues encountered when developing models for the "AI From Scratch to Scale" project. It's designed to help AI assistants quickly troubleshoot problems and maintain development momentum.
+This document provides solutions to common issues encountered when developing models for the "AI From Scratch to Scale"
+project. It's designed to help AI assistants quickly troubleshoot problems and maintain development momentum.
 
-## **Table of Contents**
+## Table of Contents
 
 1. [Environment Setup Issues](#environment-setup-issues)
 2. [Import and Dependency Problems](#import-and-dependency-problems)
@@ -17,9 +18,9 @@ This document provides solutions to common issues encountered when developing mo
 
 ---
 
-## **Environment Setup Issues**
+## Environment Setup Issues
 
-### **Q: Virtual environment creation fails**
+### Q: Virtual environment creation fails
 
 **Problem**: `python -m venv .venv` fails with permission errors or module not found.
 
@@ -40,7 +41,7 @@ virtualenv .venv
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
-### **Q: Virtual environment activation fails**
+### Q: Virtual environment activation fails
 
 **Problem**: `.venv\Scripts\activate` gives execution policy errors.
 
@@ -61,7 +62,7 @@ where python
 # Should show path to .venv\Scripts\python.exe
 ```
 
-### **Q: Shared packages installation fails**
+### Q: Shared packages installation fails
 
 **Problem**: `pip install -e ..\..` fails with import errors.
 
@@ -84,7 +85,7 @@ pip install -e ..\..
 python -c "from data_utils import load_dataset; print('Success')"
 ```
 
-### **Q: Package version conflicts**
+### Q: Package version conflicts
 
 **Problem**: Conflicting package versions between model requirements and shared packages.
 
@@ -109,9 +110,9 @@ pip install -e ..\..
 
 ---
 
-## **Import and Dependency Problems**
+## Import and Dependency Problems
 
-### **Q: Cannot import shared modules**
+### Q: Cannot import shared modules
 
 **Problem**: `ImportError: No module named 'data_utils'` when trying to import shared packages.
 
@@ -137,7 +138,7 @@ import sys
 sys.path.append(r'C:\path\to\ai-from-scratch-to-scale')
 ```
 
-### **Q: CUDA/PyTorch installation issues**
+### Q: CUDA/PyTorch installation issues
 
 **Problem**: PyTorch not using GPU or CUDA version mismatch.
 
@@ -158,7 +159,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 ```
 
-### **Q: Missing dependencies for specific models**
+### Q: Missing dependencies for specific models
 
 **Problem**: Model-specific dependencies not installed.
 
@@ -183,9 +184,9 @@ pip install torch-geometric
 
 ---
 
-## **Training Issues**
+## Training Issues
 
-### **Q: Training crashes immediately**
+### Q: Training crashes immediately
 
 **Problem**: Training script exits with errors before starting.
 
@@ -205,7 +206,7 @@ python -c "from data_utils import load_dataset; d = load_dataset('xor'); print(n
 python src\train.py --experiment debug_small --epochs 1
 ```
 
-### **Q: Loss becomes NaN during training**
+### Q: Loss becomes NaN during training
 
 **Problem**: Training loss becomes NaN after a few iterations.
 
@@ -233,7 +234,7 @@ def forward(self, x):
 criterion = torch.nn.CrossEntropyLoss(reduction='mean')
 ```
 
-### **Q: Training is extremely slow**
+### Q: Training is extremely slow
 
 **Problem**: Training takes much longer than expected.
 
@@ -264,7 +265,7 @@ with torch.profiler.profile() as prof:
     prof.export_chrome_trace("trace.json")
 ```
 
-### **Q: Model not learning (loss plateaus)**
+### Q: Model not learning (loss plateaus)
 
 **Problem**: Training loss doesn't decrease after initial epochs.
 
@@ -272,6 +273,7 @@ with torch.profiler.profile() as prof:
 
 ```python
 # 1. Check learning rate
+ (2)
 if config['learning_rate'] < 1e-5:
     print("Learning rate too small, try 0.001 or higher")
 
@@ -291,7 +293,7 @@ print(f"Model parameters: {sum(p.numel() for p in model.parameters())}")
 # Regression: MSELoss or L1Loss
 ```
 
-### **Q: Early stopping triggers too early**
+### Q: Early stopping triggers too early
 
 **Problem**: Training stops before model has converged.
 
@@ -318,9 +320,9 @@ config['early_stopping_patience'] = 999999
 
 ---
 
-## **Data Loading Problems**
+## Data Loading Problems
 
-### **Q: Dataset not found error**
+### Q: Dataset not found error
 
 **Problem**: `FileNotFoundError` when loading datasets.
 
@@ -346,7 +348,7 @@ datasets.CIFAR10('data/raw', download=True)
 data_path = os.path.abspath('data/raw/mnist')
 ```
 
-### **Q: Data loading is very slow**
+### Q: Data loading is very slow
 
 **Problem**: DataLoader takes too long to iterate through data.
 
@@ -381,7 +383,7 @@ def load_sample(idx):
     return expensive_preprocessing(raw_data[idx])
 ```
 
-### **Q: Out of memory during data loading**
+### Q: Out of memory during data loading
 
 **Problem**: System runs out of memory when loading large datasets.
 
@@ -412,9 +414,9 @@ torch.cuda.empty_cache()  # For GPU memory
 
 ---
 
-## **Model Implementation Issues**
+## Model Implementation Issues
 
-### **Q: Model architecture errors**
+### Q: Model architecture errors
 
 **Problem**: Shape mismatches or layer incompatibilities.
 
@@ -447,7 +449,7 @@ except Exception as e:
     print(f"Model error: {e}")
 ```
 
-### **Q: Parameter initialization issues**
+### Q: Parameter initialization issues
 
 **Problem**: Poor initial weights causing training problems.
 
@@ -474,7 +476,7 @@ for name, param in model.named_parameters():
 # Most layers have good defaults, avoid manual initialization unless needed
 ```
 
-### **Q: Model saving/loading issues**
+### Q: Model saving/loading issues
 
 **Problem**: Errors when saving or loading model checkpoints.
 
@@ -510,9 +512,9 @@ model.to(device)
 
 ---
 
-## **Visualization and Logging Problems**
+## Visualization and Logging Problems
 
-### **Q: Plots not generating**
+### Q: Plots not generating
 
 **Problem**: `--visualize` flag doesn't create expected plots.
 
@@ -541,7 +543,7 @@ def generate_visualization(data, plot_type):
     print(f"Saved {plot_type}.png")
 ```
 
-### **Q: Wandb logging not working**
+### Q: Wandb logging not working
 
 **Problem**: Training metrics not appearing in wandb dashboard.
 
@@ -566,7 +568,7 @@ wandb.init(mode='offline')
 # Later sync with: wandb sync wandb/offline-run-xxx
 ```
 
-### **Q: Log files empty or missing**
+### Q: Log files empty or missing
 
 **Problem**: Training logs not being written to files.
 
@@ -600,9 +602,9 @@ logger.info("Test log message")
 
 ---
 
-## **Performance Issues**
+## Performance Issues
 
-### **Q: High memory usage during training**
+### Q: High memory usage during training
 
 **Problem**: System runs out of memory during training.
 
@@ -610,6 +612,7 @@ logger.info("Test log message")
 
 ```python
 # 1. Reduce batch size
+ (2)
 config['batch_size'] = 16  # or smaller
 
 # 2. Use gradient accumulation
@@ -633,7 +636,7 @@ with torch.no_grad():
     predictions = model(data.cpu()).cpu()
 ```
 
-### **Q: Slow GPU utilization**
+### Q: Slow GPU utilization
 
 **Problem**: GPU usage is low during training.
 
@@ -661,7 +664,7 @@ with torch.profiler.profile(
     prof.export_chrome_trace("gpu_trace.json")
 ```
 
-### **Q: Training time much longer than expected**
+### Q: Training time much longer than expected
 
 **Problem**: Training takes significantly longer than benchmarks.
 
@@ -693,9 +696,9 @@ def profile_training():
 
 ---
 
-## **Testing and Validation Problems**
+## Testing and Validation Problems
 
-### **Q: Tests failing after code changes**
+### Q: Tests failing after code changes
 
 **Problem**: Previously passing tests now fail.
 
@@ -716,7 +719,7 @@ pytest tests/unit/test_model.py -v --tb=short
 pytest tests/unit/test_model.py::TestModel::test_forward_pass --forked
 ```
 
-### **Q: Tests pass locally but fail in CI**
+### Q: Tests pass locally but fail in CI
 
 **Problem**: Tests work on local machine but fail in GitHub Actions.
 
@@ -750,9 +753,9 @@ env:
 
 ---
 
-## **Windows-Specific Issues**
+## Windows-Specific Issues
 
-### **Q: Path separator issues**
+### Q: Path separator issues
 
 **Problem**: Linux-style paths don't work on Windows.
 
@@ -774,7 +777,7 @@ path = 'data/raw/mnist'.replace('/', os.sep)
 windows_path = r'C:\Users\user\data\mnist'
 ```
 
-### **Q: PowerShell execution policy errors**
+### Q: PowerShell execution policy errors
 
 **Problem**: Cannot run PowerShell scripts due to execution policy.
 
@@ -796,7 +799,7 @@ PowerShell -ExecutionPolicy Bypass -File script.ps1
 call .venv\Scripts\activate.bat
 ```
 
-### **Q: Long path issues**
+### Q: Long path issues
 
 **Problem**: Windows path length limits causing errors.
 
@@ -818,11 +821,11 @@ call .venv\Scripts\activate.bat
 
 ---
 
-## **Debugging Workflows**
+## Debugging Workflows
 
-### **Systematic Debugging Process**
+### Systematic Debugging Process
 
-#### **1. Initial Triage**
+#### 1. Initial Triage
 
 ```python
 # Step 1: Reproduce the issue
@@ -837,7 +840,7 @@ python -c "from src.model import ModelClass; print('Model OK')"
 # Test each component separately
 ```
 
-#### **2. Training Issues Debug Flow**
+#### 2. Training Issues Debug Flow
 
 ```python
 # Debug training problems systematically
@@ -872,7 +875,7 @@ def debug_training():
 debug_training()
 ```
 
-#### **3. Data Issues Debug Flow**
+#### 3. Data Issues Debug Flow
 
 ```python
 def debug_data():
@@ -904,7 +907,7 @@ def debug_data():
 debug_data()
 ```
 
-#### **4. Model Issues Debug Flow**
+#### 4. Model Issues Debug Flow
 
 ```python
 def debug_model():
@@ -938,7 +941,7 @@ def debug_model():
 debug_model()
 ```
 
-### **Common Debug Commands**
+### Common Debug Commands
 
 ```powershell
 # Quick environment check
@@ -962,21 +965,22 @@ Get-Acl outputs\logs\training.log
 Test-NetConnection api.wandb.ai -Port 443
 ```
 
-### **Error Message Patterns**
+### Error Message Patterns
 
-#### **Common Error Types and Solutions**
+#### Common Error Types and Solutions
 
 **ImportError patterns**:
 
-```
+```text
 "No module named 'src'" → Check PYTHONPATH and virtual environment
 "cannot import name 'X' from 'Y'" → Check for circular imports
 "DLL load failed" → PyTorch/CUDA version mismatch
+
 ```
 
 **RuntimeError patterns**:
 
-```
+```text
 "CUDA out of memory" → Reduce batch size or clear cache
 "Expected tensor to be on device X" → Check device placement
 "dimension mismatch" → Check tensor shapes
@@ -984,18 +988,19 @@ Test-NetConnection api.wandb.ai -Port 443
 
 **ValueError patterns**:
 
-```
+```text
 "Target X is out of bounds" → Check label encoding
 "Expected input batch_size (X) to match target batch_size (Y)" → Check data loading
+
 ```
 
 ---
 
-## **Emergency Recovery Procedures**
+## Emergency Recovery Procedures
 
-### **If Everything Breaks**
+### If Everything Breaks
 
-1. **Nuclear Option - Fresh Start**:
+- **Nuclear Option - Fresh Start**:
 
 ```powershell
 # Save your work first!
@@ -1006,6 +1011,7 @@ git commit -m "Save work before reset"
 Remove-Item -Recurse -Force .venv
 
 # Create fresh environment
+ (2)
 python -m venv .venv
 .venv\Scripts\activate
 
@@ -1015,7 +1021,7 @@ pip install -r ..\..\requirements-dev.txt
 pip install -e ..\..
 ```
 
-2. **Minimum Viable Test**:
+- **Minimum Viable Test**:
 
 ```python
 # Test absolute minimum functionality
@@ -1032,7 +1038,7 @@ if torch.cuda.is_available():
 print("Basic PyTorch working!")
 ```
 
-3. **Incremental Recovery**:
+- **Incremental Recovery**:
 
 ```python
 # Test components one by one
@@ -1046,16 +1052,16 @@ print("Basic PyTorch working!")
 
 ---
 
-## **Getting Help**
+## Getting Help
 
-### **When to Ask for Help**
+### When to Ask for Help
 
 - Spent >30 minutes on environment setup issues
 - Reproducible errors with clear error messages
 - Performance issues with specific metrics
 - Test failures with detailed error logs
 
-### **How to Ask for Help**
+### How to Ask for Help
 
 ```python
 # Include this information:
@@ -1078,4 +1084,5 @@ print("=== End Debug Info ===")
 
 ---
 
-This FAQ should help you quickly resolve most common issues. When in doubt, start with the debugging workflows to systematically identify the problem area.
+This FAQ should help you quickly resolve most common issues. When in doubt, start with the debugging workflows to
+systematically identify the problem area.

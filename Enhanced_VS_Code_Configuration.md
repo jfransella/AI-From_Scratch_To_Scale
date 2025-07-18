@@ -2,7 +2,8 @@
 
 ## 🎉 **What's Been Configured**
 
-Since you have the full set of Python extensions installed, I've enhanced your VS Code setup with advanced configurations for optimal ML development.
+Since you have the full set of Python extensions installed, I've enhanced your VS Code setup with advanced
+configurations for optimal ML development.
 
 ## 🔧 **Enhanced Extensions Configuration**
 
@@ -31,9 +32,7 @@ Your Jupyter setup now includes:
 ✅ Code lens for cell navigation
 ✅ Themed matplotlib plots
 ✅ Magic command support
-```
-
-## 🏷️ **Advanced Type Checking**
+```text`n## 🏷️ **Advanced Type Checking**
 
 **Mypy Configuration (`mypy.ini`)**:
 
@@ -61,9 +60,7 @@ Your Jupyter setup now includes:
 ✅ Relative import formatting
 ✅ Enhanced auto-import completions
 ✅ Smart function parameter hints
-```
-
-## 🎯 **Development Workflow**
+```text`n## 🎯 **Development Workflow**
 
 ### **Real-time Feedback**
 
@@ -152,9 +149,7 @@ def poorly_typed_function(x, y):
 # Type a few characters and notice enhanced autocomplete
 tensor = torch.
 array = np.
-```
-
-## 🎉 **Benefits**
+```text`n## 🎉 **Benefits**
 
 1. **Higher Code Quality** - Multiple linters catch different issues
 2. **Better Learning** - More educational feedback on code

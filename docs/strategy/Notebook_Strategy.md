@@ -2,38 +2,60 @@
 
 ## **1. Guiding Philosophy: Notebooks as Learning & Analysis Tools**
 
-This strategy positions Jupyter notebooks as the primary tool for the **"teaching" and "analysis"** phases of the project, not for running the primary training experiments themselves. The core idea is to separate the execution of experiments from their narrative explanation and analysis.
+This strategy positions Jupyter notebooks as the primary tool for the **"teaching" and "analysis"** phases of the
+project,
+not for running the primary training experiments themselves. The core idea is to separate the execution of experiments
+from their narrative explanation and analysis.
 
-* **Command Line for Execution:** All training and evaluation runs are executed via the standardized train.py and evaluate.py scripts. This ensures reproducibility and consistency.  
-* **Notebooks for Analysis:** Notebooks will consume the *outputs* of these command-line runs (logs, saved models, and visualization images) to build a rich, step-by-step analysis.
+* **Command Line for Execution:** All training and evaluation runs are executed via the standardized train.py and
+  evaluate.py scripts. This ensures reproducibility and consistency.
+* **Notebooks for Analysis:** Notebooks will consume the *outputs* of these command-line runs (logs, saved models, and
+  visualization images) to build a rich, step-by-step analysis.
 
 ## **2. The Three-Notebook Model**
 
-For each Keystone and Side-quest model, we will implement a set of three distinct notebooks within its /notebooks/ directory. This structure mirrors the learning phases defined in your "Learning & Development Strategy."
+For each Keystone and Side-quest model, we will implement a set of three distinct notebooks within its /notebooks/
+directory. This structure mirrors the learning phases defined in your "Learning & Development Strategy."
 
 ### **Notebook 1: 01_Theory_and_Intuition.ipynb**
 
-* **Purpose:** To serve as the interactive version of the "Theoretical Deep Dive." This notebook is for building a deep, conceptual understanding of the model *before* looking at the full implementation.  
-* **Contents:**  
-  * **Historical Context:** The "5 Ws" (Who, What, When, Where, Why) with markdown, images, and links to the original papers.  
-  * **Architectural Blueprint:** High-level diagrams and explanations of the model's structure.  
-  * **Mathematical Intuition:** Use LaTeX to render key equations, but more importantly, use simple, illustrative Python/NumPy code snippets to build intuition for what the math is doing (e.g., demonstrating a single convolution on a tiny matrix). These snippets are for teaching and are separate from the main project code.
+* **Purpose:** To serve as the interactive version of the "Theoretical Deep Dive." This notebook is for building a
+deep,
+  conceptual understanding of the model *before* looking at the full implementation.
+* **Contents:**
+  * **Historical Context:** The "5 Ws" (Who, What, When, Where, Why) with markdown, images, and links to the original
+    papers.
+  * **Architectural Blueprint:** High-level diagrams and explanations of the model's structure.
+  * **Mathematical Intuition:** Use LaTeX to render key equations, but more importantly, use simple, illustrative
+    Python/NumPy code snippets to build intuition for what the math is doing (e.g., demonstrating a single convolution on
+    a tiny matrix). These snippets are for teaching and are separate from the main project code.
 
 ### **Notebook 2: 02_Code_Walkthrough.ipynb**
 
-* **Purpose:** To provide a guided tour of your finished code, explaining the "how" and connecting it back to the theory. This notebook does **not** replicate the code from /src; it **imports and explains it**.  
-* **Contents:**  
-  * **Setup & Configuration:** Import modules from /src and load the configuration from config.py, explaining each parameter.  
-  * **Model Architecture:** Instantiate the model from model.py, print its summary (print(model)), and walk through each layer, explaining its purpose.  
-  * **A Single Step:** Demonstrate a single forward and backward pass using a single batch of data to illustrate the training mechanics without running the full loop. This is an invaluable pedagogical tool.
+* **Purpose:** To provide a guided tour of your finished code, explaining the "how" and connecting it back to the
+theory.
+  This notebook does **not** replicate the code from /src; it **imports and explains it**.
+* **Contents:**
+  * **Setup & Configuration:** Import modules from /src and load the configuration from config.py, explaining each
+    parameter.
+* **Model Architecture:** Instantiate the model from model.py, print its summary (print(model)), and walk through
+each
+    layer, explaining its purpose.
+  * **A Single Step:** Demonstrate a single forward and backward pass using a single batch of data to illustrate the
+    training mechanics without running the full loop. This is an invaluable pedagogical tool.
 
 ### **Notebook 3: 03_Empirical_Analysis.ipynb**
 
-* **Purpose:** To create the data-driven narrative for the "Demonstrate & Expose" phase. This notebook analyzes the results of a completed training run.  
-* **Contents:**  
-  * **Loading Results:** This notebook begins by loading the artifacts generated by a train.py run: the log file from /outputs/logs/ and the saved image files from /outputs/visualizations/.  
-  * **The "Success" & "Failure" Cases:** This is where you will build your analysis. You will load the saved visualizations one by one in separate cells, each accompanied by a markdown cell explaining what the plot shows and what conclusions can be drawn from it.  
-  * **The Transition Narrative:** Conclude by summarizing the model's limitations as demonstrated by the analysis, creating a clear motivation for the next model in the series.
+* **Purpose:** To create the data-driven narrative for the "Demonstrate & Expose" phase. This notebook analyzes the
+  results of a completed training run.
+* **Contents:**
+  * **Loading Results:** This notebook begins by loading the artifacts generated by a train.py run: the log file from
+    /outputs/logs/ and the saved image files from /outputs/visualizations/.
+  * **The "Success" & "Failure" Cases:** This is where you will build your analysis. You will load the saved
+    visualizations one by one in separate cells, each accompanied by a markdown cell explaining what the plot shows and
+    what conclusions can be drawn from it.
+  * **The Transition Narrative:** Conclude by summarizing the model's limitations as demonstrated by the analysis,
+    creating a clear motivation for the next model in the series.
 
 ---
 
@@ -41,9 +63,9 @@ For each Keystone and Side-quest model, we will implement a set of three distinc
 
 ### **Template 1: Theory and Intuition Notebook**
 
-#### **Expected Structure and Sections**
+#### **Template 1: Expected Structure and Sections**
 
-**Cell 1: Title and Introduction**
+#### **Cell 1: Title and Introduction**
 
 ```markdown
 # [Model Name]: Theory and Intuition
@@ -61,9 +83,7 @@ By the end of this notebook, you will understand:
 ## Prerequisites
 - Basic understanding of [prerequisite models/concepts]
 - Familiarity with [mathematical concepts]
-```
-
-**Cell 2: Historical Context**
+```text`n#### **Cell 2: Historical Context**
 
 ```markdown
 # 1. Historical Context
@@ -79,9 +99,7 @@ Describe the specific problem this model was designed to solve.
 
 ## The Innovation
 What was the key breakthrough or innovation?
-```
-
-**Cell 3: Mathematical Foundation**
+```text`n#### **Cell 3: Mathematical Foundation**
 
 ```python
 # 2. Mathematical Foundation
@@ -94,17 +112,17 @@ from IPython.display import display, Markdown, Math
 def demonstrate_key_concept():
     """
     Interactive demonstration of the core mathematical concept.
-    
+
     This should be simple, visual, and educational.
     """
     # Simple example with small data
     X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
     y = np.array([0, 1, 1, 0])  # XOR problem
-    
+
     print("XOR Problem - why linear models fail:")
     print("Input X:", X)
     print("Target y:", y)
-    
+
     # Visualize the problem
     plt.figure(figsize=(8, 6))
     colors = ['red' if label == 0 else 'blue' for label in y]
@@ -114,13 +132,11 @@ def demonstrate_key_concept():
     plt.title('XOR Problem: Not Linearly Separable')
     plt.grid(True, alpha=0.3)
     plt.show()
-    
+
     return X, y
 
 X, y = demonstrate_key_concept()
-```
-
-**Cell 4: Architectural Intuition**
+```text`n#### **Cell 4: Architectural Intuition**
 
 ```python
 # 3. Architectural Intuition
@@ -128,11 +144,11 @@ X, y = demonstrate_key_concept()
 def visualize_architecture():
     """
     Create a simple visualization of the model architecture.
-    
+
     This should show the flow of information through the model.
     """
     fig, ax = plt.subplots(1, 1, figsize=(12, 8))
-    
+
     # Example: MLP architecture visualization
     layers = [
         {'name': 'Input', 'size': 2, 'x': 0, 'color': 'lightblue'},
@@ -140,27 +156,27 @@ def visualize_architecture():
         {'name': 'Hidden 2', 'size': 3, 'x': 4, 'color': 'lightgreen'},
         {'name': 'Output', 'size': 1, 'x': 6, 'color': 'lightcoral'}
     ]
-    
+
     for layer in layers:
         y_positions = np.linspace(-layer['size']/2, layer['size']/2, layer['size'])
         for y in y_positions:
             circle = plt.Circle((layer['x'], y), 0.3, color=layer['color'], ec='black')
             ax.add_patch(circle)
         ax.text(layer['x'], -layer['size']/2 - 0.8, layer['name'], ha='center', fontsize=12)
-    
+
     # Draw connections
     for i in range(len(layers) - 1):
         curr_layer = layers[i]
         next_layer = layers[i + 1]
-        
+
         curr_y = np.linspace(-curr_layer['size']/2, curr_layer['size']/2, curr_layer['size'])
         next_y = np.linspace(-next_layer['size']/2, next_layer['size']/2, next_layer['size'])
-        
+
         for cy in curr_y:
             for ny in next_y:
-                ax.plot([curr_layer['x'] + 0.3, next_layer['x'] - 0.3], 
+                ax.plot([curr_layer['x'] + 0.3, next_layer['x'] - 0.3],
                        [cy, ny], 'k-', alpha=0.3, linewidth=0.5)
-    
+
     ax.set_xlim(-0.5, 6.5)
     ax.set_ylim(-3, 3)
     ax.set_aspect('equal')
@@ -170,9 +186,7 @@ def visualize_architecture():
     plt.show()
 
 visualize_architecture()
-```
-
-**Cell 5: Step-by-Step Mathematical Walkthrough**
+```text`n#### **Cell 5: Step-by-Step Mathematical Walkthrough**
 
 ```python
 # 4. Step-by-Step Mathematical Walkthrough
@@ -180,23 +194,23 @@ visualize_architecture()
 def step_by_step_forward_pass():
     """
     Demonstrate a single forward pass through the model.
-    
+
     This should be pedagogical, showing each step clearly.
     """
     print("Step-by-Step Forward Pass")
     print("=" * 40)
-    
+
     # Simple example with known weights
     input_data = np.array([[1.0, 0.5]])
     W1 = np.array([[0.2, 0.3, -0.1], [0.4, -0.2, 0.6]])  # 2x3
     b1 = np.array([0.1, 0.0, -0.1])
     W2 = np.array([[0.5], [-0.3], [0.4]])  # 3x1
     b2 = np.array([0.2])
-    
+
     print(f"Input: {input_data}")
     print(f"Input shape: {input_data.shape}")
     print()
-    
+
     # Layer 1
     z1 = np.dot(input_data, W1) + b1
     print(f"Layer 1 - Linear transformation:")
@@ -204,13 +218,13 @@ def step_by_step_forward_pass():
     print(f"  z1 = {input_data} @ {W1} + {b1}")
     print(f"  z1 = {z1}")
     print()
-    
+
     # Activation
     a1 = np.maximum(0, z1)  # ReLU
     print(f"Layer 1 - ReLU activation:")
     print(f"  a1 = max(0, z1) = {a1}")
     print()
-    
+
     # Layer 2
     z2 = np.dot(a1, W2) + b2
     print(f"Layer 2 - Linear transformation:")
@@ -218,18 +232,16 @@ def step_by_step_forward_pass():
     print(f"  z2 = {a1} @ {W2} + {b2}")
     print(f"  z2 = {z2}")
     print()
-    
+
     # Output
     output = 1 / (1 + np.exp(-z2))  # Sigmoid
     print(f"Output - Sigmoid activation:")
     print(f"  output = 1 / (1 + exp(-z2)) = {output}")
-    
+
     return output
 
 output = step_by_step_forward_pass()
-```
-
-**Cell 6: Conceptual Limitations**
+```text`n#### **Cell 6: Conceptual Limitations**
 
 ```markdown
 # 5. Theoretical Limitations
@@ -237,20 +249,11 @@ output = step_by_step_forward_pass()
 ## What This Model Can Do
 - List the theoretical capabilities
 - Explain why these capabilities exist
+```text`n### **Template 2: Code Walkthrough Notebook**
 
-## What This Model Cannot Do
-- List the fundamental limitations
-- Explain why these limitations exist (mathematical/architectural reasons)
+#### **Template 2: Expected Structure and Sections**
 
-## Motivation for Next Model
-Based on these limitations, what kind of model would we need next?
-```
-
-### **Template 2: Code Walkthrough Notebook**
-
-#### **Expected Structure and Sections**
-
-**Cell 1: Setup and Imports**
+#### **Cell 1: Setup and Imports**
 
 ```python
 # Code Walkthrough: [Model Name]
@@ -278,9 +281,7 @@ np.random.seed(42)
 print("Environment setup complete!")
 print(f"PyTorch version: {torch.__version__}")
 print(f"CUDA available: {torch.cuda.is_available()}")
-```
-
-**Cell 2: Configuration Deep Dive**
+```text`n#### **Cell 2: Configuration Deep Dive**
 
 ```python
 # 1. Configuration Deep Dive
@@ -294,11 +295,11 @@ print("=" * 50)
 # Group and explain configuration parameters
 config_groups = {
     'Model Architecture': [
-        'model_name', 'input_size', 'hidden_size', 'output_size', 
+        'model_name', 'input_size', 'hidden_size', 'output_size',
         'num_layers', 'activation', 'dropout'
     ],
     'Training Parameters': [
-        'learning_rate', 'batch_size', 'epochs', 'optimizer', 
+        'learning_rate', 'batch_size', 'epochs', 'optimizer',
         'loss_function', 'weight_decay'
     ],
     'Data Parameters': [
@@ -319,12 +320,13 @@ for group_name, param_names in config_groups.items():
 
 # Explain key configuration choices
 print("Key Configuration Decisions:")
-print(f"• Learning Rate ({config.learning_rate}): {'High' if config.learning_rate > 0.01 else 'Low'} - suitable for {'simple' if config.learning_rate > 0.01 else 'complex'} problems")
-print(f"• Hidden Size ({config.hidden_size}): {'Large' if config.hidden_size > 50 else 'Small'} - {'May overfit' if config.hidden_size > 100 else 'Appropriate'} for this dataset")
-print(f"• Activation ({config.activation}): {config.activation.upper()} - {'Non-linear' if config.activation != 'linear' else 'Linear'} activation")
-```
-
-**Cell 3: Model Architecture Exploration**
+print(f"• Learning Rate ({config.learning_rate}): {'High' if config.learning_rate > 0.01 else 'Low'} - suitable for
+{'simple' if config.learning_rate > 0.01 else 'complex'} problems")
+print(f"• Hidden Size ({config.hidden_size}): {'Large' if config.hidden_size > 50 else 'Small'} - {'May overfit' if
+config.hidden_size > 100 else 'Appropriate'} for this dataset")
+print(f"• Activation ({config.activation}): {config.activation.upper()} - {'Non-linear' if config.activation !=
+'linear' else 'Linear'} activation")
+```text`n#### **Cell 3: Model Architecture Exploration**
 
 ```python
 # 2. Model Architecture Exploration
@@ -363,9 +365,7 @@ with torch.no_grad():
     output = model(dummy_input)
     print(f"Output shape: {output.shape}")
     print(f"Output value: {output.item():.6f}")
-```
-
-**Cell 4: Single Training Step Demonstration**
+```text`n#### **Cell 4: Single Training Step Demonstration**
 
 ```python
 # 3. Single Training Step Demonstration
@@ -434,13 +434,11 @@ with torch.no_grad():
     new_logits = model(X)
     new_probs = torch.sigmoid(new_logits)
     new_loss = criterion(new_logits, y)
-    
+
     print(f"  New probabilities: {new_probs.detach().numpy().flatten()}")
     print(f"  New loss: {new_loss.item():.6f}")
     print(f"  Loss change: {new_loss.item() - loss.item():.6f}")
-```
-
-**Cell 5: Feature Visualization**
+```text`n#### **Cell 5: Feature Visualization**
 
 ```python
 # 4. Feature Visualization (if applicable)
@@ -448,29 +446,29 @@ with torch.no_grad():
 if hasattr(model, 'get_features'):
     print("Feature Visualization")
     print("=" * 30)
-    
+
     # Get intermediate features
     with torch.no_grad():
         features = model.get_features(X)
-    
+
     # Visualize features layer by layer
     fig, axes = plt.subplots(1, len(features), figsize=(4*len(features), 4))
     if len(features) == 1:
         axes = [axes]
-    
+
     for i, feature in enumerate(features):
         feature_np = feature.numpy()
-        
+
         # Plot feature values
         im = axes[i].imshow(feature_np, cmap='viridis', aspect='auto')
         axes[i].set_title(f'Layer {i+1} Features')
         axes[i].set_xlabel('Feature Dimension')
         axes[i].set_ylabel('Sample')
         plt.colorbar(im, ax=axes[i])
-    
+
     plt.tight_layout()
     plt.show()
-    
+
     # Feature statistics
     print("Feature Statistics:")
     for i, feature in enumerate(features):
@@ -482,9 +480,7 @@ if hasattr(model, 'get_features'):
         print(f"    Max: {feature.max().item():.4f}")
 else:
     print("Feature visualization not available for this model")
-```
-
-**Cell 6: Code Quality Analysis**
+```text`n#### **Cell 6: Code Quality Analysis**
 
 ```python
 # 5. Code Quality Analysis
@@ -513,13 +509,11 @@ print("Model Compatibility:")
 print(f"✓ Input size matches config: {hasattr(model, 'config') and model.config.input_size == config.input_size}")
 print(f"✓ Output size matches config: {hasattr(model, 'config') and model.config.output_size == config.output_size}")
 print(f"✓ Model can handle batch processing: {True}")  # Already tested above
-```
+```text`n### **Template 3: Empirical Analysis Notebook**
 
-### **Template 3: Empirical Analysis Notebook**
+#### **Template 3: Expected Structure and Sections**
 
-#### **Expected Structure and Sections**
-
-**Cell 1: Setup and Data Loading**
+#### **Cell 1: Setup and Data Loading**
 
 ```python
 # Empirical Analysis: [Model Name]
@@ -561,9 +555,7 @@ print()
 if not log_files:
     print("⚠️  No log files found. Please run training first:")
     print("   python src/train.py --experiment xor --visualize")
-```
-
-**Cell 2: Training Log Analysis**
+```text`n#### **Cell 2: Training Log Analysis**
 
 ```python
 # 1. Training Log Analysis
@@ -578,7 +570,7 @@ def parse_training_log(log_file):
         'val_acc': [],
         'lr': []
     }
-    
+
     with open(log_file, 'r') as f:
         for line in f:
             # Parse different log formats
@@ -587,23 +579,23 @@ def parse_training_log(log_file):
                 epoch_match = re.search(r'Epoch (\d+)', line)
                 train_loss_match = re.search(r'Train Loss: ([\d.]+)', line)
                 val_loss_match = re.search(r'Val Loss: ([\d.]+)', line)
-                
+
                 if epoch_match:
                     metrics['epoch'].append(int(epoch_match.group(1)))
                 if train_loss_match:
                     metrics['train_loss'].append(float(train_loss_match.group(1)))
                 if val_loss_match:
                     metrics['val_loss'].append(float(val_loss_match.group(1)))
-    
+
     return pd.DataFrame(metrics)
 
 # Load and analyze training logs
 if log_files:
     log_file = log_files[0]  # Use the most recent log file
     print(f"Analyzing log file: {log_file}")
-    
+
     df = parse_training_log(log_file)
-    
+
     if not df.empty:
         print("\nTraining Summary:")
         print(f"  Total epochs: {len(df)}")
@@ -611,10 +603,10 @@ if log_files:
         print(f"  Final val loss: {df['val_loss'].iloc[-1]:.6f}")
         print(f"  Best val loss: {df['val_loss'].min():.6f}")
         print(f"  Convergence: {'Yes' if df['val_loss'].iloc[-5:].std() < 0.01 else 'No'}")
-        
+
         # Plot training curves
         fig, axes = plt.subplots(1, 2, figsize=(15, 5))
-        
+
         # Loss curves
         axes[0].plot(df['epoch'], df['train_loss'], label='Training Loss', marker='o')
         axes[0].plot(df['epoch'], df['val_loss'], label='Validation Loss', marker='s')
@@ -623,7 +615,7 @@ if log_files:
         axes[0].set_title('Training and Validation Loss')
         axes[0].legend()
         axes[0].grid(True, alpha=0.3)
-        
+
         # Loss difference
         loss_diff = df['train_loss'] - df['val_loss']
         axes[1].plot(df['epoch'], loss_diff, label='Train - Val Loss', marker='o', color='red')
@@ -633,10 +625,10 @@ if log_files:
         axes[1].set_title('Overfitting Analysis')
         axes[1].legend()
         axes[1].grid(True, alpha=0.3)
-        
+
         plt.tight_layout()
         plt.show()
-        
+
         # Training insights
         print("\nTraining Insights:")
         if loss_diff.iloc[-1] > 0.1:
@@ -645,7 +637,7 @@ if log_files:
             print("  ⚠️  Model may be underfitting (val loss << train loss)")
         else:
             print("  ✓ Model appears to be well-balanced")
-        
+
         # Convergence analysis
         recent_losses = df['val_loss'].iloc[-10:]
         if recent_losses.std() < 0.01:
@@ -656,9 +648,7 @@ if log_files:
         print("No training metrics found in log file")
 else:
     print("No log files available for analysis")
-```
-
-**Cell 3: Visualization Analysis**
+```text`n#### **Cell 3: Visualization Analysis**
 
 ```python
 # 2. Visualization Analysis
@@ -670,39 +660,39 @@ print("=" * 40)
 def analyze_visualization(plot_file):
     """Analyze a specific visualization file."""
     plot_name = plot_file.stem
-    
+
     print(f"\nAnalyzing: {plot_name}")
     print("-" * 30)
-    
+
     # Display the plot
     from IPython.display import Image, display
     display(Image(str(plot_file)))
-    
+
     # Analysis based on plot type
     if 'loss_curve' in plot_name:
         print("📊 Loss Curve Analysis:")
         print("  • Shows training and validation loss over epochs")
         print("  • Look for: convergence, overfitting, instability")
         print("  • Ideal: smooth decrease, train/val losses close")
-        
+
     elif 'decision_boundary' in plot_name:
         print("🎯 Decision Boundary Analysis:")
         print("  • Shows how the model separates different classes")
         print("  • Look for: smooth boundaries, correct classification")
         print("  • Ideal: clear separation between classes")
-        
+
     elif 'confusion_matrix' in plot_name:
         print("📈 Confusion Matrix Analysis:")
         print("  • Shows prediction accuracy for each class")
         print("  • Look for: high diagonal values, low off-diagonal")
         print("  • Ideal: mostly correct predictions")
-        
+
     elif 'feature_importance' in plot_name:
         print("🔍 Feature Importance Analysis:")
         print("  • Shows which input features are most important")
         print("  • Look for: relevant features have high importance")
         print("  • Ideal: matches domain knowledge")
-    
+
     return plot_name
 
 # Analyze all available plots
@@ -719,9 +709,7 @@ else:
     print("No visualization files found")
     print("To generate visualizations, run:")
     print("  python src/train.py --experiment xor --visualize")
-```
-
-**Cell 4: Model Performance Evaluation**
+```text`n#### **Cell 4: Model Performance Evaluation**
 
 ```python
 # 3. Model Performance Evaluation
@@ -736,20 +724,20 @@ if model_files:
     sys.path.append('../src')
     from model import ModelClass
     from config import get_config
-    
+
     # Load configuration and model
     config = get_config(EXPERIMENT_NAME)
     model = ModelClass(config)
-    
+
     # Load trained weights
     checkpoint = torch.load(model_files[0], map_location='cpu')
     model.load_state_dict(checkpoint)
     model.eval()
-    
+
     print(f"✓ Loaded model: {model.__class__.__name__}")
     print(f"✓ Model parameters: {sum(p.numel() for p in model.parameters()):,}")
     print()
-    
+
     # Test on known data
     if EXPERIMENT_NAME == 'xor':
         # XOR test cases
@@ -759,14 +747,14 @@ if model_files:
             ([1, 0], 1),
             ([1, 1], 0)
         ]
-        
+
         print("XOR Test Results:")
         print("Input  | Target | Predicted | Correct")
         print("-------|--------|-----------|--------")
-        
+
         correct = 0
         total = len(test_cases)
-        
+
         with torch.no_grad():
             for inputs, target in test_cases:
                 x = torch.tensor([inputs], dtype=torch.float32)
@@ -774,20 +762,20 @@ if model_files:
                 prediction = torch.sigmoid(output).item()
                 predicted_class = 1 if prediction > 0.5 else 0
                 is_correct = predicted_class == target
-                
+
                 print(f"{inputs} | {target:>6} | {prediction:>9.4f} | {'✓' if is_correct else '✗'}")
-                
+
                 if is_correct:
                     correct += 1
-        
+
         accuracy = correct / total
         print(f"\nAccuracy: {accuracy:.1%} ({correct}/{total})")
-        
+
         if accuracy >= 0.9:
             print("✅ Model successfully learned XOR function!")
         else:
             print("❌ Model failed to learn XOR function")
-    
+
     else:
         print(f"Performance evaluation for {EXPERIMENT_NAME} not implemented")
         print("Model loaded successfully and ready for testing")
@@ -796,9 +784,7 @@ else:
     print("No model files found")
     print("Train a model first with:")
     print("  python src/train.py --experiment xor")
-```
-
-**Cell 5: Strengths and Weaknesses Analysis**
+```text`n#### **Cell 5: Strengths and Weaknesses Analysis**
 
 ```python
 # 4. Strengths and Weaknesses Analysis
@@ -817,19 +803,19 @@ if EXPERIMENT_NAME == 'xor':
     if 'correct' in locals() and correct >= 3:  # From previous cell
         strengths.append("Successfully learns non-linear XOR function")
         strengths.append("Demonstrates power of hidden layers with non-linear activations")
-    
+
     if 'df' in locals() and not df.empty:
         final_loss = df['val_loss'].iloc[-1]
         if final_loss < 0.1:
             strengths.append(f"Achieves low validation loss ({final_loss:.4f})")
-        
+
         if len(df) < 100:
             strengths.append("Converges quickly (few epochs needed)")
 
 elif EXPERIMENT_NAME == 'iris_multiclass':
     strengths.append("Handles multi-class classification well")
     strengths.append("Works on real-world dataset")
-    
+
 elif EXPERIMENT_NAME == 'mnist_multiclass':
     strengths.append("Scales to high-dimensional input (784 features)")
     strengths.append("Handles complex multi-class problem (10 classes)")
@@ -871,9 +857,7 @@ observations.extend([
 
 for i, observation in enumerate(observations, 1):
     print(f"  {i}. {observation}")
-```
-
-**Cell 6: Next Steps and Conclusions**
+```text`n#### **Cell 6: Next Steps and Conclusions**
 
 ```python
 # 5. Next Steps and Conclusions
@@ -946,9 +930,7 @@ for i, recommendation in enumerate(recommendations, 1):
 print("\n" + "="*40)
 print("Analysis Complete!")
 print("="*40)
-```
-
----
+```text`n---
 
 ## **4. Notebook Quality Standards**
 
@@ -990,18 +972,16 @@ def validate_notebook(notebook_path):
         'outputs_cleared': False,
         'follows_template': False
     }
-    
+
     # Implementation would check:
     # 1. All cells execute without errors
     # 2. Markdown cells provide explanations
     # 3. Required imports are present
     # 4. Outputs are cleared for git
     # 5. Follows expected template structure
-    
-    return checks
-```
 
-### **Content Validation Standards**
+    return checks
+```text`n### **Content Validation Standards**
 
 * **Theory Notebooks**: Mathematical accuracy, clear explanations
 * **Code Notebooks**: Working imports, successful execution
@@ -1010,18 +990,18 @@ def validate_notebook(notebook_path):
 ### **Automated Validation**
 
 ```powershell
-# Notebook validation script
+# Notebook validation script (2)
 function Test-Notebooks {
     param([string]$ModelPath)
-    
+
     $notebooks = Get-ChildItem -Path "$ModelPath\notebooks" -Filter "*.ipynb"
-    
+
     foreach ($notebook in $notebooks) {
         Write-Host "Validating $($notebook.Name)..."
-        
+
         # Check if notebook runs
         jupyter nbconvert --to notebook --execute $notebook.FullName
-        
+
         if ($LASTEXITCODE -eq 0) {
             Write-Host "✓ $($notebook.Name) executes successfully"
         } else {
@@ -1029,9 +1009,7 @@ function Test-Notebooks {
         }
     }
 }
-```
-
----
+```text`n---
 
 ## **6. Best Practices Summary**
 
@@ -1064,7 +1042,9 @@ function Test-Notebooks {
 
 ## **7. "Conceptual" Models**
 
-For models designated as "Conceptual" in your project charter, only the 01_Theory_and_Intuition.ipynb notebook needs to be created. This captures the essential learning without the overhead of a full implementation and analysis.
+For models designated as "Conceptual" in your project charter, only the 01_Theory_and_Intuition.ipynb
+notebook needs to be created. This captures the essential learning without the overhead of a full
+implementation and analysis.
 
 ### **Conceptual Model Template**
 
@@ -1076,4 +1056,6 @@ Follow the Theory and Intuition template but add:
 
 ---
 
-This comprehensive notebook strategy ensures that each model implementation includes rich, educational documentation that serves both learning and reference purposes while maintaining high quality standards throughout the project.
+This comprehensive notebook strategy ensures that each model implementation includes rich,
+educational documentation that serves both learning and reference purposes while maintaining high
+quality standards throughout the project.

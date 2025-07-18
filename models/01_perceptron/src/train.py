@@ -20,14 +20,25 @@ from engine.trainer import Trainer
 from engine.base import DataSplit
 
 # Import model-specific components
-from .config import (
-    get_training_config,
-    get_model_config,
-    get_dataset_config,
-    print_config_summary,
-)
-from .model import create_perceptron
-from .constants import MODEL_NAME, ALL_EXPERIMENTS
+try:
+    from .config import (
+        get_training_config,
+        get_model_config,
+        get_dataset_config,
+        print_config_summary,
+    )
+    from .model import Perceptron
+    from .constants import MODEL_NAME, ALL_EXPERIMENTS
+except ImportError:
+    # Fallback for direct imports (e.g., during testing)
+    from config import (
+        get_training_config,
+        get_model_config,
+        get_dataset_config,
+        print_config_summary,
+    )
+    from model import Perceptron
+    from constants import MODEL_NAME, ALL_EXPERIMENTS
 
 # Optional plotting imports (handled gracefully if not installed)
 try:
@@ -277,10 +288,22 @@ def _load_and_prepare_data(logger, dataset_config):
     return x_features, y_target
 
 
-def _create_model_and_trainer(logger, model_config, training_config):
+def _create_model_and_trainer(logger, model_config: dict, training_config: dict):
     """Create the model and trainer instances."""
     logger.info("Creating Perceptron model...")
-    model = create_perceptron(model_config)
+
+    # Filter model_config to only include Perceptron-specific parameters
+    perceptron_params = {
+        'input_size': model_config.get('input_size', 2),
+        'learning_rate': model_config.get('learning_rate', 0.1),
+        'max_epochs': model_config.get('max_epochs', 100),
+        'tolerance': model_config.get('tolerance', 1e-6),
+        'activation': model_config.get('activation', 'step'),
+        'init_method': model_config.get('init_method', 'zeros'),
+        'random_state': model_config.get('random_state', None)
+    }
+
+    model = Perceptron(**perceptron_params)
     model_info = model.get_model_info()
     logger.info("Model created: %d parameters", model_info["total_parameters"])
     logger.info(

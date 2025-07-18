@@ -91,10 +91,10 @@ class TestPerceptronSmoke:
     def test_perceptron_training_smoke(self):
         """Test that Perceptron can be trained."""
         # Create simple data
-        X = torch.tensor([[1.0, 1.0], [2.0, 2.0], [-1.0, -1.0], [-2.0, -2.0]], dtype=torch.float32)
+        x = torch.tensor([[1.0, 1.0], [2.0, 2.0], [-1.0, -1.0], [-2.0, -2.0]], dtype=torch.float32)
         y = torch.tensor([1.0, 1.0, 0.0, 0.0], dtype=torch.float32)
         
-        data = DataSplit(x_train=X, y_train=y, x_val=None, y_val=None, x_test=None, y_test=None)
+        data = DataSplit(x_train=x, y_train=y, x_val=None, y_val=None, x_test=None, y_test=None)
         
         # Create model
         model = Perceptron(input_size=2, activation='step', learning_rate=0.1)

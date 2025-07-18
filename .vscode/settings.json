@@ -1,7 +1,7 @@
 {
     // Python Configuration - Using perceptron virtual environment for project isolation
     // All shared packages (utils, data_utils, engine, plotting) installed via 'pip install -e ..'
-    "python.defaultInterpreterPath": "./models/01_perceptron/.venv/Scripts/python.exe",
+    "python.defaultInterpreterPath": "${workspaceFolder}/models/01_perceptron/.venv/Scripts/python.exe",
     "python.terminal.activateEnvironment": true,
     // Python Path Configuration for Language Server
     "python.analysis.extraPaths": [

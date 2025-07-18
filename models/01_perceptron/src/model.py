@@ -18,7 +18,11 @@ from engine.base import BaseModel
 from utils import get_logger, set_random_seed
 
 # Import model-specific components
-from .constants import AUTHORS, MODEL_NAME, MODEL_VERSION, YEAR_INTRODUCED
+try:
+    from .constants import AUTHORS, MODEL_NAME, MODEL_VERSION, YEAR_INTRODUCED
+except ImportError:
+    # Fallback for direct imports (e.g., during testing)
+    from constants import AUTHORS, MODEL_NAME, MODEL_VERSION, YEAR_INTRODUCED
 
 
 class Perceptron(nn.Module, BaseModel):  # pylint: disable=too-many-instance-attributes
@@ -56,7 +60,7 @@ class Perceptron(nn.Module, BaseModel):  # pylint: disable=too-many-instance-att
         input_size: int,
         learning_rate: float = 0.1,  # Changed from DEFAULT_LEARNING_RATE
         max_epochs: int = 100,  # Changed from DEFAULT_MAX_EPOCHS
-        tolerance: float = 0.01,  # Changed from DEFAULT_TOLERANCE
+        tolerance: float = 1e-6,  # Changed from DEFAULT_TOLERANCE
         activation: str = "step",  # Changed from DEFAULT_ACTIVATION
         init_method: str = "zeros",  # Changed from DEFAULT_INIT_METHOD
         random_state: Optional[int] = None,
@@ -238,6 +242,7 @@ class Perceptron(nn.Module, BaseModel):  # pylint: disable=too-many-instance-att
             "original_author": AUTHORS[0] if AUTHORS else "Frank Rosenblatt",
             # Architecture
             "input_size": self.input_size,
+            "hidden_size": None,  # Perceptron has no hidden layers
             "output_size": 1,
             "activation": self.activation,
             "total_parameters": total_params,
@@ -255,6 +260,91 @@ class Perceptron(nn.Module, BaseModel):  # pylint: disable=too-many-instance-att
             "weights": self.linear.weight.data.cpu().numpy().tolist(),
             "bias": self.linear.bias.data.cpu().numpy().tolist(),
         }
+
+    def save_checkpoint(
+        self,
+        filepath: str,
+        epoch: Optional[int] = None,
+        optimizer_state: Optional[Dict[str, Any]] = None,
+    ):
+        """
+        Save model checkpoint.
+
+        Args:
+            filepath (str): Path to save checkpoint
+            epoch (int, optional): Current epoch number
+            optimizer_state (dict, optional): Optimizer state dict
+        """
+        checkpoint = {
+            "model_state_dict": self.state_dict(),
+            "model_info": self.get_model_info(),
+            "epoch": epoch,
+        }
+
+        if optimizer_state is not None:
+            checkpoint["optimizer_state_dict"] = optimizer_state
+
+        torch.save(checkpoint, filepath)
+        self.logger.info("Saved checkpoint to %s", filepath)
+
+    @classmethod
+    def load_from_checkpoint(cls, filepath: str, **model_kwargs):
+        """
+        Load model from checkpoint.
+
+        Args:
+            filepath (str): Path to checkpoint file
+            **model_kwargs: Additional arguments for model initialization
+
+        Returns:
+            Perceptron: Loaded model instance
+        """
+        checkpoint = torch.load(filepath, map_location="cpu")
+
+        # Extract model parameters from checkpoint
+        model_info = checkpoint.get("model_info", {})
+        input_size = model_info.get("input_size", model_kwargs.get("input_size", 2))
+        learning_rate = model_kwargs.get("learning_rate", 0.1)
+        max_epochs = model_kwargs.get("max_epochs", 100)
+        tolerance = model_kwargs.get("tolerance", 0.01)
+        activation = model_kwargs.get("activation", "step")
+        init_method = model_kwargs.get("init_method", "zeros")
+        random_state = model_kwargs.get("random_state", None)
+
+        # Create model instance
+        model = cls(
+            input_size=input_size,
+            learning_rate=learning_rate,
+            max_epochs=max_epochs,
+            tolerance=tolerance,
+            activation=activation,
+            init_method=init_method,
+            random_state=random_state,
+            **{
+                k: v
+                for k, v in model_kwargs.items()
+                if k
+                not in [
+                    "input_size",
+                    "learning_rate",
+                    "max_epochs",
+                    "tolerance",
+                    "activation",
+                    "init_method",
+                    "random_state",
+                ]
+            },
+        )
+
+        # Load state dict
+        model.load_state_dict(checkpoint["model_state_dict"])
+
+        # Restore training state
+        model.is_fitted = True
+        model.training_history["epochs_trained"] = checkpoint.get("epoch", 0)
+
+        model.logger.info("Loaded model from %s", filepath)
+        return model
 
     def save_model(self, filepath: str):
         """

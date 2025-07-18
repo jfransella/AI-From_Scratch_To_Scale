@@ -126,14 +126,14 @@ class TestPerceptronTrainingPipeline:
         dataset_config = get_dataset_config(self.test_experiment)
         
         # Load data
-        X, y = load_dataset(
+        x, y = load_dataset(
             dataset_config["dataset_name"], 
             dataset_config["dataset_params"]
         )
         
         # Convert to tensors
-        if not isinstance(X, torch.Tensor):
-            X = torch.tensor(X, dtype=torch.float32)
+        if not isinstance(x, torch.Tensor):
+            x = torch.tensor(x, dtype=torch.float32)
         if not isinstance(y, torch.Tensor):
             y = torch.tensor(y, dtype=torch.float32)
         
@@ -141,18 +141,18 @@ class TestPerceptronTrainingPipeline:
         model = Perceptron(**model_config)
         
         # Create simple data splits for testing
-        n_samples = len(X)
+        n_samples = len(x)
         train_size = int(0.8 * n_samples)
         
-        X_train, y_train = X[:train_size], y[:train_size]
-        X_val, y_val = X[train_size:], y[train_size:]
+        x_train, y_train = x[:train_size], y[:train_size]
+        x_val, y_val = x[train_size:], y[train_size:]
         
         # Test single training step
         model.train()
         optimizer = torch.optim.SGD(model.parameters(), lr=training_config.learning_rate)
         
         # Forward pass
-        outputs = model.forward(X_train)
+        outputs = model.forward(x_train)
         loss = model.get_loss(outputs, y_train)
         
         # Backward pass
@@ -167,11 +167,11 @@ class TestPerceptronTrainingPipeline:
         # Test evaluation
         model.eval()
         with torch.no_grad():
-            val_outputs = model.forward(X_val)
+            val_outputs = model.forward(x_val)
             val_loss = model.get_loss(val_outputs, y_val)
             
             # Make predictions
-            predictions = model.predict(X_val)
+            predictions = model.predict(x_val)
             
             # Calculate accuracy
             accuracy = (predictions == y_val).float().mean()
@@ -216,23 +216,23 @@ class TestPerceptronTrainingPipeline:
         dataset_config = get_dataset_config(self.test_experiment)
         
         # Load data
-        X, y = load_dataset(
+        x, y = load_dataset(
             dataset_config["dataset_name"], 
             dataset_config["dataset_params"]
         )
         
         # Convert to tensors
-        if not isinstance(X, torch.Tensor):
-            X = torch.tensor(X, dtype=torch.float32)
+        if not isinstance(x, torch.Tensor):
+            x = torch.tensor(x, dtype=torch.float32)
         if not isinstance(y, torch.Tensor):
             y = torch.tensor(y, dtype=torch.float32)
         
         # Create data splits
-        n_samples = len(X)
+        n_samples = len(x)
         train_size = int(0.8 * n_samples)
         
-        X_train, y_train = X[:train_size], y[:train_size]
-        X_val, y_val = X[train_size:], y[train_size:]
+        x_train, y_train = x[:train_size], y[:train_size]
+        x_val, y_val = x[train_size:], y[train_size:]
         
         # Create model
         model = Perceptron(**model_config)
@@ -265,14 +265,14 @@ class TestPerceptronEvaluationPipeline:
         model = Perceptron(**model_config)
         
         # Create test data
-        X_test = torch.randn(100, model_config["input_size"])
+        x_test = torch.randn(100, model_config["input_size"])
         y_test = torch.randint(0, 2, (100,)).float()
         
         # Make predictions
         model.eval()
         with torch.no_grad():
-            predictions = model.predict(X_test)
-            probabilities = model.predict_proba(X_test)
+            predictions = model.predict(x_test)
+            probabilities = model.predict_proba(x_test)
         
         # Compute metrics manually
         accuracy = (predictions == y_test).float().mean()
@@ -295,13 +295,13 @@ class TestPerceptronEvaluationPipeline:
         loaded_model = Perceptron.load_model(checkpoint_path)
         
         # Create test data
-        X_test = torch.randn(50, model_config["input_size"])
+        x_test = torch.randn(50, model_config["input_size"])
         y_test = torch.randint(0, 2, (50,)).float()
         
         # Evaluate loaded model
         loaded_model.eval()
         with torch.no_grad():
-            predictions = loaded_model.predict(X_test)
+            predictions = loaded_model.predict(x_test)
             accuracy = (predictions == y_test).float().mean()
         
         # Verify evaluation works

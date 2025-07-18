@@ -331,6 +331,7 @@ class MLP(nn.Module):
             self.training_history["loss"].append(loss.item())
             self.training_history["accuracy"].append(train_accuracy)
             self.training_history["epoch"].append(epoch)
+            self.training_history["epochs_trained"] = epoch + 1
 
             # Check convergence
             if loss.item() < convergence_threshold:
@@ -498,7 +499,7 @@ class MLP(nn.Module):
         return {
             "model_name": "MLP",
             "input_size": self.input_size,
-            "hidden_layers": self.hidden_layers,
+            "hidden_size": self.hidden_layers[0] if self.hidden_layers else None,
             "output_size": self.output_size,
             "activation": self.activation_name,
             "weight_init": self.weight_init,
@@ -506,8 +507,94 @@ class MLP(nn.Module):
             "trainable_parameters": trainable_params,
             "architecture": str(self),
             "is_fitted": self.is_fitted,
-            "epochs_trained": len(self.training_history.get("epoch", [])),
+            "epochs_trained": self.training_history.get("epochs_trained", 0),
         }
+
+    def save_checkpoint(
+        self,
+        filepath: str,
+        epoch: Optional[int] = None,
+        optimizer_state: Optional[Dict[str, Any]] = None,
+    ):
+        """
+        Save model checkpoint.
+
+        Args:
+            filepath (str): Path to save checkpoint
+            epoch (int, optional): Current epoch number
+            optimizer_state (dict, optional): Optimizer state dict
+        """
+        checkpoint = {
+            "model_state_dict": self.state_dict(),
+            "model_info": self.get_model_info(),
+            "epoch": epoch,
+        }
+
+        if optimizer_state is not None:
+            checkpoint["optimizer_state_dict"] = optimizer_state
+
+        torch.save(checkpoint, filepath)
+        self.logger.info("Saved checkpoint to %s", filepath)
+
+    @classmethod
+    def load_from_checkpoint(cls, filepath: str, **model_kwargs):
+        """
+        Load model from checkpoint.
+
+        Args:
+            filepath (str): Path to checkpoint file
+            **model_kwargs: Additional arguments for model initialization
+
+        Returns:
+            MLP: Loaded model instance
+        """
+        checkpoint = torch.load(filepath, map_location="cpu")
+
+        # Extract model parameters from checkpoint
+        model_info = checkpoint.get("model_info", {})
+        input_size = model_info.get("input_size", model_kwargs.get("input_size", 2))
+        hidden_layers = model_kwargs.get("hidden_layers", [4])  # Default for MLP
+        output_size = model_info.get("output_size", model_kwargs.get("output_size", 1))
+        activation = model_info.get(
+            "activation", model_kwargs.get("activation", "sigmoid")
+        )
+        weight_init = model_info.get(
+            "weight_init", model_kwargs.get("weight_init", "xavier_normal")
+        )
+        device = model_kwargs.get("device", "cpu")
+
+        # Create model instance
+        model = cls(
+            input_size=input_size,
+            hidden_layers=hidden_layers,
+            output_size=output_size,
+            activation=activation,
+            weight_init=weight_init,
+            device=device,
+            **{
+                k: v
+                for k, v in model_kwargs.items()
+                if k
+                not in [
+                    "input_size",
+                    "hidden_layers",
+                    "output_size",
+                    "activation",
+                    "weight_init",
+                    "device",
+                ]
+            },
+        )
+
+        # Load state dict
+        model.load_state_dict(checkpoint["model_state_dict"])
+
+        # Restore training state
+        model.is_fitted = True
+        model.training_history["epochs_trained"] = checkpoint.get("epoch", 0)
+
+        model.logger.info("Loaded model from %s", filepath)
+        return model
 
     def visualize_decision_boundary(
         self, x: torch.Tensor, _y: torch.Tensor, resolution: int = 100

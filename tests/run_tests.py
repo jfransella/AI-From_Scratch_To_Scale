@@ -45,6 +45,7 @@ def run_tests():
                     ],
                     capture_output=True,
                     text=True,
+                    check=False,
                     timeout=300  # 5 minute timeout
                 )
                 
@@ -127,6 +128,7 @@ def run_specific_test(test_path):
                 "--tb=long",
                 "--color=yes"
             ],
+            check=False,
             timeout=300
         )
         return result.returncode

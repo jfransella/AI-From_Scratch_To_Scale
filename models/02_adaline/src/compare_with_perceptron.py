@@ -18,7 +18,7 @@ sys.path.append(str(Path(__file__).parent))
 
 from config import get_experiment_config, validate_config
 from model import create_adaline
-from constants import get_experiment_info
+from data_loader import load_adaline_eval_data
 
 
 def create_simple_perceptron(input_size=2):
@@ -91,71 +91,10 @@ def create_simple_perceptron(input_size=2):
     return SimplePerceptron()
 
 
+
 def load_comparison_data(dataset_name: str, n_samples: int = 100):
     """Load dataset using unified data_utils for comparison."""
-    try:
-        from data_utils.datasets import load_dataset
-        
-        # Load dataset
-        X, y = load_dataset(dataset_name)
-        
-        # Convert to torch tensors
-        x_data = torch.tensor(X, dtype=torch.float32)
-        y_data = torch.tensor(y, dtype=torch.float32).unsqueeze(1)
-        
-        return x_data, y_data
-        
-    except ImportError:
-        print("Warning: data_utils not available, using fallback dataset generation")
-        return generate_fallback_comparison_data(dataset_name, n_samples)
-    except Exception as e:
-        print(f"Error loading dataset {dataset_name}: {e}")
-        print("Falling back to simple data generation")
-        return generate_fallback_comparison_data(dataset_name, n_samples)
-
-
-def generate_fallback_comparison_data(dataset_type: str, n_samples: int = 100):
-    """Generate fallback data for comparison."""
-    torch.manual_seed(42)  # For reproducible results
-
-    if dataset_type == "simple_linear":
-        x = torch.randn(n_samples, 2)
-        y = (x[:, 0] + x[:, 1] > 0).float().unsqueeze(1)
-        return x, y
-
-    elif dataset_type == "linearly_separable":
-        x = torch.randn(n_samples, 2)
-        y = (2 * x[:, 0] + x[:, 1] > 1).float().unsqueeze(1)
-        return x, y
-
-    elif dataset_type == "noisy_linear":
-        x = torch.randn(n_samples, 2)
-        y = (x[:, 0] + x[:, 1] > 0).float().unsqueeze(1)
-        # Add noise
-        noise = 0.1 * torch.randn_like(y)
-        y = torch.clamp(y + noise, 0, 1)
-        return x, y
-    
-    elif dataset_type == "iris_binary":
-        # Simple 2D data as fallback for Iris
-        x = torch.randn(n_samples, 2)
-        y = (x[:, 0] + x[:, 1] > 0).float().unsqueeze(1)
-        return x, y
-    
-    elif dataset_type == "mnist_subset":
-        # Simple 2D data as fallback for MNIST
-        x = torch.randn(n_samples, 2)
-        y = (x[:, 0] + x[:, 1] > 0).float().unsqueeze(1)
-        return x, y
-    
-    elif dataset_type == "xor_problem":
-        # XOR-like data
-        x = torch.randn(n_samples, 2)
-        y = ((x[:, 0] > 0) != (x[:, 1] > 0)).float().unsqueeze(1)
-        return x, y
-
-    else:
-        raise ValueError(f"Unknown dataset type: {dataset_type}")
+    return load_adaline_eval_data(dataset_name)
 
 
 def run_comparison(experiment_name: str, epochs: int = 100, visualize: bool = False):

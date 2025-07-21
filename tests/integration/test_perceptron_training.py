@@ -67,7 +67,10 @@ class TestPerceptronTrainingPipeline:
         
         # Verify data properties
         assert X.dim() == 2, "Input should be 2D"
-        assert y.dim() == 1, "Target should be 1D"
+        # Note: New data_utils returns 2D targets for consistency [batch_size, 1]
+        assert y.dim() in [1, 2], "Target should be 1D or 2D"
+        if y.dim() == 2:
+            assert y.shape[1] == 1, "2D targets should have shape [batch_size, 1]"
         assert X.shape[0] == y.shape[0], "Number of samples should match"
         assert X.shape[1] == dataset_config["input_size"], "Input size should match"
         

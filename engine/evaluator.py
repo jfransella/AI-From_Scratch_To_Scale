@@ -184,9 +184,11 @@ class Evaluator:
         y_true = y.cpu().numpy()
         y_pred = predictions.cpu().numpy()
         
-        # Handle different prediction shapes
+        # Handle different prediction shapes - ensure both arrays have same dimensions
         if y_pred.ndim == 2 and y_pred.shape[1] == 1:
             y_pred = y_pred.squeeze()
+        if y_true.ndim == 2 and y_true.shape[1] == 1:
+            y_true = y_true.squeeze()
         
         # Compute metrics
         metrics = self._compute_metrics(y_true, y_pred)

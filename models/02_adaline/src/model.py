@@ -2,29 +2,34 @@
 ADALINE Model Implementation.
 
 Implementation of the Adaptive Linear Neuron (ADALINE) using the Delta Rule
-learning algorithm. Follows the Simple implementation pattern.
+learning algorithm. Follows NumPy-based implementation for educational clarity.
 """
 
-import torch
-import torch.nn as nn
-from typing import Dict, Any
+import numpy as np
+from typing import Dict, Any, Optional
 import logging
 
-from constants import MODEL_NAME, YEAR_INTRODUCED, AUTHORS
-from config import ADALINEConfig
+try:
+    from .constants import MODEL_NAME, YEAR_INTRODUCED, AUTHORS
+    from .config import ADALINEConfig
+except ImportError:
+    # For direct execution
+    from constants import MODEL_NAME, YEAR_INTRODUCED, AUTHORS
+    from config import ADALINEConfig
 
 logger = logging.getLogger(__name__)
 
 
-class ADALINE(nn.Module):
+class ADALINE:
     """
-    ADALINE (Adaptive Linear Neuron) implementation.
+    ADALINE (Adaptive Linear Neuron) implementation using NumPy.
     
     Key Features:
     - Linear activation (no step function)
     - Delta Rule learning algorithm
     - Continuous error-based updates
     - Mean squared error loss
+    - Pure NumPy implementation for educational clarity
     
     Historical Context:
     - Introduced in 1960 by Bernard Widrow and Ted Hoff
@@ -36,13 +41,11 @@ class ADALINE(nn.Module):
     """
     
     def __init__(self, config: ADALINEConfig):
-        super().__init__()
         self.config = config
         
-        # Linear layer (no activation function)
-        self.linear = nn.Linear(config.input_size, config.output_size, bias=True)
-        
-        # Initialize weights with small random values
+        # Initialize weights and bias
+        self.weights = None
+        self.bias = None
         self._initialize_weights()
         
         # Training state
@@ -57,38 +60,42 @@ class ADALINE(nn.Module):
     
     def _initialize_weights(self):
         """Initialize weights with small random values."""
-        with torch.no_grad():
-            self.linear.weight.normal_(0, 0.1)
-            self.linear.bias.zero_()
+        # Initialize weights with small random values
+        self.weights = np.random.normal(0, 0.1, (self.config.input_size,))
+        self.bias = 0.0
     
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: np.ndarray) -> np.ndarray:
         """
         Forward pass (linear output).
         
         Args:
-            x: Input tensor of shape (batch_size, input_size)
+            x: Input array of shape (batch_size, input_size)
             
         Returns:
             Linear output (no activation applied)
         """
-        return self.linear(x)
+        # Ensure x is 2D
+        if x.ndim == 1:
+            x = x.reshape(1, -1)
+        
+        # Linear transformation: y = w^T * x + b
+        return np.dot(x, self.weights) + self.bias
     
-    def predict(self, x: torch.Tensor) -> torch.Tensor:
+    def predict(self, x: np.ndarray) -> np.ndarray:
         """
-        Make predictions (binary classification via sign).
+        Make predictions (binary classification).
         
         Args:
-            x: Input tensor
+            x: Input array
             
         Returns:
             Binary predictions (0 or 1)
         """
-        with torch.no_grad():
-            linear_output = self.forward(x)
-            # Convert to binary: positive -> 1, negative -> 0
-            return (linear_output > 0).float()
+        linear_output = self.forward(x)
+        # Convert to binary: > 0.5 -> 1, <= 0.5 -> 0
+        return (linear_output > 0.5).astype(float)
     
-    def fit(self, x_data: torch.Tensor, y_target: torch.Tensor) -> Dict[str, Any]:
+    def fit(self, x_data: np.ndarray, y_target: np.ndarray) -> Dict[str, Any]:
         """
         Train using Delta Rule algorithm.
         
@@ -99,39 +106,47 @@ class ADALINE(nn.Module):
         Returns:
             Training results dictionary
         """
-        self.train()
+        # Ensure data is in correct format
+        if x_data.ndim == 1:
+            x_data = x_data.reshape(-1, 1)
+        if y_target.ndim == 1:
+            y_target = y_target.reshape(-1, 1)
         
         # Delta Rule training loop
         for epoch in range(self.config.epochs):
-            # Forward pass
-            linear_output = self.forward(x_data)
+            total_error = 0
             
-            # Compute error (Delta Rule)
-            error = y_target - linear_output
-            mse = torch.mean(error ** 2)
+            # Process each sample individually (Delta Rule)
+            for i in range(len(x_data)):
+                # Forward pass for single sample
+                x_i = x_data[i:i+1]  # Keep 2D shape
+                y_i = y_target[i:i+1]
+                
+                # Forward pass
+                linear_output = self.forward(x_i)
+                
+                # Compute error for this sample
+                error = y_i.flatten()[0] - linear_output[0]
+                total_error += error ** 2
+                
+                # Delta Rule weight update for this sample
+                # w += η * error * x
+                self.weights += self.config.learning_rate * error * x_i.flatten()
+                self.bias += self.config.learning_rate * error
             
-            # Delta Rule weight update
-            with torch.no_grad():
-                # Weight update: w = w + η * error * input
-                # For each sample: w += η * error[i] * x[i]
-                for i in range(len(x_data)):
-                    error_i = error[i]
-                    x_i = x_data[i]
-                    
-                    # Update weights: w += η * error * x
-                    self.linear.weight += self.config.learning_rate * error_i * x_i.unsqueeze(0)
-                    self.linear.bias += self.config.learning_rate * error_i
+            # Calculate MSE for this epoch
+            mse = total_error / len(x_data)
             
             # Record training history
-            self.training_history["loss"].append(mse.item())
-            self.training_history["mse"].append(mse.item())
+            self.training_history["loss"].append(mse)
+            self.training_history["mse"].append(mse)
             
             # Log progress
             if epoch % self.config.log_interval == 0:
-                logger.info(f"Epoch {epoch}: MSE = {mse.item():.6f}")
+                logger.info(f"Epoch {epoch}: MSE = {mse:.6f}")
             
             # Check convergence
-            if mse.item() < self.config.tolerance:
+            if mse < self.config.tolerance:
                 logger.info(f"Converged at epoch {epoch}")
                 break
         
@@ -139,8 +154,8 @@ class ADALINE(nn.Module):
         self.is_fitted = True
         
         return {
-            "converged": mse.item() < self.config.tolerance,
-            "final_mse": mse.item(),
+            "converged": mse < self.config.tolerance,
+            "final_mse": mse,
             "epochs_trained": epoch + 1
         }
     
@@ -153,7 +168,7 @@ class ADALINE(nn.Module):
             "architecture": "Single linear layer",
             "activation": "Linear (none)",
             "learning_rule": "Delta Rule (LMS)",
-            "parameters": sum(p.numel() for p in self.parameters()),
+            "parameters": len(self.weights) + 1,  # weights + bias
             "is_fitted": self.is_fitted,
             "config": self.config
         }

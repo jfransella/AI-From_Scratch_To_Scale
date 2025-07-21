@@ -86,7 +86,11 @@ def plot_adaline_decision_boundary(model, x_data: torch.Tensor, y_data: torch.Te
     
     # Convert to numpy for plotting
     x_np = x_data.detach().cpu().numpy()
-    y_np = y_data.detach().cpu().numpy().flatten()
+    # Ensure y_data is 1D for plotting
+    if y_data.dim() == 2:
+        y_np = y_data.detach().cpu().numpy().flatten()
+    else:
+        y_np = y_data.detach().cpu().numpy()
     
     # Create a simple wrapper to make model compatible with plotting function
     class ADALINEWrapper:
@@ -98,6 +102,9 @@ def plot_adaline_decision_boundary(model, x_data: torch.Tensor, y_data: torch.Te
                 x = torch.tensor(x, dtype=torch.float32)
             with torch.no_grad():
                 linear_output = self.model.forward(x)
+                # Ensure output is 1D
+                if linear_output.dim() == 2:
+                    linear_output = linear_output.squeeze(1)
                 return (linear_output > 0).float()
         
         def predict_proba(self, x):
@@ -105,6 +112,9 @@ def plot_adaline_decision_boundary(model, x_data: torch.Tensor, y_data: torch.Te
                 x = torch.tensor(x, dtype=torch.float32)
             with torch.no_grad():
                 linear_output = self.model.forward(x)
+                # Ensure output is 1D
+                if linear_output.dim() == 2:
+                    linear_output = linear_output.squeeze(1)
                 # Convert linear output to probabilities using sigmoid
                 prob_positive = torch.sigmoid(linear_output)
                 prob_negative = 1 - prob_positive
@@ -147,7 +157,11 @@ def plot_delta_rule_evolution(model, x_data: torch.Tensor, y_data: torch.Tensor,
     axes = axes.flatten()
     
     x_np = x_data.detach().cpu().numpy()
-    y_np = y_data.detach().cpu().numpy().flatten()
+    # Ensure y_data is 1D for plotting
+    if y_data.dim() == 2:
+        y_np = y_data.detach().cpu().numpy().flatten()
+    else:
+        y_np = y_data.detach().cpu().numpy()
     
     # For demonstration, create multiple snapshots with different noise levels
     # In a full implementation, these would be actual training snapshots
@@ -156,10 +170,18 @@ def plot_delta_rule_evolution(model, x_data: torch.Tensor, y_data: torch.Tensor,
         # Simulate training progress by adding noise to weights
         progress = epoch / max(snapshots) if max(snapshots) > 0 else 1.0
         
-        ax.scatter(x_np[y_np == 0, 0], x_np[y_np == 0, 1], 
-                  c='blue', alpha=0.6, label='Class 0', s=40)
-        ax.scatter(x_np[y_np == 1, 0], x_np[y_np == 1, 1], 
-                  c='red', alpha=0.6, label='Class 1', s=40)
+        # Ensure y_np is 1D for boolean indexing
+        y_np_1d = y_np.flatten() if y_np.ndim > 1 else y_np
+        # Create boolean masks for each class
+        class_0_mask = y_np_1d == 0
+        class_1_mask = y_np_1d == 1
+        
+        if np.any(class_0_mask):
+            ax.scatter(x_np[class_0_mask, 0], x_np[class_0_mask, 1], 
+                      c='blue', alpha=0.6, label='Class 0', s=40)
+        if np.any(class_1_mask):
+            ax.scatter(x_np[class_1_mask, 0], x_np[class_1_mask, 1], 
+                      c='red', alpha=0.6, label='Class 1', s=40)
         
         # Draw a simplified decision boundary
         x_min, x_max = x_np[:, 0].min() - 0.5, x_np[:, 0].max() + 0.5
@@ -240,43 +262,55 @@ def create_adaline_summary_plot(model, x_data: torch.Tensor, y_data: torch.Tenso
     fig, axes = create_subplots(2, 2, figsize=(16, 12))
     
     x_np = x_data.detach().cpu().numpy()
-    y_np = y_data.detach().cpu().numpy().flatten()
+    # Ensure y_data is 1D for plotting
+    if y_data.dim() == 2:
+        y_np = y_data.detach().cpu().numpy().flatten()
+    else:
+        y_np = y_data.detach().cpu().numpy()
     
     # 1. Training History
     if hasattr(model, 'training_history') and model.training_history['loss']:
         loss_history = model.training_history['loss']
         epochs = range(len(loss_history))
         
-        axes[0, 0].plot(epochs, loss_history, 
-                       color=PROJECT_COLORS['error'], linewidth=2)
-        axes[0, 0].set_title('Training Loss (MSE)')
-        axes[0, 0].set_xlabel('Epoch')
-        axes[0, 0].set_ylabel('Mean Squared Error')
-        axes[0, 0].grid(True, alpha=0.3)
+        axes[0].plot(epochs, loss_history, 
+                   color=PROJECT_COLORS['error'], linewidth=2)
+        axes[0].set_title('Training Loss (MSE)')
+        axes[0].set_xlabel('Epoch')
+        axes[0].set_ylabel('Mean Squared Error')
+        axes[0].grid(True, alpha=0.3)
     
     # 2. Decision Boundary
-    axes[0, 1].scatter(x_np[y_np == 0, 0], x_np[y_np == 0, 1], 
+    # Ensure y_np is 1D for boolean indexing
+    y_np_1d = y_np.flatten() if y_np.ndim > 1 else y_np
+    # Create boolean masks for each class
+    class_0_mask = y_np_1d == 0
+    class_1_mask = y_np_1d == 1
+    
+    if np.any(class_0_mask):
+        axes[1].scatter(x_np[class_0_mask, 0], x_np[class_0_mask, 1], 
                       c='blue', alpha=0.6, label='Class 0', s=40)
-    axes[0, 1].scatter(x_np[y_np == 1, 0], x_np[y_np == 1, 1], 
+    if np.any(class_1_mask):
+        axes[1].scatter(x_np[class_1_mask, 0], x_np[class_1_mask, 1], 
                       c='red', alpha=0.6, label='Class 1', s=40)
-    axes[0, 1].set_title('Decision Boundary')
-    axes[0, 1].legend()
-    axes[0, 1].grid(True, alpha=0.3)
+    axes[1].set_title('Decision Boundary')
+    axes[1].legend()
+    axes[1].grid(True, alpha=0.3)
     
     # 3. Model Weights
     if hasattr(model, 'linear'):
         weights = model.linear.weight.detach().cpu().numpy().flatten()
         bias = model.linear.bias.detach().cpu().numpy().item()
         
-        axes[1, 0].bar(['Weight 1', 'Weight 2', 'Bias'], 
-                      [weights[0], weights[1], bias],
-                      color=[PROJECT_COLORS['primary'], PROJECT_COLORS['secondary'], PROJECT_COLORS['accent']])
-        axes[1, 0].set_title('Learned Parameters')
-        axes[1, 0].set_ylabel('Parameter Value')
-        axes[1, 0].grid(True, alpha=0.3)
+        axes[2].bar(['Weight 1', 'Weight 2', 'Bias'], 
+                  [weights[0], weights[1], bias],
+                  color=[PROJECT_COLORS['primary'], PROJECT_COLORS['secondary'], PROJECT_COLORS['accent']])
+        axes[2].set_title('Learned Parameters')
+        axes[2].set_ylabel('Parameter Value')
+        axes[2].grid(True, alpha=0.3)
     
     # 4. Model Info
-    axes[1, 1].axis('off')
+    axes[3].axis('off')
     info_text = f"""
 ADALINE Model Summary
 
@@ -297,11 +331,11 @@ First continuous learning neural net
 Foundation for gradient descent
 """
     
-    axes[1, 1].text(0.1, 0.9, info_text, 
-                    transform=axes[1, 1].transAxes,
-                    fontsize=10,
-                    verticalalignment='top',
-                    bbox=dict(boxstyle="round,pad=0.5", facecolor='lightblue', alpha=0.3))
+    axes[3].text(0.1, 0.9, info_text, 
+                transform=axes[3].transAxes,
+                fontsize=10,
+                verticalalignment='top',
+                bbox=dict(boxstyle="round,pad=0.5", facecolor='lightblue', alpha=0.3))
     
     fig.suptitle(title, fontsize=16, fontweight='bold')
     plt.tight_layout()

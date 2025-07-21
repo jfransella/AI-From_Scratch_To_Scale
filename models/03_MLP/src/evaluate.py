@@ -14,7 +14,7 @@ project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from utils import setup_logging
-from data_utils import generate_xor_dataset, generate_circles_dataset
+from data_utils import load_dataset
 from config import get_experiment_config, apply_environment_overrides
 from model import MLP
 
@@ -26,27 +26,33 @@ except ImportError:
     plot_decision_boundary = None
 
 def create_dataset(config):
+    """Create dataset using unified data_utils system."""
+    # Map MLP dataset names to unified system names
+    dataset_name_mapping = {
+        "xor": "xor_problem",
+        "circles": "circles_dataset"
+    }
+    
+    # Get the unified dataset name
+    dataset_name = dataset_name_mapping.get(config.dataset_type, config.dataset_type)
+    
+    # Load dataset using unified system
+    features, labels = load_dataset(dataset_name, config.dataset_params)
+    x = torch.tensor(features, dtype=torch.float32)
+    y = torch.tensor(labels, dtype=torch.float32)
+
+    # Handle special case for XOR (only 4 samples)
     if config.dataset_type == "xor":
-        features, labels = generate_xor_dataset(n_samples=4, noise=0.0, random_state=42)
-        x = torch.tensor(features, dtype=torch.float32)
-        y = torch.tensor(labels, dtype=torch.float32)
         return x, y, x, y
-    elif config.dataset_type == "circles":
-        params = config.dataset_params
-        num_samples = params.get("num_samples", 1000)
-        noise = params.get("noise", 0.1)
-        features, labels = generate_circles_dataset(num_samples=num_samples, noise=noise)
-        x = torch.tensor(features, dtype=torch.float32)
-        y = torch.tensor(labels, dtype=torch.float32)
-        n_train = int(0.8 * len(x))
-        indices = torch.randperm(len(x))
-        x_train = x[indices[:n_train]]
-        y_train = y[indices[:n_train]]
-        x_test = x[indices[n_train:]]
-        y_test = y[indices[n_train:]]
-        return x_train, y_train, x_test, y_test
-    else:
-        raise ValueError(f"Unknown dataset type: {config.dataset_type}")
+
+    # For other datasets, split into train/test
+    n_train = int(0.8 * len(x))
+    indices = torch.randperm(len(x))
+    x_train = x[indices[:n_train]]
+    y_train = y[indices[:n_train]]
+    x_test = x[indices[n_train:]]
+    y_test = y[indices[n_train:]]
+    return x_train, y_train, x_test, y_test
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate MLP on classic non-linear problems")

@@ -219,6 +219,10 @@ class Perceptron(nn.Module, BaseModel):  # pylint: disable=too-many-instance-att
         Returns:
             Loss tensor
         """
+        # Handle 2D targets from new data_utils (shape: [batch_size, 1])
+        if targets.dim() > 1:
+            targets = targets.squeeze()
+        
         # Use BCE loss for binary classification
         # Ensure outputs are probabilities in [0, 1]
         criterion = nn.BCELoss()

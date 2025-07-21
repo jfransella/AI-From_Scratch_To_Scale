@@ -1,15 +1,14 @@
-# Multi-Layer Perceptron (MLP) Model - Specific Requirements
-# Dependencies for solving non-linearly separable problems
+# ADALINE Model - NumPy-based Requirements
+# Dependencies for the Adaptive Linear Neuron using Delta Rule
 
-# Core ML Libraries
-torch>=1.12.0
+# Core Scientific Computing
 numpy>=1.21.0
 scikit-learn>=1.1.0
 
 # Data Processing and Analysis
 pandas>=1.4.0
 
-# Visualization (enhanced for decision boundary plots)
+# Visualization
 matplotlib>=3.5.0
 seaborn>=0.11.0
 
@@ -19,9 +18,7 @@ tqdm>=4.64.0
 # Experiment Tracking
 wandb>=0.13.0
 
-# Additional utilities for MLP visualization
-plotly>=5.0.0 
-
+# Shared Infrastructure Dependencies
 -e ../../plotting
 -e ../../engine
 -e ../../data_utils

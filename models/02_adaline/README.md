@@ -20,7 +20,9 @@ The Delta Rule updates weights based on the **magnitude of error**, not just cla
 # Delta Rule weight update
 error = target - linear_output
 weight += learning_rate * error * input
-```text`n**Comparison with Perceptron Learning Rule**:
+```
+
+**Comparison with Perceptron Learning Rule**:
 
 - **Perceptron**: Updates only on misclassification
 - **ADALINE**: Updates based on error magnitude (continuous learning)
@@ -45,41 +47,56 @@ cd models/02_adaline
 
 # Use shared virtual environment from 01_perceptron
 # (Virtual environment is already set up in 01_perceptron)
-```text`n### **Training Commands**
+
+### **Training Commands**
 
 #### **Quick Debug Test**
 
 ```powershell
 python src/train.py --experiment debug_small --epochs 5
-```text`n#### **Delta Rule Demonstration**
+```
+
+#### **Delta Rule Demonstration**
 
 ```powershell
 python src/train.py --experiment delta_rule_demo --visualize
-```text`n#### **Perceptron Comparison**
+```
+
+#### **Perceptron Comparison**
 
 ```powershell
 python src/train.py --experiment perceptron_comparison --epochs 200
-```text`n#### **Convergence Study**
+```
+
+#### **Convergence Study**
 
 ```powershell
 python src/train.py --experiment convergence_study --epochs 500
-```text`n#### **Real-World Datasets**
+```
+
+#### **Real-World Dataset Training**
 
 **Iris Dataset Demonstration:**
 
 ```powershell
 python src/train.py --experiment iris_demonstration --epochs 300
-```text`n**MNIST Subset (0 vs 1):**
+```
+
+**MNIST Subset (0 vs 1):**
 
 ```powershell
 python src/train.py --experiment mnist_demonstration --epochs 200
-```text`n#### **Limitation Demonstration**
+```
+
+#### **Limitation Demonstration**
 
 **XOR Problem (Linear Limitation):**
 
 ```powershell
 python src/train.py --experiment xor_limitation --epochs 1000
-```text`n### **Evaluation**
+```
+
+### **Evaluation**
 
 ```powershell
 # Evaluate trained model
@@ -87,7 +104,9 @@ python src/evaluate.py --checkpoint outputs/models/debug_small_model.pth --exper
 
 # Evaluate with visualization
 python src/evaluate.py --checkpoint outputs/models/debug_small_model.pth --experiment debug_small --visualize
-```text`n### **Explore Experiments**
+```
+
+### **Explore Experiments**
 
 ```powershell
 # List all available experiments
@@ -95,7 +114,9 @@ python src/train.py --list-experiments
 
 # Get detailed experiment info
 python src/train.py --experiment-info delta_rule_demo
-```text`n---
+```
+
+---
 
 ## **🔬 Available Experiments**
 
@@ -140,16 +161,16 @@ python src/train.py --experiment-info delta_rule_demo
    - ADALINE learns from error magnitude
    - Perceptron learns only from misclassification
 
-1. **Delta Rule vs. Perceptron Learning Rule**
+2. **Delta Rule vs. Perceptron Learning Rule**
    - Delta Rule: `w += η * error * input`
    - Perceptron: `w += η * (target - prediction) * input`
 
-1. **Convergence Behavior**
+3. **Convergence Behavior**
    - Smoother convergence than Perceptron
    - Better noise tolerance
    - Still limited to linear boundaries
 
-1. **Historical Progression**
+4. **Historical Progression**
    - Perceptron (1957): Discrete learning
    - ADALINE (1960): Continuous learning
    - MLP (1986): Non-linear learning
@@ -187,7 +208,9 @@ class ADALINE(nn.Module):
             for i in range(len(x_data)):
                 self.linear.weight += lr * error[i] * x_data[i]
                 self.linear.bias += lr * error[i]
-```text`n### **Training Process**
+```
+
+### **Training Process**
 
 1. **Forward Pass**: Compute linear output (no activation)
 2. **Error Computation**: Calculate difference from target
@@ -221,7 +244,8 @@ class ADALINE(nn.Module):
 
 ### **Debug Run Results**
 
-```text`nTraining completed:
+```text
+Training completed:
   - Converged: False
   - Final MSE: 0.073956
   - Epochs trained: 5
@@ -231,7 +255,9 @@ Evaluation Results:
   - Accuracy: 64.50%
   - Precision: 0.5697
   - Recall: 1.0000
-```text`n### **Key Observations**
+```
+
+### **Key Observations**
 
 - **MSE Convergence**: Shows continuous learning improvement
 - **Accuracy**: Reasonable performance on linearly separable data
@@ -255,7 +281,9 @@ class ADALINEConfig:
     epochs: int = 1000
     tolerance: float = 1e-6
     dataset: str = "simple_linear"
-```text`n### **Data Generation**
+```
+
+### **Data Generation**
 
 - **Simple Linear**: Basic linearly separable data
 - **Linearly Separable**: More complex linear patterns

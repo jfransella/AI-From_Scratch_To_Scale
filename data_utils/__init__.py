@@ -16,10 +16,48 @@ from .datasets import (
     get_dataset_info,
     list_available_datasets
 )
-# from .loaders import (
-#     create_data_loaders,
-#     create_train_val_test_loaders
-# )
+from .base_datasets import (
+    BaseDataset,
+    SyntheticDataset,
+    RealDataset,
+    create_dataset,
+    create_synthetic_dataset,
+    create_real_dataset
+)
+from .loaders import (
+    create_data_loaders,
+    create_train_val_test_loaders,
+    create_dataloader,
+    get_dataloader_config,
+    TensorDataset,
+    BaseDatasetWrapper
+)
+from .cache import (
+    DatasetCache,
+    cache_dataset,
+    load_cached_dataset,
+    get_cache_stats,
+    cleanup_cache,
+    get_cache
+)
+from .metadata import (
+    DatasetMetadata,
+    DatasetShape,
+    DatasetStatistics,
+    PreprocessingInfo,
+    DatasetCompatibility,
+    MetadataValidator,
+    create_metadata_from_data,
+    validate_dataset_metadata,
+    save_metadata_to_file,
+    load_metadata_from_file
+)
+from .organization import (
+    ProjectOrganizer,
+    analyze_project_organization,
+    create_project_directories,
+    generate_organization_report
+)
 # from .preprocessing import (
 #     StandardScaler,
 #     MinMaxScaler,
@@ -39,9 +77,43 @@ __all__ = [
     "load_dataset",
     "get_dataset_info", 
     "list_available_datasets",
-    # # Data loaders
-    # "create_data_loaders",
-    # "create_train_val_test_loaders",
+    # BaseDataset classes
+    "BaseDataset",
+    "SyntheticDataset", 
+    "RealDataset",
+    "create_dataset",
+    "create_synthetic_dataset",
+    "create_real_dataset",
+    # Data loaders
+    "create_data_loaders",
+    "create_train_val_test_loaders",
+    "create_dataloader",
+    "get_dataloader_config",
+    "TensorDataset",
+    "BaseDatasetWrapper",
+    # Enhanced caching
+    "DatasetCache",
+    "cache_dataset",
+    "load_cached_dataset", 
+    "get_cache_stats",
+    "cleanup_cache",
+    "get_cache",
+    # Metadata schema
+    "DatasetMetadata",
+    "DatasetShape",
+    "DatasetStatistics", 
+    "PreprocessingInfo",
+    "DatasetCompatibility",
+    "MetadataValidator",
+    "create_metadata_from_data",
+    "validate_dataset_metadata",
+    "save_metadata_to_file",
+    "load_metadata_from_file",
+    # File organization
+    "ProjectOrganizer",
+    "analyze_project_organization",
+    "create_project_directories", 
+    "generate_organization_report",
     # # Preprocessing
     # "StandardScaler",
     # "MinMaxScaler",

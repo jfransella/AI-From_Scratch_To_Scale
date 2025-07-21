@@ -59,52 +59,47 @@ BIAS_INIT_VALUE = 0.0
 # =============================================================================
 
 EXPERIMENTS = {
+    # =============================================================================
+    # STRENGTH DATASETS (Linearly Separable)
+    # =============================================================================
     "debug_small": {
-        "description": "Quick debug with minimal data",
-        "dataset": "simple_linear",
-        "epochs": 10,
+        "description": "Quick debug with minimal linearly separable data",
+        "dataset": "debug_small",
+        "epochs": 50,
         "learning_rate": 0.01
     },
-    "delta_rule_demo": {
-        "description": "Demonstrate Delta Rule learning", 
-        "dataset": "simple_linear",
-        "epochs": 100,
-        "learning_rate": 0.01
-    },
-    "perceptron_comparison": {
-        "description": "Direct comparison with Perceptron",
-        "dataset": "linear_separable", 
+    "linear_2d_demo": {
+        "description": "Demonstrate ADALINE on 2D linearly separable points",
+        "dataset": "linear_separable",
         "epochs": 200,
         "learning_rate": 0.01
     },
-    "convergence_study": {
-        "description": "Study convergence behavior",
+    "noisy_linear_demo": {
+        "description": "Demonstrate ADALINE's robustness on noisy linear data",
         "dataset": "noisy_linear",
-        "epochs": 500,
-        "learning_rate": 0.005
-    },
-    "iris_demonstration": {
-        "description": "Demonstrate ADALINE on real-world Iris dataset",
-        "dataset": "iris_binary",
         "epochs": 300,
-        "learning_rate": 0.01
-    },
-    "mnist_demonstration": {
-        "description": "Demonstrate ADALINE on MNIST subset (0 vs 1)",
-        "dataset": "mnist_subset",
-        "epochs": 200,
         "learning_rate": 0.005
-    },
-    "xor_limitation": {
-        "description": "Demonstrate ADALINE's linear limitation on XOR",
-        "dataset": "xor_problem",
-        "epochs": 1000,
-        "learning_rate": 0.01
     },
     "iris_strength_demo": {
         "description": "Demonstrate ADALINE on linearly separable Iris (setosa vs versicolor)",
         "dataset": "iris_setosa_versicolor",
         "epochs": 300,
+        "learning_rate": 0.001
+    },
+    "mnist_strength_demo": {
+        "description": "Demonstrate ADALINE on MNIST subset (0 vs 1) - high-dimensional linear",
+        "dataset": "mnist_subset",
+        "epochs": 100,
+        "learning_rate": 0.0001
+    },
+    
+    # =============================================================================
+    # WEAKNESS DATASETS (Non-Linearly Separable)
+    # =============================================================================
+    "xor_limitation": {
+        "description": "Demonstrate ADALINE's linear limitation on XOR problem",
+        "dataset": "xor_problem",
+        "epochs": 500,
         "learning_rate": 0.01
     },
     "iris_weakness_demo": {
@@ -112,18 +107,47 @@ EXPERIMENTS = {
         "dataset": "iris_versicolor_virginica",
         "epochs": 500,
         "learning_rate": 0.01
+    },
+    
+    # =============================================================================
+    # EDUCATIONAL COMPARISONS
+    # =============================================================================
+    "delta_rule_demo": {
+        "description": "Demonstrate Delta Rule learning on simple linear data",
+        "dataset": "simple_linear",
+        "epochs": 100,
+        "learning_rate": 0.01
+    },
+    "perceptron_comparison": {
+        "description": "Direct comparison with Perceptron on linear data",
+        "dataset": "linear_separable", 
+        "epochs": 200,
+        "learning_rate": 0.01
+    },
+    "convergence_study": {
+        "description": "Study convergence behavior on noisy data",
+        "dataset": "noisy_linear",
+        "epochs": 500,
+        "learning_rate": 0.005
     }
 }
 
 # Expected performance benchmarks
 EXPECTED_PERFORMANCE = {
-    "linearly_separable": {"mse": "<0.1", "accuracy": ">90%"},
+    # =============================================================================
+    # STRENGTH DATASETS (Linearly Separable)
+    # =============================================================================
+    "debug_small": {"mse": "<0.1", "accuracy": ">95%"},
+    "linear_separable": {"mse": "<0.1", "accuracy": ">90%"},
     "noisy_linear": {"mse": "<0.2", "accuracy": ">80%"},
     "simple_linear": {"mse": "<0.1", "accuracy": ">90%"},
-    "iris_binary": {"mse": "<0.2", "accuracy": ">95%"},
     "iris_setosa_versicolor": {"mse": "<0.1", "accuracy": ">95%"},
-    "iris_versicolor_virginica": {"mse": "high", "accuracy": "~70%"},
     "mnist_subset": {"mse": "<0.3", "accuracy": ">85%"},
+    
+    # =============================================================================
+    # WEAKNESS DATASETS (Non-Linearly Separable)
+    # =============================================================================
+    "iris_versicolor_virginica": {"mse": "high", "accuracy": "~70%"},
     "xor_problem": {"mse": "high", "accuracy": "~50%"}  # Should fail like Perceptron
 }
 

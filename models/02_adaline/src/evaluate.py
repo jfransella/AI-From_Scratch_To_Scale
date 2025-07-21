@@ -7,15 +7,16 @@ Evaluation script for ADALINE model with comparison features.
 import argparse
 import sys
 from pathlib import Path
-import torch
+import numpy as np
 import logging
+import torch
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from config import get_experiment_config
 from model import create_adaline
-from constants import get_experiment_info
+from data_loader import load_adaline_eval_data
 
 
 def parse_args():
@@ -51,72 +52,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def load_dataset_data(dataset_name: str) -> tuple:
-    """Load dataset using unified data_utils."""
-    try:
-        from data_utils.datasets import load_dataset
-        
-        # Load dataset
-        X, y = load_dataset(dataset_name)
-        
-        # Convert to torch tensors
-        x_data = torch.tensor(X, dtype=torch.float32)
-        y_data = torch.tensor(y, dtype=torch.float32).unsqueeze(1)
-        
-        return x_data, y_data
-        
-    except ImportError:
-        print("Warning: data_utils not available, using fallback dataset generation")
-        return generate_fallback_data(dataset_name)
-    except Exception as e:
-        print(f"Error loading dataset {dataset_name}: {e}")
-        print("Falling back to simple data generation")
-        return generate_fallback_data(dataset_name)
 
-
-def generate_fallback_data(dataset_type: str, n_samples: int = 100) -> tuple:
-    """Generate fallback synthetic data for evaluation."""
-    if dataset_type == "simple_linear":
-        # Simple linearly separable data
-        x = torch.randn(n_samples, 2)
-        y = (x[:, 0] + x[:, 1] > 0).float().unsqueeze(1)
-        return x, y
-    
-    elif dataset_type == "linearly_separable":
-        # More complex linearly separable data
-        x = torch.randn(n_samples, 2)
-        y = (2*x[:, 0] + x[:, 1] > 1).float().unsqueeze(1)
-        return x, y
-    
-    elif dataset_type == "noisy_linear":
-        # Linearly separable data with noise
-        x = torch.randn(n_samples, 2)
-        y = (x[:, 0] + x[:, 1] > 0).float().unsqueeze(1)
-        # Add some noise
-        y = y + 0.1 * torch.randn_like(y)
-        y = torch.clamp(y, 0, 1)  # Keep in [0,1] range
-        return x, y
-    
-    elif dataset_type == "iris_binary":
-        # Simple 2D data as fallback for Iris
-        x = torch.randn(n_samples, 2)
-        y = (x[:, 0] + x[:, 1] > 0).float().unsqueeze(1)
-        return x, y
-    
-    elif dataset_type == "mnist_subset":
-        # Simple 2D data as fallback for MNIST
-        x = torch.randn(n_samples, 2)
-        y = (x[:, 0] + x[:, 1] > 0).float().unsqueeze(1)
-        return x, y
-    
-    elif dataset_type == "xor_problem":
-        # XOR-like data
-        x = torch.randn(n_samples, 2)
-        y = ((x[:, 0] > 0) != (x[:, 1] > 0)).float().unsqueeze(1)
-        return x, y
-    
-    else:
-        raise ValueError(f"Unknown dataset type: {dataset_type}")
 
 
 def evaluate_model(model, x_data, y_data):
@@ -213,7 +149,7 @@ def main():
     
     # Load evaluation data
     try:
-        x_data, y_data = load_dataset_data(config.dataset)
+        x_data, y_data = load_adaline_eval_data(config.dataset)
         print(f"Loaded {len(x_data)} evaluation samples for {config.dataset}")
     except ValueError as e:
         print(f"Error loading data: {e}")

@@ -7,7 +7,10 @@ as demonstrated in 03_mlp.
 
 from dataclasses import dataclass
 from typing import Dict
-from constants import EXPERIMENTS, DEFAULT_LEARNING_RATE, DEFAULT_MAX_EPOCHS
+try:
+    from .constants import EXPERIMENTS, DEFAULT_LEARNING_RATE, DEFAULT_MAX_EPOCHS
+except ImportError:
+    from constants import EXPERIMENTS, DEFAULT_LEARNING_RATE, DEFAULT_MAX_EPOCHS
 
 
 @dataclass

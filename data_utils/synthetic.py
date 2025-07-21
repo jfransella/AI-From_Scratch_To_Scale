@@ -13,9 +13,9 @@ from utils import get_logger, set_random_seed
 from utils.exceptions import DataError
 
 
-def generate_xor_dataset(n_samples: int = 1000, 
-                        noise: float = 0.1,
-                        random_state: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+def generate_xor_dataset(n_samples: int = 1000,
+                         noise: float = 0.1,
+                         random_state: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
     """
     Generate XOR dataset - classic non-linearly separable problem.
     
@@ -31,6 +31,12 @@ def generate_xor_dataset(n_samples: int = 1000,
         X, y = generate_xor_dataset(1000, noise=0.05)
         print(f"Dataset shape: {X.shape}, Labels: {np.unique(y)}")
     """
+    # Validate parameters
+    if n_samples <= 0:
+        raise ValueError(f"n_samples must be positive, got {n_samples}")
+    if noise < 0:
+        raise ValueError(f"noise must be non-negative, got {noise}")
+    
     if random_state is not None:
         set_random_seed(random_state)
     
@@ -68,6 +74,10 @@ def generate_xor_dataset(n_samples: int = 1000,
         indices = np.random.permutation(n_samples)
         X = X[indices]
         y = y[indices]
+        
+        # Ensure y is 2D for consistency
+        if y.ndim == 1:
+            y = y.reshape(-1, 1)
         
         logger.info(f"Generated XOR dataset: {X.shape}, classes: {np.unique(y)}")
         return X, y
@@ -137,6 +147,10 @@ def generate_circles_dataset(n_samples: int = 1000,
         X = X[indices]
         y = y[indices]
         
+        # Ensure y is 2D for consistency
+        if y.ndim == 1:
+            y = y.reshape(-1, 1)
+        
         logger.info(f"Generated circles dataset: {X.shape}, classes: {np.unique(y)}")
         return X, y
         
@@ -184,6 +198,10 @@ def generate_linear_dataset(n_samples: int = 1000,
             flip_y=noise,
             random_state=random_state
         )
+        
+        # Ensure y is 2D for consistency
+        if y.ndim == 1:
+            y = y.reshape(-1, 1)
         
         logger.info(f"Generated linear dataset: {X.shape}, classes: {np.unique(y)}")
         return X, y
@@ -342,6 +360,10 @@ def _generate_simple_linear_dataset(n_samples: int, n_features: int,
         n_flip = int(noise * n_samples)
         flip_indices = np.random.choice(n_samples, n_flip, replace=False)
         y[flip_indices] = np.random.choice(n_classes, n_flip)
+    
+    # Ensure y is 2D for consistency
+    if y.ndim == 1:
+        y = y.reshape(-1, 1)
     
     return X, y
 

@@ -21,7 +21,7 @@ sys.path.insert(0, str(project_root))
 
 # Import shared packages
 from utils import setup_logging, setup_device, set_random_seed, get_logger
-from data_utils import generate_xor_dataset, generate_circles_dataset
+from data_utils import load_dataset
 from config import (
     get_experiment_config,
     list_available_experiments,
@@ -46,7 +46,7 @@ except ImportError:
 
 def create_dataset(config):
     """
-    Create dataset based on configuration.
+    Create dataset based on configuration using unified data_utils system.
 
     Args:
         config: Experiment configuration
@@ -54,56 +54,51 @@ def create_dataset(config):
     Returns:
         Tuple of (x_train, y_train, x_test, y_test)
     """
-    if config.dataset_type == "xor":
-        # Create XOR dataset - classic 4-sample problem
-        xor_samples = 4
-        xor_noise = 0.0
-        xor_random_state = 42
-        features, labels = generate_xor_dataset(
-            n_samples=xor_samples, noise=xor_noise, random_state=xor_random_state
-        )
-        x = torch.tensor(features, dtype=torch.float32)
-        y = torch.tensor(labels, dtype=torch.float32)
-
-        # For XOR, use all data for training (only 4 samples)
-        return x, y, x, y
-
-    elif config.dataset_type == "circles":
-        # Create circles dataset
-        params = config.dataset_params
-        default_circles_samples = 1000
-        default_circles_noise = 0.1
-        num_samples = params.get("num_samples", default_circles_samples)
-        noise = params.get("noise", default_circles_noise)
-
-        features, labels = generate_circles_dataset(n_samples=num_samples, noise=noise)
-        x = torch.tensor(features, dtype=torch.float32)
-        y = torch.tensor(labels, dtype=torch.float32)
-
-        # Split into train/test
-        train_split_ratio = 0.8
-        n_train = int(train_split_ratio * len(x))
-        indices = torch.randperm(len(x))
-
-        x_train = x[indices[:n_train]]
-        y_train = y[indices[:n_train]]
-        x_test = x[indices[n_train:]]
-        y_test = y[indices[n_train:]]
-
-        return x_train, y_train, x_test, y_test
-
-    elif config.dataset_type in ["moons", "spirals"]:
-        # For now, fall back to XOR for unsupported datasets
+    # Map MLP dataset names to unified system names
+    dataset_name_mapping = {
+        "xor": "xor_problem",
+        "circles": "circles_dataset"
+    }
+    
+    # Get the unified dataset name
+    dataset_name = dataset_name_mapping.get(config.dataset_type, config.dataset_type)
+    
+    # Handle unsupported datasets by falling back to XOR
+    if config.dataset_type in ["moons", "spirals"]:
         LOGGER_NAME = "ai_from_scratch"
         logger = get_logger(LOGGER_NAME)
         logger.warning("%s dataset not yet implemented, using XOR", config.dataset_type)
-        features, labels = generate_xor_dataset()
-        x = torch.tensor(features, dtype=torch.float32)
-        y = torch.tensor(labels, dtype=torch.float32)
+        dataset_name = "xor_problem"
+    
+    # Load dataset using unified system
+    try:
+        features, labels = load_dataset(dataset_name, config.dataset_params)
+    except Exception as e:
+        # Fall back to XOR if dataset loading fails
+        LOGGER_NAME = "ai_from_scratch"
+        logger = get_logger(LOGGER_NAME)
+        logger.warning("Failed to load %s, falling back to XOR: %s", dataset_name, e)
+        features, labels = load_dataset("xor_problem")
+    
+    x = torch.tensor(features, dtype=torch.float32)
+    y = torch.tensor(labels, dtype=torch.float32)
+
+    # Handle special case for XOR (only 4 samples)
+    if config.dataset_type == "xor" or dataset_name == "xor_problem":
+        # For XOR, use all data for training (only 4 samples)
         return x, y, x, y
 
-    else:
-        raise ValueError(f"Unknown dataset type: {config.dataset_type}")
+    # For other datasets, split into train/test
+    train_split_ratio = 0.8
+    n_train = int(train_split_ratio * len(x))
+    indices = torch.randperm(len(x))
+
+    x_train = x[indices[:n_train]]
+    y_train = y[indices[:n_train]]
+    x_test = x[indices[n_train:]]
+    y_test = y[indices[n_train:]]
+
+    return x_train, y_train, x_test, y_test
 
 
 def train_with_engine(config, args):

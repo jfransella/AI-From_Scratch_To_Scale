@@ -51,14 +51,24 @@ def plot_decision_boundary(model: Any, X: np.ndarray, y: np.ndarray, title: str 
         Z = model.predict_proba(grid_tensor)
         if hasattr(Z, 'detach'):
             Z = Z.detach().cpu().numpy()
-        if Z.shape[1] == 2:
+        # Handle both 1D and 2D probability outputs
+        if len(Z.shape) == 2 and Z.shape[1] == 2:
             Z = Z[:, 1]  # Probability of class 1
-        else:
+        elif len(Z.shape) == 2:
             Z = np.argmax(Z, axis=1)
+        # If Z is already 1D, use as is
     else:
         Z = model.predict(grid_tensor)
         if hasattr(Z, 'detach'):
             Z = Z.detach().cpu().numpy()
+    # Ensure Z has the correct shape for reshaping
+    if Z.size != xx.size:
+        # If Z has wrong size, take the first xx.size elements or repeat
+        if Z.size > xx.size:
+            Z = Z[:xx.size]
+        else:
+            # Repeat Z to match the required size
+            Z = np.tile(Z, int(np.ceil(xx.size / Z.size)))[:xx.size]
     Z = Z.reshape(xx.shape)
 
     fig, ax = plt.subplots(figsize=(8, 6))

@@ -19,9 +19,15 @@ import torch
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
+# Add current src directory to path for local imports
+src_dir = Path(__file__).parent
+sys.path.insert(0, str(src_dir))
+
 # Import shared packages
 from utils import setup_logging, setup_device, set_random_seed, get_logger
 from data_utils import load_dataset
+
+# Import local modules
 from config import (
     get_experiment_config,
     list_available_experiments,
@@ -57,7 +63,8 @@ def create_dataset(config):
     # Map MLP dataset names to unified system names
     dataset_name_mapping = {
         "xor": "xor_problem",
-        "circles": "circles_dataset"
+        "circles": "circles_dataset",
+        "unknown": "xor_problem"  # Default fallback for unknown datasets
     }
     
     # Get the unified dataset name
@@ -122,8 +129,10 @@ def train_with_engine(config, args):
     # Set up device
     device = setup_device(args.device)
 
-    # Create model
-    model = MLP(
+    # Create model - using MLPAdvanced for engine integration
+    from model import MLPAdvanced
+    
+    model = MLPAdvanced(
         input_size=config.input_size,
         hidden_layers=config.hidden_layers,
         output_size=config.output_size,
@@ -131,6 +140,31 @@ def train_with_engine(config, args):
         weight_init=config.weight_init,
         device=device,
     )
+    
+    # Initialize wandb for engine-based training if enabled
+    if config.use_wandb and hasattr(model, 'init_wandb'):
+        logger.info("🔄 Wandb will be managed by model for engine training")
+        
+        # Initialize wandb through the model's BaseModel interface
+        wandb_success = model.init_wandb(
+            project=config.wandb_project,
+            name=f"{config.experiment_name}-{config.model_name}",
+            tags=config.wandb_tags,
+            config=config.__dict__,
+            notes=config.wandb_notes,
+            mode=config.wandb_mode
+        )
+        
+        if wandb_success:
+            logger.info("✅ Wandb integration activated via BaseModel")
+            if config.wandb_watch_model:
+                model.watch_model(
+                    log=config.wandb_watch_log,
+                    log_freq=config.wandb_watch_freq
+                )
+                logger.info("📊 Model watching enabled")
+        else:
+            logger.warning("⚠️ Wandb setup failed, continuing without tracking")
 
     # Load data
     x_train, y_train, x_test, y_test = create_dataset(config)
@@ -150,6 +184,11 @@ def train_with_engine(config, args):
 
     # Train model
     results = trainer.train(model, data_split)
+    
+    # Finish wandb if it was initialized
+    if config.use_wandb and hasattr(model, 'finish_wandb'):
+        model.finish_wandb()
+        logger.info("📊 Wandb tracking completed")
 
     return results
 
@@ -172,31 +211,61 @@ def train_manually(config, args):
     # Set up device
     device = setup_device(args.device)
 
-    # Create model
-    model = MLP(
-        input_size=config.input_size,
-        hidden_layers=config.hidden_layers,
-        output_size=config.output_size,
-        activation=config.activation,
-        weight_init=config.weight_init,
-        device=device,
+    # Create model - use MLPWrapper for educational pure NumPy core with wandb
+    from mlp_wrapper import MLPWrapper
+    from config import MLPExperimentConfig
+    
+    # Convert to MLPExperimentConfig if needed
+    if hasattr(config, 'input_size'):
+        mlp_config = MLPExperimentConfig(
+            name=getattr(config, 'experiment_name', 'manual_training'),
+            description=f"Manual training of MLP",
+            architecture_name="manual",
+            input_size=config.input_size,
+            hidden_layers=config.hidden_layers,
+            output_size=config.output_size,
+            activation=config.activation,
+            learning_rate=config.learning_rate,
+            max_epochs=config.max_epochs,
+            convergence_threshold=config.convergence_threshold,
+            dataset_type=getattr(config, 'dataset_name', 'unknown'),
+            use_wandb=getattr(config, 'use_wandb', False),
+            wandb_project=getattr(config, 'wandb_project', 'ai-from-scratch-mlp'),
+            wandb_tags=getattr(config, 'wandb_tags', ['mlp', 'manual']),
+            wandb_notes=getattr(config, 'wandb_notes', 'Manual MLP training'),
+            wandb_mode=getattr(config, 'wandb_mode', 'online'),
+            wandb_watch_model=getattr(config, 'wandb_watch_model', True),
+            wandb_log_xor_breakthrough=True,
+            random_seed=getattr(config, 'random_seed', 42)
+        )
+    else:
+        mlp_config = config
+
+    model = MLPWrapper(
+        input_size=mlp_config.input_size,
+        hidden_layers=mlp_config.hidden_layers,
+        output_size=mlp_config.output_size,
+        activation=mlp_config.activation,
+        learning_rate=mlp_config.learning_rate,
+        max_epochs=mlp_config.max_epochs,
+        tolerance=mlp_config.convergence_threshold,
+        random_state=mlp_config.random_seed
     )
 
     # Load data
-    x_train, y_train, x_test, y_test = create_dataset(config)
+    x_train, y_train, x_test, y_test = create_dataset(mlp_config)
+    
+    # Convert to NumPy for MLPWrapper
+    X_np = x_train.cpu().numpy()
+    y_np = y_train.cpu().numpy()
 
-    # Train model
-    results = model.train_model(
-        x_train=x_train,
-        y_train=y_train,
-        x_test=x_test if x_test is not x_train else None,
-        y_test=y_test if y_test is not y_train else None,
-        learning_rate=config.learning_rate,
-        max_epochs=config.max_epochs,
-        convergence_threshold=config.convergence_threshold,
-        patience=config.patience,
-        verbose=config.verbose,
-    )
+    # Train with wandb integration
+    if mlp_config.use_wandb:
+        logger.info("🚀 Training MLP with wandb integration")
+        results = model.fit_with_wandb(X_np, y_np, mlp_config, verbose=mlp_config.verbose)
+    else:
+        logger.info("🚀 Training MLP without wandb")
+        results = model.fit_pure(X_np, y_np, verbose=mlp_config.verbose)
 
     return results
 
@@ -376,48 +445,23 @@ def run_educational_sequence():
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Train MLP model")
-    parser.add_argument(
-        "--experiment",
-        type=str,
-        required=False,
-        help="Experiment name",
-    )
-    parser.add_argument(
-        "--device",
-        type=str,
-        default="cpu",
-        choices=["cpu", "cuda"],
-        help="Device to use for training",
-    )
-    parser.add_argument(
-        "--list-experiments",
-        action="store_true",
-        help="List available experiments and exit",
-    )
-    parser.add_argument(
-        "--experiment-info",
-        type=str,
-        help="Show information about a specific experiment",
-    )
-    parser.add_argument(
-        "--educational-sequence",
-        action="store_true",
-        help="Run educational experiment sequence",
-    )
-    parser.add_argument(
-        "--use-engine",
-        action="store_true",
-        help="Use engine framework for training (if available)",
-    )
-    parser.add_argument(
-        "--environment",
-        choices=["default", "debug", "production"],
-        default="default",
-        help="Environment configuration",
-    )
-    parser.add_argument(
-        "--seed", type=int, default=None, help="Random seed for reproducibility"
-    )
+    
+    # Add all arguments in one go to avoid any potential issues
+    parser.add_argument("--experiment", type=str, required=False, help="Experiment name")
+    parser.add_argument("--device", type=str, default="cpu", choices=["cpu", "cuda"], help="Device to use for training")
+    parser.add_argument("--list-experiments", action="store_true", help="List available experiments and exit")
+    parser.add_argument("--experiment-info", type=str, help="Show information about a specific experiment")
+    parser.add_argument("--educational-sequence", action="store_true", help="Run educational experiment sequence")
+    parser.add_argument("--use-engine", action="store_true", help="Use engine framework for training (if available)")
+    parser.add_argument("--environment", choices=["default", "debug", "production"], default="default", help="Environment configuration")
+    parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
+    parser.add_argument("--wandb", action="store_true", help="Enable wandb logging")
+    parser.add_argument("--wandb-project", type=str, help="Wandb project name")
+    parser.add_argument("--wandb-name", type=str, help="Wandb run name")
+    parser.add_argument("--wandb-tags", nargs="*", help="Wandb tags")
+    parser.add_argument("--wandb-mode", choices=["online", "offline", "disabled"], default="online", help="Wandb mode")
+    parser.add_argument("--visualize", action="store_true", help="Generate and save visualizations")
+    
     return parser.parse_args()
 
 
@@ -464,9 +508,23 @@ def _run_training_experiment(args):
 
     # Apply environment overrides
     config = apply_environment_overrides(config, args.environment)
+    
+    # Apply wandb argument overrides
+    if hasattr(args, 'wandb') and args.wandb:
+        config.use_wandb = True
+    if hasattr(args, 'wandb_project') and args.wandb_project:
+        config.wandb_project = args.wandb_project
+    if hasattr(args, 'wandb_name') and args.wandb_name:
+        config.wandb_name = args.wandb_name
+    if hasattr(args, 'wandb_tags') and args.wandb_tags:
+        config.wandb_tags = args.wandb_tags
+    if hasattr(args, 'wandb_mode') and args.wandb_mode:
+        config.wandb_mode = args.wandb_mode
 
     logger.info("Starting training for experiment: %s", args.experiment)
     logger.info("Configuration: %s", config.name)
+    if config.use_wandb:
+        logger.info("Wandb enabled - Project: %s, Mode: %s", config.wandb_project, config.wandb_mode)
 
     # Choose training method
     if args.use_engine and HAS_ENGINE:

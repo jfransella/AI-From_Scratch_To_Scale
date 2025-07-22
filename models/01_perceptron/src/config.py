@@ -53,6 +53,101 @@ except ImportError:
     )
 
 
+def apply_wandb_defaults(config_dict: dict, experiment_name: str) -> dict:
+    """Apply comprehensive wandb defaults according to integration plan standards."""
+    
+    # Auto-generate project name if not set
+    if not config_dict.get("wandb_project"):
+        config_dict["wandb_project"] = "ai-from-scratch-perceptron"
+    
+    # Auto-generate run name if not set  
+    if not config_dict.get("wandb_name"):
+        config_dict["wandb_name"] = f"perceptron-{experiment_name}"
+    
+    # Enhanced auto-tagging system
+    base_tags = [
+        "perceptron",
+        "module-1", 
+        "foundation",
+        "engine-based",  # Perceptron uses engine framework
+        experiment_name,
+        "perceptron-rule"
+    ]
+    
+    # Add experiment-specific tags
+    if "strength" in experiment_name.lower():
+        base_tags.append("strength")
+    elif "weakness" in experiment_name.lower():
+        base_tags.append("weakness")
+    elif "debug" in experiment_name.lower():
+        base_tags.append("debug")
+    elif "comparison" in experiment_name.lower():
+        base_tags.append("comparison")
+    elif "xor" in experiment_name.lower():
+        base_tags.append("limitation")
+        
+    # Add dataset-specific tags
+    dataset_name = config_dict.get("dataset_name", "")
+    if dataset_name:
+        base_tags.append(dataset_name.lower().replace("_", "-"))
+    
+    config_dict["wandb_tags"] = base_tags
+    
+    # Auto-generate notes if not set
+    if not config_dict.get("wandb_notes"):
+        config_dict["wandb_notes"] = (
+            f"Perceptron training on {experiment_name} dataset using classic learning rule. "
+            f"Demonstrates fundamental neural network concepts from 1957."
+        )
+    
+    # Set group for organization
+    if not config_dict.get("wandb_group"):
+        config_dict["wandb_group"] = "module-1-foundations"
+    
+    # Set job type
+    if not config_dict.get("wandb_job_type"):
+        config_dict["wandb_job_type"] = "train"
+    
+    return config_dict
+
+
+def create_wandb_config_dict(experiment_name: str, config_dict: dict) -> dict:
+    """Create comprehensive wandb config dictionary with all relevant parameters."""
+    return {
+        # Experiment info
+        "experiment_name": experiment_name,
+        "dataset_name": config_dict.get("dataset_name"),
+        
+        # Model architecture
+        "model_name": "Perceptron",
+        "activation": "step",
+        "learning_algorithm": "perceptron-rule",
+        
+        # Training parameters
+        "learning_rate": config_dict.get("learning_rate"),
+        "max_epochs": config_dict.get("max_epochs"),
+        "convergence_threshold": config_dict.get("convergence_threshold"),
+        "batch_size": config_dict.get("batch_size") or "full-batch",
+        
+        # Training characteristics
+        "optimizer_type": config_dict.get("optimizer_type"),
+        "early_stopping": config_dict.get("early_stopping"),
+        "patience": config_dict.get("patience"),
+        
+        # Data parameters
+        "validation_split": config_dict.get("validation_split"),
+        "random_seed": config_dict.get("random_seed"),
+        
+        # Device and framework
+        "device": config_dict.get("device"),
+        "framework": "pytorch",
+        
+        # Logging parameters
+        "log_freq": config_dict.get("log_freq"),
+        "verbose": config_dict.get("verbose"),
+    }
+
+
 def get_training_config(experiment_name: str, **overrides) -> TrainingConfig:
     """
     Get TrainingConfig for a specific Perceptron experiment.
@@ -105,17 +200,17 @@ def get_training_config(experiment_name: str, **overrides) -> TrainingConfig:
         "log_freq": 10,
         "verbose": True,
         
-        # Enhanced wandb configuration  
-        "use_wandb": True,  # Enable by default now
-        "wandb_project": "ai-from-scratch-perceptron",
+        # Enhanced wandb configuration following integration plan
+        "use_wandb": False,  # Will be enabled via command line or overrides
+        "wandb_project": None,  # Will be auto-generated
         "wandb_name": None,  # Will be auto-generated
-        "wandb_tags": [MODEL_NAME.lower(), experiment_name],
-        "wandb_notes": f"Training {MODEL_NAME} on {experiment_name} dataset",
-        "wandb_mode": "online",
+        "wandb_tags": [],  # Will be auto-generated
+        "wandb_notes": None,  # Will be auto-generated
+        "wandb_mode": "online",  # "online", "offline", "disabled"
         
         # Advanced wandb features
         "wandb_watch_model": True,
-        "wandb_watch_log": "gradients",
+        "wandb_watch_log": "gradients",  # "gradients", "parameters", "all"
         "wandb_watch_freq": 50,
         
         # Artifact configuration
@@ -124,8 +219,9 @@ def get_training_config(experiment_name: str, **overrides) -> TrainingConfig:
         "wandb_log_datasets": False,
         
         # Group and sweep support
-        "wandb_group": f"perceptron-{experiment_name}",
-        "wandb_job_type": "train",
+        "wandb_group": None,  # Will be auto-generated
+        "wandb_job_type": None,  # Will be auto-generated
+        "wandb_sweep_id": None,
         
         # Reproducibility
         "random_seed": 42,
@@ -202,6 +298,9 @@ def get_training_config(experiment_name: str, **overrides) -> TrainingConfig:
 
     # Apply user overrides
     base_config.update(overrides)
+
+    # Apply comprehensive wandb defaults following integration plan
+    base_config = apply_wandb_defaults(base_config, experiment_name)
 
     # Create and return TrainingConfig
     return TrainingConfig(**base_config)

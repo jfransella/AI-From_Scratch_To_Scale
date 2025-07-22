@@ -12,7 +12,7 @@ Design Philosophy:
 """
 
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import torch
 import numpy as np
@@ -24,12 +24,10 @@ from utils import get_logger
 try:
     from .model import ADALINE
     from .config import ADALINEConfig, get_experiment_config
-    from .constants import AUTHORS, MODEL_NAME, YEAR_INTRODUCED
 except ImportError:
     # For direct execution
     from model import ADALINE
     from config import ADALINEConfig, get_experiment_config
-    from constants import AUTHORS, MODEL_NAME, YEAR_INTRODUCED
 
 
 class ADALINEWrapper(nn.Module, BaseModel):
@@ -124,6 +122,29 @@ class ADALINEWrapper(nn.Module, BaseModel):
         predictions = self.predict(x)
         return (predictions >= 0.5).float()
     
+    def fit(self, x_data: torch.Tensor, y_target: torch.Tensor) -> Dict[str, Any]:
+        """
+        Train the model using the BaseModel interface.
+        
+        This method provides the BaseModel-compatible interface required
+        for engine integration while delegating to the pure ADALINE implementation.
+        
+        Args:
+            x_data: Input features as torch tensor
+            y_target: Target values as torch tensor
+            
+        Returns:
+            Training results dictionary
+        """
+        # Convert torch tensors to numpy for pure ADALINE
+        x_np = x_data.cpu().numpy()
+        y_np = y_target.cpu().numpy()
+        
+        # Use the pure ADALINE implementation
+        results = self.fit_pure(x_np, y_np)
+        
+        return results
+    
     def fit_pure(self, X: np.ndarray, y: np.ndarray, verbose: bool = False) -> Dict[str, Any]:
         """
         Train using the pure ADALINE Delta Rule.
@@ -171,117 +192,125 @@ class ADALINEWrapper(nn.Module, BaseModel):
         return nn.functional.mse_loss(outputs.squeeze(), targets.float())
     
     def get_model_info(self) -> Dict[str, Any]:
-        """Get comprehensive model information."""
-        pure_info = self.pure_adaline.get_model_info()
+        """
+        Get comprehensive model information following wandb integration plan standards.
         
-        return {
-            # Model metadata
-            "model_name": pure_info.get("model_name", MODEL_NAME),
-            "year_introduced": pure_info.get("year_introduced", YEAR_INTRODUCED),
-            "original_author": pure_info.get("authors", AUTHORS),
-            "implementation": "Pure NumPy + PyTorch Wrapper",
+        Returns:
+            Standardized model information dictionary
+        """
+        base_info = self.pure_adaline.get_model_info()
+        
+        # Enhance with wrapper-specific information
+        wrapper_info = {
+            # Update pattern to indicate engine-based wrapper
+            "pattern": "engine-based",
             
-            # Architecture from pure ADALINE
-            "input_size": self.input_size,
-            "learning_rate": self.learning_rate,
-            "max_epochs": self.max_epochs,
-            "is_fitted": pure_info.get("is_fitted", False),
-            "algorithm": "Delta Rule (LMS)",
+            # Framework details (hybrid approach)
+            "framework": "numpy+pytorch",
+            "wrapper_framework": "pytorch",
+            "core_framework": "numpy",
             
-            # Current weights
-            "weights": pure_info.get("weights", []).tolist() if hasattr(pure_info.get("weights", []), 'tolist') else pure_info.get("weights", []),
-            "bias": float(pure_info.get("bias", 0.0)) if pure_info.get("bias") is not None else 0.0,
-            
-            # Training history
-            "training_history": self.training_history,
-            
-            # PyTorch compatibility info
+            # Architecture details
             "total_parameters": sum(p.numel() for p in self.parameters()),
-            "device": str(next(self.parameters()).device),
+            "pytorch_parameters": dict(self.named_parameters()),
+            
+            # Training characteristics
+            "supports_batching": True,
+            "supports_gradients": True,
+            "engine_compatible": True,
+            
+            # Implementation details  
+            "device_support": ["cpu", "gpu", "mps"],
+            "precision": "float32",
+            
+            # Wrapper capabilities
+            "wandb_integration": True,
+            "artifact_logging": True,
+            "visualization_support": True,
+            "educational_features": [
+                "Access to pure NumPy implementation",
+                "Delta Rule step-by-step demonstration", 
+                "PyTorch/NumPy comparison",
+                "Engine framework integration"
+            ]
         }
+        
+        # Merge base info with wrapper enhancements
+        base_info.update(wrapper_info)
+        return base_info
     
     def save_model(self, filepath: str):
-        """Save both pure ADALINE and PyTorch state."""
-        # Save pure ADALINE (assuming it has a save method, otherwise create one)
-        pure_path = str(Path(filepath).with_suffix('.pure.json'))
-        # Note: The pure ADALINE might not have a save method, so we'll store the config and weights
-        import json
-        pure_data = {
-            'config': {
-                'input_size': self.config.input_size,
-                'learning_rate': self.config.learning_rate,
-                'epochs': self.config.epochs,
-                'tolerance': self.config.tolerance,
-            },
-            'weights': self.pure_adaline.weights.tolist() if self.pure_adaline.weights is not None else None,
-            'bias': float(self.pure_adaline.bias) if self.pure_adaline.bias is not None else None,
-            'is_fitted': self.pure_adaline.is_fitted,
-            'training_history': getattr(self.pure_adaline, 'training_history', {})
+        """
+        Save the wrapped ADALINE model.
+        
+        Saves both the PyTorch wrapper state and the pure NumPy implementation
+        to ensure complete model persistence.
+        """
+        self.logger.info(f"Saving ADALINEWrapper to {filepath}")
+        
+        # Create save directory if needed
+        Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+        
+        # Save pure ADALINE state
+        pure_state = {
+            'weights': self.pure_adaline.weights,
+            'bias': self.pure_adaline.bias,
+            'config': self.pure_adaline.config.__dict__,
+            'training_history': self.pure_adaline.training_history,
+            'is_fitted': self.pure_adaline.is_fitted
         }
         
-        with open(pure_path, 'w') as f:
-            json.dump(pure_data, f, indent=2)
-        
-        # Save PyTorch state
-        checkpoint = {
-            'state_dict': self.state_dict(),
-            'config_dict': {
-                'name': self.config.name,
-                'description': self.config.description,
-                'input_size': self.config.input_size,
-                'learning_rate': self.config.learning_rate,
-                'epochs': self.config.epochs,
-                'tolerance': self.config.tolerance,
-            },
-            'pure_adaline_path': pure_path,
-            'training_history': self.training_history
+        # Save combined state
+        save_state = {
+            'model_type': 'ADALINEWrapper',
+            'pure_adaline_state': pure_state,
+            'pytorch_state_dict': self.state_dict(),
+            'training_history': self.training_history,
+            'config': self.config.__dict__
         }
-        torch.save(checkpoint, filepath)
         
-        self.logger.info(f"Saved wrapped ADALINE to {filepath}")
+        torch.save(save_state, filepath)
+        self.logger.info("Model saved successfully")
     
     @classmethod
     def load_model(cls, filepath: str) -> "ADALINEWrapper":
-        """Load wrapped ADALINE from file."""
-        checkpoint = torch.load(filepath, map_location='cpu')
+        """
+        Load a saved ADALINEWrapper model.
+        
+        Args:
+            filepath: Path to the saved model file
+            
+        Returns:
+            Loaded ADALINEWrapper instance
+        """
+        # Load the saved state
+        saved_state = torch.load(filepath, map_location='cpu')
+        
+        if saved_state.get('model_type') != 'ADALINEWrapper':
+            raise ValueError("File is not a saved ADALINEWrapper model")
         
         # Reconstruct config
-        config_dict = checkpoint['config_dict']
-        config = ADALINEConfig(
-            name=config_dict['name'],
-            description=config_dict['description'],
-            input_size=config_dict['input_size'],
-            learning_rate=config_dict['learning_rate'],
-            epochs=config_dict['epochs'],
-            tolerance=config_dict['tolerance']
-        )
+        from config import ADALINEConfig
+        config_dict = saved_state['config']
+        config = ADALINEConfig(**config_dict)
         
-        # Create wrapper instance
-        model = cls(config)
+        # Create new instance
+        wrapper = cls(config)
         
-        # Load PyTorch state
-        model.load_state_dict(checkpoint['state_dict'])
+        # Restore pure ADALINE state
+        pure_state = saved_state['pure_adaline_state']
+        wrapper.pure_adaline.weights = pure_state['weights']
+        wrapper.pure_adaline.bias = pure_state['bias']
+        wrapper.pure_adaline.training_history = pure_state['training_history']
+        wrapper.pure_adaline.is_fitted = pure_state['is_fitted']
         
-        # Load pure ADALINE if available
-        if 'pure_adaline_path' in checkpoint:
-            pure_path = checkpoint['pure_adaline_path']
-            if Path(pure_path).exists():
-                import json
-                with open(pure_path, 'r') as f:
-                    pure_data = json.load(f)
-                
-                if pure_data['weights'] is not None:
-                    model.pure_adaline.weights = np.array(pure_data['weights'])
-                if pure_data['bias'] is not None:
-                    model.pure_adaline.bias = pure_data['bias']
-                
-                model.pure_adaline.is_fitted = pure_data['is_fitted']
-                model.pure_adaline.training_history = pure_data.get('training_history', {})
+        # Restore PyTorch state
+        wrapper.load_state_dict(saved_state['pytorch_state_dict'])
         
         # Restore training history
-        model.training_history = checkpoint.get('training_history', {})
+        wrapper.training_history = saved_state.get('training_history', {})
         
-        return model
+        return wrapper
     
     def get_pure_adaline(self) -> ADALINE:
         """
@@ -404,8 +433,6 @@ class ADALINEWrapper(nn.Module, BaseModel):
         
         # Modified training loop to log metrics to wandb
         for epoch in range(config.epochs):
-            # Store weights before update for comparison
-            old_mse = np.mean((self.pure_adaline.forward(X).flatten() - y) ** 2) if epoch > 0 else float('inf')
             
             # Train for one epoch (simplified single epoch training)
             total_error = 0

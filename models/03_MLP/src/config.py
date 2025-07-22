@@ -63,10 +63,10 @@ class MLPExperimentConfig:
 
     # Wandb integration (comprehensive configuration)
     use_wandb: bool = True  # Enable by default for MLP experiments
-    wandb_project: str = "ai-from-scratch-mlp"
+    wandb_project: Optional[str] = None  # Auto-generated if None
     wandb_name: Optional[str] = None  # Auto-generated if None
-    wandb_tags: List[str] = field(default_factory=lambda: ["mlp", "backpropagation"])
-    wandb_notes: str = ""
+    wandb_tags: List[str] = field(default_factory=list)  # Auto-generated if empty
+    wandb_notes: Optional[str] = None  # Auto-generated if None
     wandb_mode: str = "online"  # "online", "offline", "disabled"
     
     # MLP-specific wandb features
@@ -84,7 +84,8 @@ class MLPExperimentConfig:
     
     # Group organization for MLP experiments
     wandb_group: Optional[str] = None  # Auto-generated based on experiment type
-    wandb_job_type: str = "train"
+    wandb_job_type: Optional[str] = None  # Auto-generated if None
+    wandb_sweep_id: Optional[str] = None  # For hyperparameter sweeps
 
     # Random seed for reproducibility
     random_seed: int = 42
@@ -119,6 +120,165 @@ class MLPExperimentConfig:
         # Auto-generate notes if empty
         if not self.wandb_notes:
             self.wandb_notes = f"MLP {self.architecture_name} solving {self.dataset_type} problem"
+
+
+# =============================================================================
+# Wandb Integration Functions
+# =============================================================================
+
+def apply_wandb_defaults(config: MLPExperimentConfig) -> MLPExperimentConfig:
+    """
+    Apply comprehensive wandb defaults based on experiment configuration.
+    
+    This function automatically sets wandb project, name, tags, notes, group,
+    and job_type based on the experiment characteristics, following the
+    same pattern as ADALINE and Perceptron models.
+    
+    Args:
+        config: MLPExperimentConfig instance to enhance
+        
+    Returns:
+        Enhanced configuration with wandb defaults applied
+    """
+    # Set wandb project
+    if config.wandb_project is None:
+        config.wandb_project = "ai-from-scratch-mlp"
+    
+    # Set wandb run name
+    if config.wandb_name is None:
+        config.wandb_name = f"mlp-{config.name}"
+    
+    # Set wandb tags
+    if not config.wandb_tags:
+        config.wandb_tags = [
+            "mlp", "module-1", "breakthrough", "backpropagation", 
+            config.dataset_type, "nonlinear", "hidden-layers"
+        ]
+        
+        # Add architecture-specific tags
+        if len(config.hidden_layers) == 1:
+            config.wandb_tags.append("single-hidden")
+        elif len(config.hidden_layers) > 1:
+            config.wandb_tags.append("deep-mlp")
+        
+        # Add dataset-specific tags
+        if "xor" in config.dataset_type.lower():
+            config.wandb_tags.extend(["xor", "classic-problem", "ai-winter-resolution"])
+        elif "circle" in config.dataset_type.lower():
+            config.wandb_tags.extend(["circles", "nonlinear-boundary"])
+        elif "spiral" in config.dataset_type.lower():
+            config.wandb_tags.extend(["spirals", "complex-pattern"])
+        elif "moon" in config.dataset_type.lower():
+            config.wandb_tags.extend(["moons", "sklearn-dataset"])
+    
+    # Set wandb notes
+    if config.wandb_notes is None:
+        if "xor" in config.dataset_type.lower():
+            config.wandb_notes = (
+                f"MLP breakthrough: Solving XOR problem that perceptrons cannot handle. "
+                f"Architecture: {config.input_size} → {config.hidden_layers} → {config.output_size}. "
+                f"This demonstrates the power of hidden layers for non-linear pattern learning."
+            )
+        else:
+            config.wandb_notes = (
+                f"MLP training on {config.dataset_type} dataset. "
+                f"Architecture: {config.input_size} → {config.hidden_layers} → {config.output_size}. "
+                f"Demonstrating multi-layer learning capabilities with backpropagation."
+            )
+    
+    # Set wandb group
+    if config.wandb_group is None:
+        if "xor" in config.dataset_type.lower():
+            config.wandb_group = "mlp-xor-breakthrough"
+        elif "circle" in config.dataset_type.lower():
+            config.wandb_group = "mlp-nonlinear-challenges"
+        elif "spiral" in config.dataset_type.lower():
+            config.wandb_group = "mlp-complex-patterns"
+        else:
+            config.wandb_group = f"mlp-{config.dataset_type}"
+    
+    # Set job type
+    if config.wandb_job_type is None:
+        if "debug" in config.name.lower():
+            config.wandb_job_type = "debug"
+        elif "quick" in config.name.lower():
+            config.wandb_job_type = "quick-test"
+        elif "xor" in config.dataset_type.lower():
+            config.wandb_job_type = "breakthrough-demo"
+        else:
+            config.wandb_job_type = "train"
+    
+    return config
+
+
+def create_wandb_config_dict(config: MLPExperimentConfig) -> Dict[str, Any]:
+    """
+    Create comprehensive wandb config dictionary from MLPExperimentConfig.
+    
+    This provides a flattened dictionary of all configuration parameters
+    for logging to wandb, ensuring complete experiment reproducibility.
+    
+    Args:
+        config: MLPExperimentConfig instance
+        
+    Returns:
+        Dictionary containing all configuration parameters for wandb
+    """
+    return {
+        # Experiment metadata
+        "experiment_name": config.name,
+        "experiment_description": config.description,
+        
+        # Architecture configuration
+        "architecture_name": config.architecture_name,
+        "input_size": config.input_size,
+        "hidden_layers": config.hidden_layers,
+        "output_size": config.output_size,
+        "activation": config.activation,
+        "weight_init": config.weight_init,
+        "total_layers": len(config.hidden_layers) + 1,  # +1 for output layer
+        
+        # Training configuration
+        "learning_rate": config.learning_rate,
+        "max_epochs": config.max_epochs,
+        "convergence_threshold": config.convergence_threshold,
+        "patience": config.patience,
+        "batch_size": config.batch_size,
+        "weight_decay": config.weight_decay,
+        "momentum": config.momentum,
+        
+        # Dataset configuration
+        "dataset_type": config.dataset_type,
+        "dataset_params": config.dataset_params,
+        
+        # Training behavior
+        "early_stopping": config.early_stopping,
+        "save_model": config.save_model,
+        "save_history": config.save_history,
+        "verbose": config.verbose,
+        
+        # MLP-specific features
+        "wandb_watch_model": config.wandb_watch_model,
+        "wandb_watch_log": config.wandb_watch_log,
+        "wandb_watch_freq": config.wandb_watch_freq,
+        "wandb_log_layer_activations": config.wandb_log_layer_activations,
+        "wandb_log_weight_histograms": config.wandb_log_weight_histograms,
+        "wandb_log_xor_breakthrough": config.wandb_log_xor_breakthrough,
+        
+        # Wandb configuration
+        "wandb_project": config.wandb_project,
+        "wandb_name": config.wandb_name,
+        "wandb_tags": config.wandb_tags,
+        "wandb_notes": config.wandb_notes,
+        "wandb_group": config.wandb_group,
+        "wandb_job_type": config.wandb_job_type,
+        "wandb_mode": config.wandb_mode,
+        
+        # System configuration
+        "random_seed": config.random_seed,
+        "output_dir": config.output_dir,
+        "save_plots": config.save_plots,
+    }
 
 
 # =============================================================================
@@ -286,9 +446,7 @@ def get_xor_breakthrough_config() -> MLPExperimentConfig:
     """
     return MLPExperimentConfig(
         name="xor_breakthrough",
-        description={
-            "Solve XOR problem - the classic demonstration of MLP superiority over perceptrons"
-        },
+        description="Solve XOR problem - the classic demonstration of MLP superiority over perceptrons",
         architecture_name="minimal",
         input_size=2,
         hidden_layers=[2],
@@ -501,7 +659,7 @@ def get_experiment_config(
         config_type: Type of configuration ("simple" or "engine")
 
     Returns:
-        Configuration object
+        Configuration object with wandb defaults applied
     """
     # Map experiment names to config functions
     config_functions = {
@@ -519,7 +677,13 @@ def get_experiment_config(
     if experiment_name not in config_functions:
         raise ValueError(f"Unknown experiment: {experiment_name}")
 
-    return config_functions[experiment_name]()
+    # Get base configuration
+    config = config_functions[experiment_name]()
+    
+    # Apply comprehensive wandb defaults
+    config = apply_wandb_defaults(config)
+    
+    return config
 
 
 def list_available_experiments() -> List[str]:

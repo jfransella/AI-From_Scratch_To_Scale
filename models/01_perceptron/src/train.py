@@ -179,6 +179,31 @@ def parse_args():
     parser.add_argument(
         "--wandb", action="store_true", help="Enable Weights & Biases logging"
     )
+    
+    # Enhanced wandb arguments following integration plan
+    parser.add_argument(
+        "--wandb-name", 
+        type=str,
+        help="Override wandb run name"
+    )
+    parser.add_argument(
+        "--wandb-tags", 
+        nargs="+",
+        help="Additional wandb tags"
+    )
+    parser.add_argument(
+        "--wandb-mode", 
+        type=str,
+        choices=["online", "offline", "disabled"],
+        help="Wandb mode"
+    )
+    parser.add_argument(
+        "--wandb-project",
+        type=str,
+        default="ai-from-scratch-perceptron",
+        help="Weights & Biases project name",
+    )
+    
     parser.add_argument(
         "--visualize",
         action="store_true",
@@ -216,12 +241,6 @@ def parse_args():
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
         default="INFO",
         help="Logging level",
-    )
-    parser.add_argument(
-        "--wandb-project",
-        type=str,
-        default="ai-from-scratch",
-        help="Weights & Biases project name",
     )
     parser.add_argument(
         "--tags", type=str, nargs="+", default=[], help="Tags to attach to the run"
@@ -293,6 +312,19 @@ def prepare_training(args):
         overrides["device"] = args.device
     if args.wandb:
         overrides["use_wandb"] = True
+        
+    # Handle enhanced wandb arguments
+    if args.wandb_project:
+        overrides["wandb_project"] = args.wandb_project
+    if args.wandb_name:
+        overrides["wandb_name"] = args.wandb_name
+    if args.wandb_tags:
+        # Extend existing tags with additional ones
+        existing_tags = overrides.get("wandb_tags", [])
+        overrides["wandb_tags"] = existing_tags + args.wandb_tags
+    if args.wandb_mode:
+        overrides["wandb_mode"] = args.wandb_mode
+        
     if args.debug:
         overrides["max_epochs"] = min(overrides.get("max_epochs", 50), 20)
         overrides["log_freq"] = 1
@@ -368,7 +400,7 @@ def _create_model_and_trainer(logger, model_config: dict, training_config: dict)
     logger.info(
         "Architecture: %d -> %d", model_info["input_size"], model_info["output_size"]
     )
-    logger.info("Activation: %s", model_info["activation"])
+    logger.info("Activation: %s", model_info["activation_function"])
     
     logger.info("Initializing trainer...")
     trainer = Trainer(training_config)
@@ -380,9 +412,12 @@ def _create_model_and_trainer(logger, model_config: dict, training_config: dict)
         training_config.use_wandb = False  # Disable trainer wandb
         
         # Initialize wandb through the model's BaseModel interface
-        # Generate timestamp for unique run names
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        run_name = f"{training_config.experiment_name}-{training_config.model_name}-{timestamp}"
+        # Use custom name if provided, otherwise generate timestamp-based name
+        if training_config.wandb_name:
+            run_name = training_config.wandb_name
+        else:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            run_name = f"{training_config.experiment_name}-{training_config.model_name}-{timestamp}"
         
         wandb_success = model.init_wandb(
             project=training_config.wandb_project,

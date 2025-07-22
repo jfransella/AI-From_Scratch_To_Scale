@@ -325,6 +325,9 @@ class PureMLP:
         
         # Store final state
         history['final_weights'] = [W.copy() for W in self.weights]
+        history['final_loss'] = epoch_loss
+        history['final_train_accuracy'] = epoch_accuracy
+        history['epochs_trained'] = epoch + 1
         self.is_fitted = True
         self.training_history = history
         

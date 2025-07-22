@@ -268,7 +268,6 @@ class BaseModel(ABC):
                 "tags": list(set(tags)),  # Remove duplicates
                 "config": wandb_config,
                 "notes": notes,
-                "reinit": True,  # Allow multiple inits
             }
 
             # Only add mode if it's a valid wandb mode
@@ -348,7 +347,28 @@ class BaseModel(ABC):
         if self.wandb_run is not None:
             try:
                 image = wandb.Image(image_path, caption=caption)
-                self.wandb_run.log({"visualization": image}, step=step)
+                
+                # Use unique keys for different visualization types to avoid step slider grouping
+                image_filename = Path(image_path).stem.lower()
+                
+                if "training_history" in image_filename or "history" in image_filename:
+                    key = "training_history_plot"
+                elif "decision_boundary" in image_filename or "boundary" in image_filename:
+                    key = "decision_boundary_plot"
+                elif "confusion_matrix" in image_filename or "confusion" in image_filename:
+                    key = "confusion_matrix_plot"
+                elif "learning_curve" in image_filename:
+                    key = "learning_curve_plot"
+                else:
+                    # Fallback to generic visualization key
+                    key = "visualization"
+                
+                # Log without step parameter for static visualizations unless explicitly provided
+                if step is not None:
+                    self.wandb_run.log({key: image}, step=step)
+                else:
+                    self.wandb_run.log({key: image})
+                    
             except Exception as e:
                 self.logger.warning(f"Failed to log image to wandb: {e}")
 

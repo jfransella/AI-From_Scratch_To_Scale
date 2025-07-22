@@ -455,7 +455,7 @@ class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-
 
     def get_model_info(self) -> Dict[str, Any]:
         """
-        Get comprehensive model information.
+        Get comprehensive model information following wandb integration plan standards.
 
         Returns:
             Dictionary containing model metadata and current state
@@ -465,34 +465,75 @@ class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-
         trainable_params = sum(p.numel() for p in self.parameters() if p.requires_grad)
 
         return {
-            # Model metadata
-            "model_name": MODEL_NAME,
-            "model_version": MODEL_VERSION,
+            # Core identification
+            "name": "Perceptron",
+            "full_name": "Rosenblatt Perceptron",
+            "category": "foundation",
+            "module": 1,
+            "pattern": "engine-based",
+            
+            # Historical context
             "year_introduced": YEAR_INTRODUCED,
-            "original_author": AUTHORS[0] if AUTHORS else "Frank Rosenblatt",
-            # Architecture
+            "authors": AUTHORS,
+            "paper_title": "The perceptron: a probabilistic model for information storage and organization in the brain",
+            "key_innovations": [
+                "First neural network that could learn from data",
+                "Perceptron learning rule for weight updates",
+                "Foundation for all modern neural networks",
+                "Demonstrated machine learning capabilities"
+            ],
+            
+            # Architecture details
+            "architecture_type": "single-layer",
             "input_size": self.input_size,
-            "hidden_size": None,  # Perceptron has no hidden layers
             "output_size": 1,
-            "activation": self.activation,
-            "total_parameters": total_params,
+            "parameter_count": total_params,
             "trainable_parameters": trainable_params,
+            "activation_function": self.activation,
+            "hidden_layers": 0,
+            
+            # Training characteristics
+            "learning_algorithm": "perceptron-rule",
+            "loss_function": "bce-with-logits",
+            "optimizer": "sgd",
+            "convergence_guarantee": "linearly separable data",
+            
+            # Implementation details
+            "framework": "pytorch",
+            "precision": "float32",
+            "device_support": ["cpu", "cuda", "mps"],
+            "device": str(next(iter(self.parameters())).device) if list(self.parameters()) else "cpu",
+            
+            # Educational metadata
+            "difficulty_level": "beginner",
+            "estimated_training_time": "seconds to minutes",
+            "key_learning_objectives": [
+                "Understand linear decision boundaries",
+                "Learn perceptron learning rule",
+                "Discover limitations of linear models",
+                "Foundation of neural networks"
+            ],
+            
+            # Training state
+            "is_fitted": self.is_fitted,
+            "epochs_trained": self.training_history.get("epochs_trained", 0),
+            "converged": len(self.training_history.get("loss", [])) > 0 and self.training_history["loss"][-1] <= self.tolerance,
+            
             # Training configuration
             "learning_rate": self.learning_rate,
             "max_epochs": self.max_epochs,
             "tolerance": self.tolerance,
             "init_method": self.init_method,
-            # Current state
-            "is_fitted": self.is_fitted,
-            "epochs_trained": self.training_history.get("epochs_trained", 0),
-            # Implementation details
-            "framework": "pytorch",
-            "precision": "float32", 
-            "device_support": ["cpu", "cuda", "mps"],
-            "device": str(next(iter(self.parameters())).device) if list(self.parameters()) else "cpu",
-            # Weights (for analysis)
+            
+            # Current weights (for analysis)
             "weights": self.linear.weight.data.cpu().numpy().tolist(),
             "bias": self.linear.bias.data.cpu().numpy().tolist(),
+            
+            # Legacy compatibility
+            "model_name": MODEL_NAME,
+            "model_version": MODEL_VERSION,
+            "original_author": AUTHORS[0] if AUTHORS else "Frank Rosenblatt",
+            "total_parameters": total_params,
         }
 
     def save_checkpoint(

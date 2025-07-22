@@ -5,8 +5,8 @@ Simple dataclass-based configuration following the Simple implementation pattern
 as demonstrated in 03_mlp.
 """
 
-from dataclasses import dataclass
-from typing import Dict
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional
 try:
     from .constants import EXPERIMENTS, DEFAULT_LEARNING_RATE, DEFAULT_MAX_EPOCHS
 except ImportError:
@@ -40,12 +40,28 @@ class ADALINEConfig:
     save_model: bool = True
     visualize: bool = False
     
-    # Wandb integration (following Simple Pattern for ADALINE)
-    use_wandb: bool = True
-    wandb_project: str = "ai-from-scratch-adaline"
-    wandb_tags: list = None
-    wandb_notes: str = ""
-    wandb_mode: str = "online"
+    # Enhanced wandb integration (following Wandb Integration Plan)
+    use_wandb: bool = False
+    wandb_project: Optional[str] = None
+    wandb_name: Optional[str] = None
+    wandb_tags: List[str] = field(default_factory=list)
+    wandb_notes: Optional[str] = None
+    wandb_mode: str = "online"  # "online", "offline", "disabled"
+    
+    # Advanced wandb features
+    wandb_watch_model: bool = False
+    wandb_watch_log: str = "gradients"  # "gradients", "parameters", "all"
+    wandb_watch_freq: int = 100
+    
+    # Artifact configuration
+    wandb_log_checkpoints: bool = True
+    wandb_log_visualizations: bool = True
+    wandb_log_datasets: bool = False
+    
+    # Group and sweep support
+    wandb_group: Optional[str] = None
+    wandb_job_type: Optional[str] = None
+    wandb_sweep_id: Optional[str] = None
     
     # Reproducibility
     random_seed: int = 42
@@ -63,7 +79,8 @@ def get_experiment_config(experiment_name: str) -> ADALINEConfig:
     dataset_name = str(exp_config["dataset"])
     input_size = get_dataset_input_size(dataset_name)
     
-    return ADALINEConfig(
+    # Create base config
+    config = ADALINEConfig(
         name=experiment_name,
         description=str(exp_config["description"]),
         input_size=input_size,
@@ -71,6 +88,91 @@ def get_experiment_config(experiment_name: str) -> ADALINEConfig:
         epochs=int(exp_config["epochs"]), 
         learning_rate=float(exp_config["learning_rate"])
     )
+    
+    # Apply wandb defaults based on integration plan
+    config = apply_wandb_defaults(config)
+    
+    return config
+
+
+def apply_wandb_defaults(config: ADALINEConfig) -> ADALINEConfig:
+    """Apply wandb defaults according to integration plan standards."""
+    
+    # Auto-generate project name if not set
+    if config.wandb_project is None:
+        config.wandb_project = "ai-from-scratch-adaline"
+    
+    # Auto-generate run name if not set
+    if config.wandb_name is None:
+        config.wandb_name = f"adaline-{config.name}"
+    
+    # Auto-generate tags if empty
+    if not config.wandb_tags:
+        config.wandb_tags = [
+            "adaline",
+            "module-1", 
+            "foundation",
+            "simple",
+            config.dataset,
+            "delta-rule"
+        ]
+    
+    # Add experiment-specific tags
+    if "strength" in config.name.lower():
+        config.wandb_tags.append("strength")
+    elif "weakness" in config.name.lower():
+        config.wandb_tags.append("weakness")
+    elif "debug" in config.name.lower():
+        config.wandb_tags.append("debug")
+    
+    # Auto-generate notes if not set
+    if config.wandb_notes is None:
+        config.wandb_notes = (
+            f"ADALINE training on {config.dataset} dataset using Delta Rule algorithm. "
+            f"Experiment: {config.description}"
+        )
+    
+    # Set group for organization
+    if config.wandb_group is None:
+        config.wandb_group = "module-1-foundations"
+    
+    # Set job type
+    if config.wandb_job_type is None:
+        config.wandb_job_type = "train"
+    
+    return config
+
+
+def create_wandb_config_dict(config: ADALINEConfig) -> Dict[str, any]:
+    """Create wandb config dictionary with all relevant parameters."""
+    return {
+        # Experiment info
+        "experiment_name": config.name,
+        "description": config.description,
+        "dataset": config.dataset,
+        
+        # Model architecture
+        "model_name": "ADALINE",
+        "input_size": config.input_size,
+        "output_size": config.output_size,
+        "activation": "linear",
+        "learning_algorithm": "delta-rule",
+        
+        # Training parameters
+        "learning_rate": config.learning_rate,
+        "epochs": config.epochs,
+        "tolerance": config.tolerance,
+        "batch_size": config.batch_size,
+        
+        # Data parameters
+        "train_split": config.train_split,
+        "random_seed": config.random_seed,
+        
+        # Logging parameters
+        "log_interval": config.log_interval,
+        "save_model": config.save_model,
+        "visualize": config.visualize,
+    }
 
 
 def get_dataset_input_size(dataset_name: str) -> int:

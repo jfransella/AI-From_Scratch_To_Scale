@@ -6,15 +6,15 @@ learning algorithm. Follows NumPy-based implementation for educational clarity.
 """
 
 import numpy as np
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import logging
 
 try:
-    from .constants import MODEL_NAME, YEAR_INTRODUCED, AUTHORS
+    from .constants import YEAR_INTRODUCED, AUTHORS
     from .config import ADALINEConfig
 except ImportError:
     # For direct execution
-    from constants import MODEL_NAME, YEAR_INTRODUCED, AUTHORS
+    from constants import YEAR_INTRODUCED, AUTHORS
     from config import ADALINEConfig
 
 logger = logging.getLogger(__name__)
@@ -160,17 +160,56 @@ class ADALINE:
         }
     
     def get_model_info(self) -> Dict[str, Any]:
-        """Get model information and metadata."""
+        """Get model information and metadata following wandb integration plan standards."""
         return {
-            "model_name": MODEL_NAME,
+            # Core identification
+            "name": "ADALINE",
+            "full_name": "Adaptive Linear Neuron",
+            "category": "foundation",
+            "module": 1,
+            "pattern": "simple",
+            
+            # Historical context
             "year_introduced": YEAR_INTRODUCED,
             "authors": AUTHORS,
-            "architecture": "Single linear layer",
-            "activation": "Linear (none)",
-            "learning_rule": "Delta Rule (LMS)",
-            "parameters": len(self.weights) + 1,  # weights + bias
+            "paper_title": "Adaptive switching circuits",
+            "key_innovations": [
+                "First neural network with continuous activation",
+                "Delta Rule (LMS) learning algorithm",
+                "Continuous error-based weight updates",
+                "Foundation for modern gradient descent"
+            ],
+            
+            # Architecture details
+            "architecture_type": "single-layer",
+            "input_size": self.config.input_size,
+            "output_size": self.config.output_size,
+            "parameter_count": len(self.weights) + 1,  # weights + bias
+            "activation_function": "linear",
+            
+            # Training characteristics
+            "learning_algorithm": "delta-rule",
+            "loss_function": "mse",
+            "optimizer": "custom-delta-rule",
+            
+            # Implementation details
+            "framework": "numpy",
+            "precision": "float32",
+            "device_support": ["cpu"],
+            
+            # Educational metadata
+            "difficulty_level": "beginner",
+            "estimated_training_time": "seconds",
+            "key_learning_objectives": [
+                "Understand Delta Rule vs Perceptron Rule",
+                "Learn continuous vs discrete learning",
+                "Foundation of gradient descent",
+                "Continuous activation functions"
+            ],
+            
+            # Training state
             "is_fitted": self.is_fitted,
-            "config": self.config
+            "training_config": self.config.__dict__
         }
 
 

@@ -18,7 +18,7 @@ method to compute gradients for all layers through the chain rule.
 """
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import torch
 import numpy as np
@@ -28,14 +28,14 @@ from engine.base import BaseModel
 from utils import get_logger
 
 try:
-    from .pure_mlp import PureMLP, create_pure_mlp
+    from .pure_mlp import PureMLP
     from .config import MLPExperimentConfig
-    from .constants import AUTHORS, MODEL_NAME, YEAR_INTRODUCED
+    from .constants import AUTHORS, YEAR_INTRODUCED
 except ImportError:
     # For direct execution
-    from pure_mlp import PureMLP, create_pure_mlp
+    from pure_mlp import PureMLP
     from config import MLPExperimentConfig
-    from constants import AUTHORS, MODEL_NAME, YEAR_INTRODUCED
+    from constants import AUTHORS, YEAR_INTRODUCED
 
 
 class MLPWrapper(nn.Module, BaseModel):
@@ -111,7 +111,7 @@ class MLPWrapper(nn.Module, BaseModel):
         # Logger
         self.logger = get_logger(__name__)
         
-        self.logger.info(f"Initialized MLPWrapper with Pure NumPy Backpropagation core")
+        self.logger.info("Initialized MLPWrapper with Pure NumPy Backpropagation core")
         self.logger.info(f"Architecture: {input_size} -> {hidden_layers} -> {output_size}")
         self.logger.info(f"Total parameters: {self.pure_mlp._count_parameters()}")
     
@@ -165,6 +165,32 @@ class MLPWrapper(nn.Module, BaseModel):
         predictions = self.predict(x)
         return (predictions >= 0.5).float()
     
+    def fit(self, x_data: torch.Tensor, y_target: torch.Tensor) -> Dict[str, Any]:
+        """
+        Fit the model to the data using the engine framework.
+        
+        This abstract method is required by BaseModel interface.
+        Converts PyTorch tensors to NumPy and delegates to pure implementation.
+        
+        Args:
+            x_data: Input features as PyTorch tensor
+            y_target: Target labels as PyTorch tensor
+            
+        Returns:
+            Dictionary with training results
+        """
+        # Convert to NumPy for pure MLP
+        X_np = x_data.cpu().numpy()
+        y_np = y_target.cpu().numpy()
+        
+        # Train using pure implementation
+        history = self.fit_pure(X_np, y_np)
+        
+        # Sync PyTorch parameters after training
+        self._sync_pytorch_params()
+        
+        return history
+    
     def fit_pure(self, X: np.ndarray, y: np.ndarray, verbose: bool = False) -> Dict[str, Any]:
         """
         Train using pure MLP backpropagation algorithm.
@@ -214,45 +240,112 @@ class MLPWrapper(nn.Module, BaseModel):
         return nn.functional.mse_loss(outputs, targets.float())
     
     def get_model_info(self) -> Dict[str, Any]:
-        """Get comprehensive model information."""
+        """
+        Get comprehensive model information for wandb integration.
+        
+        Returns:
+            Dictionary containing detailed model metadata and current state,
+            following the standardized structure across all models.
+        """
         pure_info = self.pure_mlp.get_model_info()
         
         return {
-            # Model metadata
-            "model_name": pure_info.get("model_name", MODEL_NAME),
-            "year_introduced": pure_info.get("year_introduced", YEAR_INTRODUCED),
-            "original_author": pure_info.get("authors", AUTHORS),
-            "implementation": "Pure NumPy Backpropagation + PyTorch Wrapper",
-            "algorithm": "Backpropagation (Chain Rule)",
+            # Core identification
+            "name": "MLP",
+            "full_name": "Multi-Layer Perceptron",
+            "category": "foundation",
+            "module": 1,
+            "pattern": "engine-based",
             
-            # Architecture from pure MLP
+            # Historical context
+            "year_introduced": YEAR_INTRODUCED,
+            "authors": AUTHORS,
+            "paper_title": "Perceptrons: An Introduction to Computational Geometry",
+            "key_innovations": [
+                "First neural network capable of universal function approximation",
+                "Solved XOR problem that single-layer perceptrons cannot handle",
+                "Enabled learning of hierarchical feature representations",
+                "Backpropagation learning algorithm",
+                "Multi-layer gradient-based optimization"
+            ],
+            
+            # Architecture details
+            "architecture_type": "multi-layer-feedforward",
             "input_size": self.input_size,
             "hidden_layers": self.hidden_layers,
             "output_size": self.output_size,
-            "activation": self.activation,
-            "total_parameters": pure_info.get("total_parameters", 0),
+            "total_layers": len(self.hidden_layers) + 1,  # +1 for output layer
+            "parameter_count": pure_info.get("total_parameters", self._count_total_parameters()),
+            "trainable_parameters": pure_info.get("total_parameters", self._count_total_parameters()),
+            "activation_function": self.activation,
+            "weight_initialization": "xavier_normal",
+            "has_bias": True,
             
-            # Training configuration
+            # Training characteristics
+            "learning_algorithm": "backpropagation",
+            "loss_function": "binary-cross-entropy" if self.output_size == 1 else "cross-entropy",
+            "optimizer": "sgd",
             "learning_rate": self.learning_rate,
             "max_epochs": self.max_epochs,
-            "tolerance": self.tolerance,
-            "is_fitted": pure_info.get("is_fitted", False),
+            "convergence_tolerance": self.tolerance,
+            "early_stopping": True,
+            "batch_processing": False,  # Full batch for educational clarity
             
-            # Current weights (from pure implementation)
-            "weights": pure_info.get("weights", []),
-            "biases": pure_info.get("biases", []),
+            # Implementation details
+            "framework": "numpy+pytorch",
+            "core_implementation": "pure-numpy-backpropagation",
+            "wrapper_framework": "pytorch",
+            "precision": "float32",
+            "device": str(next(self.parameters()).device),
+            "engine_compatible": True,
+            "wandb_integration": True,
             
-            # Training history
-            "training_history": self.training_history,
-            
-            # Capabilities
+            # Capabilities and characteristics
             "can_solve_xor": len(self.hidden_layers) > 0 and all(h > 0 for h in self.hidden_layers),
             "is_nonlinear": True,
+            "universal_approximator": True,
+            "handles_non_linearly_separable": True,
+            "gradient_based": True,
+            "supports_backpropagation": True,
             
-            # PyTorch compatibility info
-            "torch_parameters": sum(p.numel() for p in self.parameters()),
-            "device": str(next(self.parameters()).device),
+            # Educational metadata
+            "difficulty_level": "intermediate",
+            "estimated_training_time": "1-5 minutes",
+            "key_learning_objectives": [
+                "Understand backpropagation algorithm",
+                "See gradient flow through hidden layers",
+                "Witness XOR breakthrough moment",
+                "Learn non-linear pattern recognition",
+                "Grasp universal approximation theorem"
+            ],
+            "breakthrough_significance": "Solved AI Winter problem - first network to handle non-linear patterns",
+            
+            # Current state
+            "is_fitted": pure_info.get("is_fitted", False),
+            "training_history": self.training_history,
+            "weights_info": {
+                "layer_count": len(self.hidden_layers) + 1,
+                "weight_matrices": len(pure_info.get("weights", [])),
+                "bias_vectors": len(pure_info.get("biases", []))
+            },
+            
+            # Configuration used
+            "training_config": {
+                "input_size": self.input_size,
+                "hidden_layers": self.hidden_layers,
+                "output_size": self.output_size,
+                "activation": self.activation,
+                "learning_rate": self.learning_rate,
+                "max_epochs": self.max_epochs,
+                "tolerance": self.tolerance
+            }
         }
+    
+    def _count_total_parameters(self) -> int:
+        """Count total parameters in the model."""
+        if hasattr(self.pure_mlp, '_count_parameters'):
+            return self.pure_mlp._count_parameters()
+        return sum(p.numel() for p in self.parameters())
     
     def save_model(self, filepath: str):
         """Save both pure MLP and PyTorch state."""
@@ -333,7 +426,7 @@ class MLPWrapper(nn.Module, BaseModel):
         print("The Chain Rule in Action: How Neural Networks Learn")
         print()
         print(f"Network: {self.input_size} -> {self.hidden_layers} -> {self.output_size}")
-        print(f"Algorithm: Backpropagation (Rumelhart, Hinton, Williams 1986)")
+        print("Algorithm: Backpropagation (Rumelhart, Hinton, Williams 1986)")
         print()
         
         # Ensure proper shapes
@@ -509,6 +602,17 @@ class MLPWrapper(nn.Module, BaseModel):
         # Enhanced training with epoch-by-epoch wandb logging
         self.logger.info("Training MLP with enhanced wandb tracking")
         
+        # Initialize training history
+        self.pure_mlp.training_history = {
+            'loss': [],
+            'accuracy': [],
+            'epoch': [],
+            'converged': False,
+            'convergence_epoch': None,
+            'final_weights': [],
+            'weight_updates': []
+        }
+        
         # Prepare data
         if y.ndim == 1:
             y = y.reshape(-1, 1)
@@ -588,7 +692,7 @@ class MLPWrapper(nn.Module, BaseModel):
                     metrics["learning/loss_change"] = float(epoch_loss - prev_loss)
                     metrics["learning/is_improving"] = float(epoch_loss < prev_loss)
                 
-                self.log_metrics(metrics, step=epoch)
+                self.log_metrics(metrics, step=epoch + 1)
             
             # Console logging
             if verbose or (epoch % max(1, config.max_epochs // 20) == 0):
@@ -602,10 +706,9 @@ class MLPWrapper(nn.Module, BaseModel):
                         self.logger.info("🎉 XOR BREAKTHROUGH ACHIEVED!")
             
             # Store in pure MLP history
-            if not hasattr(self.pure_mlp, 'training_history'):
-                self.pure_mlp.training_history = {'loss': [], 'accuracy': []}
             self.pure_mlp.training_history['loss'].append(epoch_loss)
             self.pure_mlp.training_history['accuracy'].append(epoch_accuracy)
+            self.pure_mlp.training_history['epoch'].append(epoch)
             
             # Convergence check
             if epoch_loss < config.convergence_threshold:
@@ -620,17 +723,18 @@ class MLPWrapper(nn.Module, BaseModel):
         final_results = {
             "converged": epoch_loss < config.convergence_threshold,
             "final_loss": float(epoch_loss),
-            "final_accuracy": float(epoch_accuracy),
+            "final_train_accuracy": float(epoch_accuracy),
             "epochs_trained": epoch + 1,
             "xor_solved": is_xor_problem and epoch_accuracy >= 0.99,
-            "breakthrough_epoch": epoch + 1 if is_xor_problem and epoch_accuracy >= 0.99 else None
+            "breakthrough_epoch": epoch + 1 if is_xor_problem and epoch_accuracy >= 0.99 else None,
+            "convergence_epoch": epoch + 1 if epoch_loss < config.convergence_threshold else None
         }
         
         # Log final metrics
         if config.use_wandb and hasattr(self, 'wandb_run') and self.wandb_run is not None:
             final_metrics = {
                 "final/loss": final_results["final_loss"],
-                "final/accuracy": final_results["final_accuracy"],
+                "final/accuracy": final_results["final_train_accuracy"],
                 "final/converged": final_results["converged"],
                 "final/epochs_trained": final_results["epochs_trained"]
             }
@@ -640,7 +744,7 @@ class MLPWrapper(nn.Module, BaseModel):
                 if final_results["breakthrough_epoch"]:
                     final_metrics["final/breakthrough_epoch"] = final_results["breakthrough_epoch"]
             
-            self.log_metrics(final_metrics, step=epoch + 1)
+            self.log_metrics(final_metrics)  # Final summary metrics - no step needed
             
             # Finish wandb run
             self.finish_wandb()

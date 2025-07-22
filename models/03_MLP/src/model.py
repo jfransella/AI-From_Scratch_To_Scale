@@ -353,10 +353,10 @@ class MLP(nn.Module):
                     self.logger.info("Early stopping at epoch %s", epoch)
                 break
 
-            # Log progress
-            if verbose and epoch % 10 == 0:
+            # Log progress - show frequent updates for better user experience
+            if verbose and (epoch % max(1, max_epochs // 20) == 0 or epoch < 5):
                 self.logger.info(
-                    "Epoch %s: Loss=%.6f, Accuracy=%.4f",
+                    "Epoch %4d: Loss=%.6f, Accuracy=%.4f",
                     epoch,
                     loss.item(),
                     train_accuracy,

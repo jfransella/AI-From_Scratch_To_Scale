@@ -50,6 +50,7 @@ class MLPExperimentConfig:
     batch_size: Optional[int] = None
     weight_decay: float = 0.0
     momentum: float = 0.0
+    verbose: bool = True  # Enable epoch-by-epoch progress logging
 
     # Dataset configuration
     dataset_type: str = "xor"
@@ -59,7 +60,6 @@ class MLPExperimentConfig:
     early_stopping: bool = True
     save_model: bool = True
     save_history: bool = True
-    verbose: bool = True
 
     # Wandb integration (comprehensive configuration)
     use_wandb: bool = True  # Enable by default for MLP experiments

@@ -236,7 +236,8 @@ def train_manually(config, args):
             wandb_mode=getattr(config, 'wandb_mode', 'online'),
             wandb_watch_model=getattr(config, 'wandb_watch_model', True),
             wandb_log_xor_breakthrough=True,
-            random_seed=getattr(config, 'random_seed', 42)
+            random_seed=getattr(config, 'random_seed', 42),
+            verbose=getattr(config, 'verbose', True)  # Enable progress logging
         )
     else:
         mlp_config = config

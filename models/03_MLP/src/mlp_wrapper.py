@@ -693,9 +693,11 @@ class MLPWrapper(nn.Module, BaseModel):
                 
                 self.log_metrics(metrics, step=epoch + 1)
             
-            # Console logging
-            if verbose or (epoch % max(1, config.max_epochs // 20) == 0):
-                self.logger.info(f"Epoch {epoch:4d}: Loss = {epoch_loss:.6f}, Accuracy = {epoch_accuracy:.4f}")
+            # Console logging - show epoch-by-epoch progress
+            should_log = verbose or (epoch % max(1, config.max_epochs // 20) == 0)
+            
+            if should_log:
+                print(f"Epoch {epoch:4d}: Loss = {epoch_loss:.6f}, Accuracy = {epoch_accuracy:.4f}")
                 
                 # XOR-specific progress messages
                 if is_xor_problem:

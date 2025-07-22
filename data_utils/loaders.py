@@ -8,8 +8,39 @@ to provide optimized data loading configurations based on dataset size.
 from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np
-import torch
-from torch.utils.data import DataLoader, Dataset, random_split
+
+# Handle torch imports gracefully
+try:
+    import torch
+    if hasattr(torch, '__version__') and hasattr(torch, 'utils'):
+        from torch.utils.data import DataLoader, Dataset, random_split
+        _TORCH_AVAILABLE = True
+        TorchTensor = torch.Tensor
+        # Use actual torch Dataset as base class
+        BaseDatasetClass = Dataset
+    else:
+        # torch exists but is broken
+        _TORCH_AVAILABLE = False
+        torch = None
+        DataLoader = Dataset = random_split = None
+        TorchTensor = Any
+        # Create dummy base class when torch is not available
+        class BaseDatasetClass:
+            def __len__(self):
+                return 0
+            def __getitem__(self, idx):
+                return None, None
+except ImportError:
+    torch = None
+    _TORCH_AVAILABLE = False
+    DataLoader = Dataset = random_split = None
+    TorchTensor = Any
+    # Create dummy base class when torch is not available
+    class BaseDatasetClass:
+        def __len__(self):
+            return 0
+        def __getitem__(self, idx):
+            return None, None
 
 from utils import get_logger
 from .base_datasets import BaseDataset
@@ -49,15 +80,16 @@ SMALL_DATASET_THRESHOLD = 10000
 LARGE_DATASET_THRESHOLD = 100000
 
 
-class TensorDataset(Dataset):
+class TensorDataset(BaseDatasetClass):
     """
-    PyTorch Dataset wrapper for numpy arrays and tensors.
+    Custom dataset for torch tensors with optional transforms.
     
-    Provides a simple interface to wrap data arrays for use with DataLoader.
+    This dataset wraps tensor data and optionally applies transforms,
+    following the project's dataset strategy for consistent interfaces.
     """
     
-    def __init__(self, X: Union[torch.Tensor, 'np.ndarray'], 
-                 y: Union[torch.Tensor, 'np.ndarray'], 
+    def __init__(self, X: Union[TorchTensor, 'np.ndarray'], 
+                 y: Union[TorchTensor, 'np.ndarray'], 
                  transform: Optional[callable] = None):
         """
         Initialize TensorDataset.
@@ -89,7 +121,7 @@ class TensorDataset(Dataset):
         """Return dataset length."""
         return len(self.X)
     
-    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    def __getitem__(self, idx: int) -> Tuple[TorchTensor, TorchTensor]:
         """Get a single sample."""
         sample = (self.X[idx], self.y[idx])
         
@@ -99,7 +131,7 @@ class TensorDataset(Dataset):
         return sample
 
 
-class BaseDatasetWrapper(Dataset):
+class BaseDatasetWrapper(BaseDatasetClass):
     """
     PyTorch Dataset wrapper for BaseDataset instances.
     
@@ -119,7 +151,7 @@ class BaseDatasetWrapper(Dataset):
         """Return dataset length."""
         return len(self.base_dataset)
     
-    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    def __getitem__(self, idx: int) -> Tuple[TorchTensor, TorchTensor]:
         """Get a single sample."""
         return self.base_dataset[idx]
 
@@ -162,7 +194,7 @@ def get_dataloader_config(dataset_size: int,
     return config
 
 
-def create_dataloader(dataset: Union[Dataset, BaseDataset, Tuple[torch.Tensor, torch.Tensor]], 
+def create_dataloader(dataset: Union[Dataset, BaseDataset, Tuple[TorchTensor, TorchTensor]], 
                      batch_size: Optional[int] = None,
                      shuffle: Optional[bool] = None,
                      custom_config: Optional[Dict[str, Any]] = None) -> DataLoader:
@@ -216,7 +248,7 @@ def create_dataloader(dataset: Union[Dataset, BaseDataset, Tuple[torch.Tensor, t
     return DataLoader(dataset, **config)
 
 
-def create_train_val_test_loaders(dataset: Union[BaseDataset, Dataset, Tuple[torch.Tensor, torch.Tensor]], 
+def create_train_val_test_loaders(dataset: Union[BaseDataset, Dataset, Tuple[TorchTensor, TorchTensor]], 
                                  train_split: float = 0.7,
                                  val_split: float = 0.15,
                                  test_split: float = 0.15,
@@ -282,9 +314,9 @@ def create_train_val_test_loaders(dataset: Union[BaseDataset, Dataset, Tuple[tor
     return train_loader, val_loader, test_loader
 
 
-def create_data_loaders(X_train: torch.Tensor, y_train: torch.Tensor,
-                       X_val: Optional[torch.Tensor] = None, y_val: Optional[torch.Tensor] = None,
-                       X_test: Optional[torch.Tensor] = None, y_test: Optional[torch.Tensor] = None,
+def create_data_loaders(X_train: TorchTensor, y_train: TorchTensor,
+                       X_val: Optional[TorchTensor] = None, y_val: Optional[TorchTensor] = None,
+                       X_test: Optional[TorchTensor] = None, y_test: Optional[TorchTensor] = None,
                        batch_size: Optional[int] = None,
                        custom_config: Optional[Dict[str, Any]] = None) -> Tuple[DataLoader, ...]:
     """

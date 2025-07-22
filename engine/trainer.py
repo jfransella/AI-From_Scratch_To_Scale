@@ -1,19 +1,115 @@
 """
 Unified training engine for AI From Scratch to Scale project.
 
-This module provides a model-agnostic training framework that works with
-any model implementing the BaseModel interface, featuring experiment tracking,
-checkpointing, and comprehensive training loop management.
+Provides a consistent training interface across all models while supporting
+both simple implementations and advanced features like learning rate scheduling,
+early stopping, and comprehensive logging.
 """
 
-import time
 import logging
+import time
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 from pathlib import Path
+from typing import Dict, Any, Optional, List
 
-import torch
-import torch.optim as optim
+# Handle torch imports gracefully
+try:
+    import torch
+    if hasattr(torch, '__version__') and hasattr(torch, 'optim') and hasattr(torch, 'nn'):
+        import torch.optim as optim
+        import torch.nn as nn
+        _TORCH_AVAILABLE = True
+        TorchTensor = torch.Tensor
+    else:
+        # torch exists but is broken - create dummy torch
+        _TORCH_AVAILABLE = False
+        
+        class DummyDevice:
+            def __init__(self, device_str):
+                self.type = "cpu"
+            def __str__(self):
+                return "cpu"
+                
+        class DummyTorch:
+            @staticmethod
+            def device(device_str):
+                return DummyDevice(device_str)
+        
+        class DummyOptim:
+            class SGD:
+                def __init__(self, params, lr=0.01, **kwargs):
+                    self.param_groups = [{'lr': lr, 'params': list(params)}]
+                def step(self):
+                    pass
+                def zero_grad(self):
+                    pass
+            
+            class Adam:
+                def __init__(self, params, lr=0.001, **kwargs):
+                    self.param_groups = [{'lr': lr, 'params': list(params)}]
+                def step(self):
+                    pass
+                def zero_grad(self):
+                    pass
+                    
+            class AdamW:
+                def __init__(self, params, lr=0.001, **kwargs):
+                    self.param_groups = [{'lr': lr, 'params': list(params)}]
+                def step(self):
+                    pass
+                def zero_grad(self):
+                    pass
+        
+        torch = DummyTorch()
+        optim = DummyOptim()
+        nn = None
+        TorchTensor = Any
+except ImportError:
+    torch = None
+    optim = None  
+    nn = None
+    _TORCH_AVAILABLE = False
+    TorchTensor = Any
+    
+    # Create dummy torch for ImportError case too
+    class DummyDevice:
+        def __init__(self, device_str):
+            self.type = "cpu"
+        def __str__(self):
+            return "cpu"
+            
+    class DummyTorch:
+        @staticmethod
+        def device(device_str):
+            return DummyDevice(device_str)
+    
+    class DummyOptim:
+        class SGD:
+            def __init__(self, params, lr=0.01, **kwargs):
+                self.param_groups = [{'lr': lr, 'params': list(params)}]
+            def step(self):
+                pass
+            def zero_grad(self):
+                pass
+        
+        class Adam:
+            def __init__(self, params, lr=0.001, **kwargs):
+                self.param_groups = [{'lr': lr, 'params': list(params)}]
+            def step(self):
+                pass
+            def zero_grad(self):
+                pass
+                
+        class AdamW:
+            def __init__(self, params, lr=0.001, **kwargs):
+                self.param_groups = [{'lr': lr, 'params': list(params)}]
+            def step(self):
+                pass
+            def zero_grad(self):
+                pass
+    
+    torch = DummyTorch()
+    optim = DummyOptim()
 
 # Optional wandb integration
 try:
@@ -69,9 +165,29 @@ class TrainingConfig:
     # Logging and tracking
     log_freq: int = 10  # Log every N epochs
     verbose: bool = True
+    
+    # Enhanced wandb configuration
     use_wandb: bool = False
     wandb_project: Optional[str] = None
+    wandb_name: Optional[str] = None
     wandb_tags: List[str] = field(default_factory=list)
+    wandb_notes: Optional[str] = None
+    wandb_mode: str = "online"  # "online", "offline", "disabled"
+    
+    # Advanced wandb features
+    wandb_watch_model: bool = False
+    wandb_watch_log: str = "gradients"  # "gradients", "parameters", "all"
+    wandb_watch_freq: int = 100
+    
+    # Artifact configuration
+    wandb_log_checkpoints: bool = True
+    wandb_log_visualizations: bool = True
+    wandb_log_datasets: bool = False
+    
+    # Group and sweep support
+    wandb_group: Optional[str] = None
+    wandb_job_type: Optional[str] = None
+    wandb_sweep_id: Optional[str] = None
 
     # Reproducibility
     random_seed: Optional[int] = None
@@ -130,6 +246,11 @@ class Trainer:
             self.logger.warning("wandb not available, skipping initialization")
             return
 
+        # Skip trainer-level wandb if model will handle it
+        if hasattr(self.config, 'use_wandb') and self.config.use_wandb:
+            self.logger.info("Skipping trainer wandb - model will handle wandb integration")
+            return
+
         try:
             self.wandb_run = wandb.init(
                 project=self.config.wandb_project or "ai-from-scratch-to-scale",
@@ -141,8 +262,154 @@ class Trainer:
         except Exception as e:
             self.logger.warning(f"Failed to initialize wandb: {e}")
             self.config.use_wandb = False
+    
+    def _init_trainer_wandb(self):
+        """
+        Initialize wandb at trainer level with enhanced configuration.
+        
+        This method sets up trainer-level wandb configuration and prepares
+        for model-level wandb integration.
+        """
+        if not self.config.use_wandb or not _WANDB_AVAILABLE:
+            return
+        
+        try:
+            # Generate default project name if not provided
+            if not self.config.wandb_project:
+                model_name = self.config.model_name.lower().replace(" ", "-")
+                self.config.wandb_project = f"ai-from-scratch-{model_name}"
+            
+            # Generate default run name if not provided
+            if not self.config.wandb_name:
+                self.config.wandb_name = f"{self.config.experiment_name}-{self.config.model_name}"
+            
+            # Add automatic tags
+            auto_tags = [
+                self.config.model_name.lower(),
+                self.config.experiment_name,
+                "trainer-managed"
+            ]
+            
+            # Merge with user-provided tags
+            all_tags = list(set(self.config.wandb_tags + auto_tags))
+            self.config.wandb_tags = all_tags
+            
+            self.logger.info(f"Trainer wandb configured: project={self.config.wandb_project}, "
+                             f"name={self.config.wandb_name}")
+            
+        except Exception as e:
+            self.logger.warning(f"Failed to configure trainer wandb: {e}")
+            self.config.use_wandb = False
+    
+    def _setup_model_wandb(self, model: BaseModel) -> bool:
+        """
+        Set up wandb integration for the model.
+        
+        Args:
+            model: The model to set up wandb for
+            
+        Returns:
+            bool: True if setup successful, False otherwise
+        """
+        if not self.config.use_wandb or not hasattr(model, 'init_wandb'):
+            return False
+        
+        try:
+            # Initialize model wandb
+            success = model.init_wandb(
+                project=self.config.wandb_project,
+                name=self.config.wandb_name,
+                tags=self.config.wandb_tags,
+                config=self.config.__dict__,
+                notes=self.config.wandb_notes,
+                mode=self.config.wandb_mode
+            )
+            
+            if success and self.config.wandb_watch_model:
+                # Set up model watching
+                model.watch_model(
+                    log=self.config.wandb_watch_log,
+                    log_freq=self.config.wandb_watch_freq
+                )
+                self.logger.info("Model watching enabled")
+            
+            return success
+            
+        except Exception as e:
+            self.logger.warning(f"Failed to setup model wandb: {e}")
+            return False
+    
+    def _log_training_metrics(self, model: BaseModel, epoch: int, metrics: Dict[str, Any]):
+        """
+        Log training metrics to wandb through the model.
+        
+        Args:
+            model: The model to log metrics through
+            epoch: Current epoch number
+            metrics: Dictionary of metrics to log
+        """
+        if (self.config.use_wandb and 
+            hasattr(model, 'log_metrics') and
+            hasattr(model, 'wandb_run') and 
+            model.wandb_run is not None):
+            
+            try:
+                # Add epoch to metrics
+                metrics_with_epoch = {"epoch": epoch, **metrics}
+                model.log_metrics(metrics_with_epoch, step=epoch)
+                
+            except Exception as e:
+                self.logger.warning(f"Failed to log metrics to wandb: {e}")
+    
+    def _log_checkpoint_artifact(self, model: BaseModel, checkpoint_path: str, 
+                                 epoch: int, description: str = None):
+        """
+        Log model checkpoint as wandb artifact.
+        
+        Args:
+            model: The model to log artifact through
+            checkpoint_path: Path to the checkpoint file
+            epoch: Current epoch number
+            description: Optional description for the artifact
+        """
+        if (self.config.use_wandb and 
+            self.config.wandb_log_checkpoints and
+            hasattr(model, 'log_artifact') and
+            hasattr(model, 'wandb_run') and 
+            model.wandb_run is not None):
+            
+            try:
+                if not description:
+                    description = f"Model checkpoint at epoch {epoch}"
+                
+                model.log_artifact(
+                    checkpoint_path,
+                    artifact_type="model",
+                    description=description
+                )
+                self.logger.info(f"Logged checkpoint artifact: {checkpoint_path}")
+                
+            except Exception as e:
+                self.logger.warning(f"Failed to log checkpoint artifact: {e}")
+    
+    def _finish_model_wandb(self, model: BaseModel):
+        """
+        Finish wandb run for the model.
+        
+        Args:
+            model: The model to finish wandb for
+        """
+        if (self.config.use_wandb and 
+            hasattr(model, 'finish_wandb')):
+            
+            try:
+                model.finish_wandb()
+                self.logger.info("Model wandb run finished")
+                
+            except Exception as e:
+                self.logger.warning(f"Failed to finish model wandb: {e}")
 
-    def _setup_optimizer(self, model: BaseModel) -> optim.Optimizer:
+    def _setup_optimizer(self, model: BaseModel) -> Any:
         """Setup optimizer based on configuration."""
         if self.config.optimizer_type.lower() == "adam":
             optimizer = optim.Adam(
@@ -168,24 +435,24 @@ class Trainer:
         return optimizer
 
     def _setup_scheduler(
-        self, optimizer: optim.Optimizer
-    ) -> Optional[optim.lr_scheduler._LRScheduler]:
+        self, optimizer: Any
+    ) -> Optional[Any]:
         """Setup learning rate scheduler if specified."""
         if self.config.lr_scheduler is None:
             return None
 
         if self.config.lr_scheduler.lower() == "step":
-            return optim.lr_scheduler.StepLR(
+            return Any.StepLR(
                 optimizer,
                 step_size=self.config.lr_step_size,
                 gamma=self.config.lr_gamma,
             )
         elif self.config.lr_scheduler.lower() == "exponential":
-            return optim.lr_scheduler.ExponentialLR(
+            return Any.ExponentialLR(
                 optimizer, gamma=self.config.lr_gamma
             )
         elif self.config.lr_scheduler.lower() == "cosine":
-            return optim.lr_scheduler.CosineAnnealingLR(
+            return Any.CosineAnnealingLR(
                 optimizer, T_max=self.config.max_epochs
             )
         else:
@@ -219,26 +486,54 @@ class Trainer:
         )
 
     def _compute_accuracy(
-        self, model: BaseModel, x: torch.Tensor, y: torch.Tensor
+        self, model: BaseModel, x: TorchTensor, y: TorchTensor
     ) -> float:
-        """Compute classification accuracy."""
+        """Compute accuracy for given data."""
+        # Store original training mode
+        was_training = model.training
+        
         model.eval()
         with torch.no_grad():
-            predictions = model.predict(x)
-            if predictions.dim() == 2 and predictions.shape[1] == 1:
-                predictions = predictions.squeeze()
-            accuracy = (predictions == y).float().mean().item()
-        model.train()
-        return accuracy
+            outputs = model.forward(x)
+            if hasattr(model, 'predict'):
+                predictions = model.predict(x)
+            else:
+                # Default binary classification
+                predictions = (outputs >= 0.5).float().squeeze()
+            
+            correct = (predictions == y).float().sum()
+            accuracy = correct / len(y)
+            
+        # Restore original training mode
+        model.train(was_training)
+        
+        return accuracy.item()
 
-    def _log_metrics(self, epoch: int, metrics: Dict[str, float]):
-        """Log metrics to console and wandb."""
+    def _create_data_loaders(self, data_split: DataSplit):
+        """Create data loaders for training and validation."""
+        # For simple models like Perceptron, we use full batch training
+        # So we return the data directly without DataLoader wrappers
+        return data_split.x_train, data_split.x_val if data_split.x_val is not None else None
+
+    def _log_metrics(self, epoch: int, metrics: Dict[str, Any]):
+        """Log metrics to wandb and console."""
         if self.config.verbose and epoch % self.config.log_freq == 0:
-            metric_str = ", ".join(f"{k}: {v:.4f}" for k, v in metrics.items())
-            self.logger.info(f"Epoch {epoch:4d}: {metric_str}")
+            metrics_str = ", ".join([f"{k}: {v:.4f}" for k, v in metrics.items()])
+            self.logger.info(f"Epoch {epoch:4d}: {metrics_str}")
 
-        if self.config.use_wandb and self.wandb_run:
-            self.wandb_run.log(metrics, step=epoch)
+        # Log to wandb if available - use model's wandb run if it exists
+        if (hasattr(self, 'current_model') and 
+            hasattr(self.current_model, 'wandb_run') and 
+            self.current_model.wandb_run is not None):
+            try:
+                self.current_model.log_metrics(metrics, step=epoch)
+            except Exception as e:
+                self.logger.warning(f"Failed to log metrics via model wandb: {e}")
+        elif self.config.use_wandb and self.wandb_run is not None:
+            try:
+                self.wandb_run.log(metrics, step=epoch)
+            except Exception as e:
+                self.logger.warning(f"Failed to log metrics to wandb: {e}")
 
     def _save_checkpoint(self, model: BaseModel, epoch: int, metrics: Dict[str, float]):
         """Save model checkpoint."""
@@ -255,32 +550,30 @@ class Trainer:
             model.save_model(str(checkpoint_path))
             self.logger.info(f"Checkpoint saved: {checkpoint_path}")
 
-    def train(self, model: BaseModel, data: DataSplit) -> TrainingResult:
+    def train(self, model: BaseModel, data_split: DataSplit) -> Dict[str, Any]:
         """
         Train a model using the configured training loop.
 
         Args:
-            model: Model to train (must implement BaseModel interface)
-            data: Training/validation/test data
+            model: Model to train (must inherit from BaseModel)
+            data_split: DataSplit containing train/val/test data
 
         Returns:
-            TrainingResult with comprehensive training information
+            Training results dictionary
         """
+        # Store reference to current model for wandb integration
+        self.current_model = model
+        
+        start_time = time.time()
         self.logger.info(f"Starting training: {self.config.experiment_name}")
 
-        # Setup data splits
-        data = self._split_data(data)
-        data = data.to_device(str(self.device))
-
-        # Move model to device
-        model = model.to(str(self.device))
-
-        # Setup training components
-        if not isinstance(model, BaseModel):
-            model = ModelAdapter(model, self.config.model_name)
-
+        # Setup model and training
+        model = model.to(self.config.device)
         optimizer = self._setup_optimizer(model)
         scheduler = self._setup_scheduler(optimizer)
+
+        # Get data loaders
+        train_loader, val_loader = self._create_data_loaders(data_split)
 
         # Initialize result tracking
         result = TrainingResult(
@@ -298,16 +591,16 @@ class Trainer:
         start_time = time.time()
 
         self.logger.info(f"Training on device: {self.device}")
-        self.logger.info(f"Data splits: {data.get_split_info()}")
+        self.logger.info(f"Data splits: {data_split.get_split_info()}")
 
         # Training loop
         model.train()
         for epoch in range(self.config.max_epochs):
             epoch_start = time.time()
 
-            # Forward pass
-            outputs = model.forward(data.x_train)
-            loss = model.get_loss(outputs, data.y_train)
+            # Forward pass - inputs don't need gradients in classification
+            outputs = model.forward(data_split.x_train)
+            loss = model.get_loss(outputs, data_split.y_train)
 
             # Backward pass
             optimizer.zero_grad()
@@ -319,7 +612,7 @@ class Trainer:
                 scheduler.step()
 
             # Compute metrics
-            train_acc = self._compute_accuracy(model, data.x_train, data.y_train)
+            train_acc = self._compute_accuracy(model, data_split.x_train, data_split.y_train)
 
             metrics = {
                 "epoch": epoch,
@@ -329,8 +622,8 @@ class Trainer:
             }
 
             # Validation metrics
-            if data.x_val is not None and epoch % self.config.validation_freq == 0:
-                val_acc = self._compute_accuracy(model, data.x_val, data.y_val)
+            if data_split.x_val is not None and epoch % self.config.validation_freq == 0:
+                val_acc = self._compute_accuracy(model, data_split.x_val, data_split.y_val)
                 metrics["val_accuracy"] = val_acc
                 result.val_accuracy_history.append(val_acc)
 
@@ -381,17 +674,17 @@ class Trainer:
         result.total_training_time = time.time() - start_time
         result.final_loss = loss.item()
         result.final_train_accuracy = self._compute_accuracy(
-            model, data.x_train, data.y_train
+            model, data_split.x_train, data_split.y_train
         )
 
-        if data.x_val is not None:
+        if data_split.x_val is not None:
             result.final_val_accuracy = self._compute_accuracy(
-                model, data.x_val, data.y_val
+                model, data_split.x_val, data_split.y_val
             )
 
-        if data.x_test is not None:
+        if data_split.x_test is not None:
             result.final_test_accuracy = self._compute_accuracy(
-                model, data.x_test, data.y_test
+                model, data_split.x_test, data_split.y_test
             )
 
         # Save final model

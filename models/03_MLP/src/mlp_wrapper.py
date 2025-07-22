@@ -444,6 +444,211 @@ class MLPWrapper(nn.Module, BaseModel):
             'xor_solved': accuracy > 0.9
         }
 
+    def fit_with_wandb(self, X: np.ndarray, y: np.ndarray, config: 'MLPExperimentConfig', 
+                       verbose: bool = False) -> Dict[str, Any]:
+        """
+        Train MLP with comprehensive wandb tracking.
+        
+        This method demonstrates the educational power of MLP wandb integration,
+        including backpropagation visualization, XOR breakthrough tracking,
+        and gradient flow analysis.
+        
+        Args:
+            X: Training features
+            y: Training labels
+            config: MLPExperimentConfig with wandb settings
+            verbose: Show detailed training progress
+            
+        Returns:
+            Training results with wandb tracking
+        """
+        # Initialize wandb with MLP-specific configuration
+        if config.use_wandb:
+            success = self.init_wandb(
+                project=config.wandb_project,
+                name=config.wandb_name,
+                tags=config.wandb_tags,
+                config=config.__dict__,
+                notes=config.wandb_notes,
+                mode=config.wandb_mode
+            )
+            
+            if success:
+                self.logger.info("✅ MLP wandb tracking enabled")
+                
+                # Log initial model architecture
+                model_info = self.get_model_info()
+                architecture_metrics = {
+                    "model/input_size": self.input_size,
+                    "model/hidden_layers": len(self.hidden_layers),
+                    "model/hidden_layer_sizes": self.hidden_layers,
+                    "model/output_size": self.output_size,
+                    "model/total_parameters": model_info.get("total_parameters", 0),
+                    "model/activation": self.activation,
+                    "model/can_solve_xor": model_info.get("can_solve_xor", False),
+                    "config/learning_rate": config.learning_rate,
+                    "config/max_epochs": config.max_epochs
+                }
+                self.log_metrics(architecture_metrics, step=0)
+                
+                # Enable model watching for gradient visualization
+                if config.wandb_watch_model:
+                    self.watch_model(
+                        log=config.wandb_watch_log,
+                        log_freq=config.wandb_watch_freq
+                    )
+                    self.logger.info("📊 MLP gradient watching enabled")
+            else:
+                self.logger.warning("⚠️ Wandb setup failed, training without tracking")
+        
+        # XOR breakthrough detection
+        is_xor_problem = "xor" in config.dataset_type.lower()
+        if is_xor_problem:
+            self.logger.info("🎯 XOR Problem Detected - Tracking breakthrough moment!")
+        
+        # Enhanced training with epoch-by-epoch wandb logging
+        self.logger.info("Training MLP with enhanced wandb tracking")
+        
+        # Prepare data
+        if y.ndim == 1:
+            y = y.reshape(-1, 1)
+        
+        # Training loop with detailed wandb logging
+        for epoch in range(config.max_epochs):
+            # Store weights for change analysis
+            old_weights = [W.copy() for W in self.pure_mlp.weights]
+            
+            # Training step
+            epoch_loss = 0
+            epoch_accuracy = 0
+            n_samples = X.shape[0]
+            
+            for i in range(n_samples):
+                x_i = X[i:i+1]
+                y_i = y[i:i+1]
+                
+                # Forward pass with activations
+                output, activations, z_values = self.pure_mlp.forward(x_i)
+                
+                # Compute sample loss
+                sample_loss = self.pure_mlp._compute_loss(y_i, output)
+                sample_accuracy = self.pure_mlp._compute_accuracy(y_i, output)
+                epoch_loss += sample_loss
+                epoch_accuracy += sample_accuracy
+                
+                # Backpropagation step
+                self.pure_mlp._backpropagate(activations, z_values, y_i, verbose=False)
+            
+            # Average metrics
+            epoch_loss /= n_samples
+            epoch_accuracy /= n_samples
+            
+            # Calculate weight changes for educational analysis
+            weight_changes = []
+            for old_W, new_W in zip(old_weights, self.pure_mlp.weights):
+                weight_change = np.mean(np.abs(new_W - old_W))
+                weight_changes.append(weight_change)
+            
+            # Log comprehensive metrics to wandb
+            if config.use_wandb and hasattr(self, 'wandb_run') and self.wandb_run is not None:
+                metrics = {
+                    "train/loss": float(epoch_loss),
+                    "train/accuracy": float(epoch_accuracy),
+                    "train/error_rate": float(1.0 - epoch_accuracy),
+                    "epoch": epoch
+                }
+                
+                # Layer-specific metrics for educational value
+                if config.wandb_log_layer_activations and epoch % 10 == 0:
+                    # Sample forward pass for activation analysis
+                    _, sample_activations, _ = self.pure_mlp.forward(X[:1])
+                    for layer_idx, activation in enumerate(sample_activations[1:]):  # Skip input
+                        metrics[f"activations/layer_{layer_idx}_mean"] = float(np.mean(activation))
+                        metrics[f"activations/layer_{layer_idx}_std"] = float(np.std(activation))
+                
+                # Weight change analysis
+                if config.wandb_log_weight_histograms:
+                    for layer_idx, change in enumerate(weight_changes):
+                        metrics[f"weights/layer_{layer_idx}_change"] = float(change)
+                        metrics[f"weights/layer_{layer_idx}_mean"] = float(np.mean(self.pure_mlp.weights[layer_idx]))
+                        metrics[f"weights/layer_{layer_idx}_std"] = float(np.std(self.pure_mlp.weights[layer_idx]))
+                
+                # XOR breakthrough tracking
+                if is_xor_problem and config.wandb_log_xor_breakthrough:
+                    if epoch_accuracy > 0.9:  # Close to solving XOR
+                        metrics["xor/near_breakthrough"] = 1
+                    if epoch_accuracy >= 0.99:  # XOR solved!
+                        metrics["xor/breakthrough_achieved"] = 1
+                        if epoch < 50:
+                            metrics["xor/fast_breakthrough"] = 1
+                
+                # Learning dynamics
+                if epoch > 0:
+                    prev_loss = self.pure_mlp.training_history.get('loss', [float('inf')])[-1] if hasattr(self.pure_mlp, 'training_history') else float('inf')
+                    metrics["learning/loss_change"] = float(epoch_loss - prev_loss)
+                    metrics["learning/is_improving"] = float(epoch_loss < prev_loss)
+                
+                self.log_metrics(metrics, step=epoch)
+            
+            # Console logging
+            if verbose or (epoch % max(1, config.max_epochs // 20) == 0):
+                self.logger.info(f"Epoch {epoch:4d}: Loss = {epoch_loss:.6f}, Accuracy = {epoch_accuracy:.4f}")
+                
+                # XOR-specific progress messages
+                if is_xor_problem:
+                    if epoch_accuracy > 0.9:
+                        self.logger.info("🔥 Approaching XOR breakthrough!")
+                    if epoch_accuracy >= 0.99:
+                        self.logger.info("🎉 XOR BREAKTHROUGH ACHIEVED!")
+            
+            # Store in pure MLP history
+            if not hasattr(self.pure_mlp, 'training_history'):
+                self.pure_mlp.training_history = {'loss': [], 'accuracy': []}
+            self.pure_mlp.training_history['loss'].append(epoch_loss)
+            self.pure_mlp.training_history['accuracy'].append(epoch_accuracy)
+            
+            # Convergence check
+            if epoch_loss < config.convergence_threshold:
+                self.logger.info(f"✅ Converged at epoch {epoch}")
+                break
+        
+        # Sync PyTorch parameters
+        self._sync_pytorch_params()
+        
+        # Final results and wandb logging
+        self.pure_mlp.is_fitted = True
+        final_results = {
+            "converged": epoch_loss < config.convergence_threshold,
+            "final_loss": float(epoch_loss),
+            "final_accuracy": float(epoch_accuracy),
+            "epochs_trained": epoch + 1,
+            "xor_solved": is_xor_problem and epoch_accuracy >= 0.99,
+            "breakthrough_epoch": epoch + 1 if is_xor_problem and epoch_accuracy >= 0.99 else None
+        }
+        
+        # Log final metrics
+        if config.use_wandb and hasattr(self, 'wandb_run') and self.wandb_run is not None:
+            final_metrics = {
+                "final/loss": final_results["final_loss"],
+                "final/accuracy": final_results["final_accuracy"],
+                "final/converged": final_results["converged"],
+                "final/epochs_trained": final_results["epochs_trained"]
+            }
+            
+            if is_xor_problem:
+                final_metrics["final/xor_solved"] = final_results["xor_solved"]
+                if final_results["breakthrough_epoch"]:
+                    final_metrics["final/breakthrough_epoch"] = final_results["breakthrough_epoch"]
+            
+            self.log_metrics(final_metrics, step=epoch + 1)
+            
+            # Finish wandb run
+            self.finish_wandb()
+            self.logger.info("📊 MLP wandb tracking completed")
+        
+        self.training_history = final_results
+        return final_results
+
 
 def create_mlp_wrapper(
     input_size: int,

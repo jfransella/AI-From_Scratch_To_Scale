@@ -355,6 +355,136 @@ class ADALINEWrapper(nn.Module, BaseModel):
             print()
             step += 1
 
+    def fit_with_wandb(self, X: np.ndarray, y: np.ndarray, config: 'ADALINEConfig') -> Dict[str, Any]:
+        """
+        Train ADALINE with wandb tracking integration.
+        
+        This method demonstrates how to use the BaseModel wandb methods
+        with the Simple Pattern implementation.
+        
+        Args:
+            X: Training features
+            y: Training labels  
+            config: ADALINEConfig with wandb settings
+            
+        Returns:
+            Training results with wandb tracking
+        """
+        # Initialize wandb if enabled
+        if config.use_wandb:
+            wandb_tags = config.wandb_tags or ["adaline", config.dataset, "delta-rule"]
+            success = self.init_wandb(
+                project=config.wandb_project,
+                name=f"adaline-{config.name}",
+                tags=wandb_tags,
+                config=config.__dict__,
+                notes=config.wandb_notes or f"ADALINE training on {config.dataset}",
+                mode=config.wandb_mode
+            )
+            
+            if success:
+                self.logger.info("✅ Wandb tracking enabled for ADALINE")
+                # Log model info as initial metrics
+                model_info = self.get_model_info()
+                self.log_metrics({
+                    "model/parameters": model_info.get("total_parameters", 0),
+                    "model/input_size": self.input_size,
+                    "config/learning_rate": config.learning_rate,
+                    "config/max_epochs": config.epochs
+                }, step=0)
+            else:
+                self.logger.warning("⚠️ Wandb setup failed, training without tracking")
+        
+        # Train using pure ADALINE with epoch-by-epoch logging
+        self.logger.info("Training ADALINE with Delta Rule and wandb tracking")
+        
+        # Handle 2D y arrays by squeezing if needed
+        if y.ndim == 2 and y.shape[1] == 1:
+            y = y.squeeze()
+        
+        # Modified training loop to log metrics to wandb
+        for epoch in range(config.epochs):
+            # Store weights before update for comparison
+            old_mse = np.mean((self.pure_adaline.forward(X).flatten() - y) ** 2) if epoch > 0 else float('inf')
+            
+            # Train for one epoch (simplified single epoch training)
+            total_error = 0
+            for i in range(len(X)):
+                x_i = X[i:i+1]
+                y_i = y[i:i+1] if y.ndim > 0 else np.array([y[i]])
+                
+                # Forward pass
+                linear_output = self.pure_adaline.forward(x_i)
+                error = y_i[0] - linear_output[0]
+                total_error += error ** 2
+                
+                # Delta Rule update
+                self.pure_adaline.weights += config.learning_rate * error * x_i.flatten()
+                self.pure_adaline.bias += config.learning_rate * error
+            
+            # Calculate metrics
+            mse = total_error / len(X)
+            predictions = self.pure_adaline.predict(X)
+            accuracy = np.mean((predictions > 0.5) == (y > 0.5)) if y.dtype == bool or np.all(np.isin(y, [0, 1])) else None
+            
+            # Log to wandb if enabled
+            if config.use_wandb and hasattr(self, 'wandb_run') and self.wandb_run is not None:
+                metrics = {
+                    "train/mse": mse,
+                    "train/total_error": total_error,
+                    "weights/mean": float(np.mean(self.pure_adaline.weights)),
+                    "weights/std": float(np.std(self.pure_adaline.weights)),
+                    "bias": float(self.pure_adaline.bias),
+                    "epoch": epoch
+                }
+                
+                if accuracy is not None:
+                    metrics["train/accuracy"] = float(accuracy)
+                
+                self.log_metrics(metrics, step=epoch)
+            
+            # Console logging  
+            if epoch % config.log_interval == 0:
+                self.logger.info(f"Epoch {epoch}: MSE = {mse:.6f}")
+            
+            # Check convergence
+            if mse < config.tolerance:
+                self.logger.info(f"Converged at epoch {epoch}")
+                break
+        
+        # Sync PyTorch parameters
+        self._sync_pytorch_params()
+        
+        # Final results
+        self.pure_adaline.training_history["epochs_trained"] = epoch + 1
+        self.pure_adaline.is_fitted = True
+        
+        # Log final metrics to wandb
+        if config.use_wandb and hasattr(self, 'wandb_run') and self.wandb_run is not None:
+            final_metrics = {
+                "final/mse": mse,
+                "final/converged": mse < config.tolerance,
+                "final/epochs_trained": epoch + 1
+            }
+            if accuracy is not None:
+                final_metrics["final/accuracy"] = float(accuracy)
+            
+            self.log_metrics(final_metrics, step=epoch + 1)
+            
+            # Finish wandb run
+            self.finish_wandb()
+            self.logger.info("📊 Wandb tracking completed")
+        
+        results = {
+            "converged": mse < config.tolerance,
+            "final_mse": mse,
+            "epochs_trained": epoch + 1,
+            "final_accuracy": float(accuracy) if accuracy is not None else None
+        }
+        
+        self.training_history = results
+        return results
+
 
 def create_adaline_wrapper(config: ADALINEConfig) -> ADALINEWrapper:
     """

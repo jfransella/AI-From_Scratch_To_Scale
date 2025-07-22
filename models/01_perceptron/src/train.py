@@ -7,10 +7,35 @@ engine framework. Supports multiple datasets including both linearly
 separable (strengths) and non-separable (limitations) examples.
 """
 
-import sys
 import argparse
+import logging
+import sys
 import traceback
+from datetime import datetime
 from pathlib import Path
+from typing import Any
+
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+# Handle torch imports gracefully
+try:
+    import torch
+    if hasattr(torch, '__version__') and hasattr(torch, 'tensor'):
+        _TORCH_AVAILABLE = True
+        TorchTensor = torch.Tensor
+    else:
+        # torch exists but is broken
+        _TORCH_AVAILABLE = False
+        torch = None
+        TorchTensor = Any
+except ImportError:
+    torch = None
+    _TORCH_AVAILABLE = False
+    TorchTensor = Any
+
 import torch
 
 # Import shared packages
@@ -43,14 +68,14 @@ except ImportError:
 # Optional plotting imports (handled gracefully if not installed)
 try:
     from plotting import plot_training_history, plot_decision_boundary
-except ImportError:
+except ImportError as e:
     plot_training_history = None
     plot_decision_boundary = None
 
 
 def create_data_split(
-    x_features: torch.Tensor,
-    y_target: torch.Tensor,
+    x_features: TorchTensor,
+    y_target: TorchTensor,
     validation_split: float = 0.2,
     test_split: float = 0.2,
     random_state: int = 42,
@@ -68,34 +93,56 @@ def create_data_split(
     Returns:
         DataSplit object with train/val/test splits
     """
-    # Set random seed
-    torch.manual_seed(random_state)
+    # Set random seed based on torch availability
+    if _TORCH_AVAILABLE and torch is not None:
+        torch.manual_seed(random_state)
+        
+        n_samples = len(x_features)
+        indices = torch.randperm(n_samples)
+        
+        # Calculate split sizes
+        n_test = int(test_split * n_samples)
+        n_val = int(validation_split * n_samples)
+        n_train = n_samples - n_test - n_val
 
-    n_samples = len(x_features)
-    indices = torch.randperm(n_samples)
+        # Split indices
+        train_idx = indices[:n_train]
+        val_idx = indices[n_train : n_train + n_val] if n_val > 0 else None
+        test_idx = indices[n_train + n_val :] if n_test > 0 else None
+        
+        # Create data splits using torch tensors
+        x_train = x_features[train_idx]
+        y_train = y_target[train_idx]
+        x_val = x_features[val_idx] if val_idx is not None else None
+        y_val = y_target[val_idx] if val_idx is not None else None
+        x_test = x_features[test_idx] if test_idx is not None else None
+        y_test = y_target[test_idx] if test_idx is not None else None
+        
+    else:
+        # Use numpy when torch is not available
+        import numpy as np
+        np.random.seed(random_state)
+        
+        n_samples = len(x_features)
+        indices = np.random.permutation(n_samples)
+        
+        # Calculate split sizes
+        n_test = int(test_split * n_samples)
+        n_val = int(validation_split * n_samples)
+        n_train = n_samples - n_test - n_val
 
-    # Calculate split sizes
-    n_test = int(test_split * n_samples)
-    n_val = int(validation_split * n_samples)
-    n_train = n_samples - n_test - n_val
-
-    # Split indices
-    train_idx = indices[:n_train]
-    val_idx = indices[n_train : n_train + n_val] if n_val > 0 else None
-    test_idx = indices[n_train + n_val :] if n_test > 0 else None
-
-    # Create data splits
-    x_train, y_train = x_features[train_idx], y_target[train_idx]
-    x_val, y_val = (
-        (x_features[val_idx], y_target[val_idx])
-        if val_idx is not None
-        else (None, None)
-    )
-    x_test, y_test = (
-        (x_features[test_idx], y_target[test_idx])
-        if test_idx is not None
-        else (None, None)
-    )
+        # Split indices
+        train_idx = indices[:n_train]
+        val_idx = indices[n_train : n_train + n_val] if n_val > 0 else None
+        test_idx = indices[n_train + n_val :] if n_test > 0 else None
+        
+        # Create data splits using numpy arrays
+        x_train = x_features[train_idx]
+        y_train = y_target[train_idx]
+        x_val = x_features[val_idx] if val_idx is not None else None
+        y_val = y_target[val_idx] if val_idx is not None else None
+        x_test = x_features[test_idx] if test_idx is not None else None
+        y_test = y_target[test_idx] if test_idx is not None else None
 
     return DataSplit(
         x_train=x_train,
@@ -272,18 +319,30 @@ def _setup_logging_and_seed(args, training_config):
 
 def _load_and_prepare_data(logger, dataset_config):
     """Load and prepare dataset for training."""
+    import numpy as np
+    
     logger.info("Loading dataset...")
     x_features, y_target = load_dataset(
         dataset_config["dataset_name"], dataset_config["dataset_params"]
     )
-    if not isinstance(x_features, torch.Tensor):
-        x_features = torch.tensor(x_features, dtype=torch.float32)
-    if not isinstance(y_target, torch.Tensor):
-        y_target = torch.tensor(y_target, dtype=torch.float32)
+    
+    # Handle type conversion when torch is available
+    if _TORCH_AVAILABLE and torch is not None:
+        if not isinstance(x_features, torch.Tensor):
+            x_features = torch.tensor(x_features, dtype=torch.float32)  # inputs don't need gradients
+        if not isinstance(y_target, torch.Tensor):
+            y_target = torch.tensor(y_target, dtype=torch.float32)  # targets don't need gradients
+    else:
+        # When torch is not available, assume we have numpy arrays
+        if not isinstance(x_features, np.ndarray):
+            x_features = np.array(x_features, dtype=np.float32)
+        if not isinstance(y_target, np.ndarray):
+            y_target = np.array(y_target, dtype=np.float32)
+    
     logger.info(
         "Dataset loaded: %s features, %d classes",
         x_features.shape,
-        len(torch.unique(y_target)),
+        len(np.unique(y_target)) if hasattr(y_target, 'numpy') else len(np.unique(y_target)),
     )
     return x_features, y_target
 
@@ -310,8 +369,43 @@ def _create_model_and_trainer(logger, model_config: dict, training_config: dict)
         "Architecture: %d -> %d", model_info["input_size"], model_info["output_size"]
     )
     logger.info("Activation: %s", model_info["activation"])
+    
     logger.info("Initializing trainer...")
     trainer = Trainer(training_config)
+    
+    # Initialize wandb through trainer if enabled
+    if training_config.use_wandb:
+        # Let the model handle wandb instead of trainer to avoid conflicts
+        logger.info(f"🔄 Wandb will be managed by model - project: {training_config.wandb_project}")
+        training_config.use_wandb = False  # Disable trainer wandb
+        
+        # Initialize wandb through the model's BaseModel interface
+        # Generate timestamp for unique run names
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        run_name = f"{training_config.experiment_name}-{training_config.model_name}-{timestamp}"
+        
+        wandb_success = model.init_wandb(
+            project=training_config.wandb_project,
+            name=run_name,
+            tags=training_config.wandb_tags,
+            config=training_config.__dict__,
+            notes=training_config.wandb_notes,
+            mode=training_config.wandb_mode
+        )
+        
+        if wandb_success:
+            logger.info("✅ Wandb integration activated via BaseModel")
+            if training_config.wandb_watch_model:
+                model.watch_model(
+                    log=training_config.wandb_watch_log,
+                    log_freq=training_config.wandb_watch_freq
+                )
+                logger.info("📊 Model watching enabled")
+            else:
+                logger.info("📊 Model watching disabled in config")
+        else:
+            logger.warning("⚠️ Wandb setup failed, continuing without tracking")
+    
     return model, trainer
 
 
@@ -427,6 +521,8 @@ def _generate_visualizations(
         logger.info("\nGenerating visualizations...")
         plots_dir = Path(training_config.output_dir) / "visualizations"
         plots_dir.mkdir(exist_ok=True)
+        
+        # Training history plot
         if plot_training_history is not None:
             plot_path = plots_dir / f"{args.experiment}_training_history.png"
             plot_training_history(
@@ -436,8 +532,18 @@ def _generate_visualizations(
                 save_path=str(plot_path),
             )
             logger.info("Training history plot saved: %s", plot_path)
+            
+            # Log to wandb if available
+            if hasattr(model, 'log_image') and hasattr(model, 'wandb_run') and model.wandb_run is not None:
+                model.log_image(
+                    str(plot_path), 
+                    caption=f"{args.experiment} Training History"
+                )
+                logger.info("Training history plot logged to wandb")
         else:
             logger.warning("plot_training_history not available")
+            
+        # Decision boundary plot
         if plot_decision_boundary is not None and model_config["input_size"] == 2:
             boundary_path = plots_dir / f"{args.experiment}_decision_boundary.png"
             plot_decision_boundary(
@@ -448,6 +554,14 @@ def _generate_visualizations(
                 save_path=str(boundary_path),
             )
             logger.info("Decision boundary plot saved: %s", boundary_path)
+            
+            # Log to wandb if available
+            if hasattr(model, 'log_image') and hasattr(model, 'wandb_run') and model.wandb_run is not None:
+                model.log_image(
+                    str(boundary_path), 
+                    caption=f"{args.experiment} Decision Boundary"
+                )
+                logger.info("Decision boundary plot logged to wandb")
         elif model_config["input_size"] == 2:
             logger.warning("plot_decision_boundary not available")
 
@@ -483,32 +597,39 @@ def main():
     valid = validate_experiment_arg(args)
     if valid is not None:
         return valid
+    
+    # Initialize variables for visualization
+    viz_success = False
+    viz_data = None
+    
     try:
         training_config, model_config, dataset_config, _ = prepare_training(args)
         logger, model, data_split, model_config, training_result = run_training(
             args, training_config, model_config, dataset_config
         )
-        generate_visualizations(
-            args,
-            logger,
-            model,
-            data_split,
-            model_config,
-            training_result,
-            training_config,
-        )
-        print_educational_summary(args, logger, dataset_config)
-        return 0
+        # Store values for visualization
+        viz_success = True
+        viz_data = (args, logger, model, data_split, model_config, training_result, training_config)
+        
     except KeyboardInterrupt:
-        logger.info("Training interrupted by user")
+        print("Training interrupted by user")
         return 1
     except Exception as e:  # pylint: disable=broad-except
         # This is a top-level catch to ensure all errors are logged and surfaced
-        logger.error("Training failed: %s", e)
         print(f"ERROR: {e}")
-        print(traceback.format_exc())
-        logger.debug(traceback.format_exc())
+        print(f"Traceback: {traceback.format_exc()}")
         return 1
+    
+    # Generate visualizations outside try block to ensure they always run
+    if viz_success:
+        try:
+            generate_visualizations(*viz_data)
+            print_educational_summary(args, logger, dataset_config)
+        except Exception as e:
+            print(f"Visualization error: {e}")
+            print(f"Traceback: {traceback.format_exc()}")
+    
+    return 0
 
 
 if __name__ == "__main__":

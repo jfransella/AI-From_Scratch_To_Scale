@@ -61,6 +61,31 @@ class MLPExperimentConfig:
     save_history: bool = True
     verbose: bool = True
 
+    # Wandb integration (comprehensive configuration)
+    use_wandb: bool = True  # Enable by default for MLP experiments
+    wandb_project: str = "ai-from-scratch-mlp"
+    wandb_name: Optional[str] = None  # Auto-generated if None
+    wandb_tags: List[str] = field(default_factory=lambda: ["mlp", "backpropagation"])
+    wandb_notes: str = ""
+    wandb_mode: str = "online"  # "online", "offline", "disabled"
+    
+    # MLP-specific wandb features
+    wandb_watch_model: bool = True  # Watch gradients for backprop education
+    wandb_watch_log: str = "gradients"  # Log gradients to see backprop
+    wandb_watch_freq: int = 50  # Frequency for gradient logging
+    wandb_log_layer_activations: bool = True  # Educational: log layer outputs
+    wandb_log_weight_histograms: bool = True  # Educational: weight evolution
+    wandb_log_xor_breakthrough: bool = True  # Special tracking for XOR problem
+    
+    # Artifact configuration
+    wandb_log_checkpoints: bool = True
+    wandb_log_visualizations: bool = True
+    wandb_log_datasets: bool = False
+    
+    # Group organization for MLP experiments
+    wandb_group: Optional[str] = None  # Auto-generated based on experiment type
+    wandb_job_type: str = "train"
+
     # Random seed for reproducibility
     random_seed: int = 42
 
@@ -72,6 +97,28 @@ class MLPExperimentConfig:
         """Validate configuration after initialization."""
         # Ensure output directory exists
         os.makedirs(self.output_dir, exist_ok=True)
+        
+        # Auto-generate wandb configuration if not provided
+        if self.wandb_name is None:
+            self.wandb_name = f"mlp-{self.name}-{self.architecture_name}"
+        
+        if self.wandb_group is None:
+            if "xor" in self.dataset_type.lower():
+                self.wandb_group = "mlp-xor-breakthrough"
+            elif "circle" in self.dataset_type.lower():
+                self.wandb_group = "mlp-nonlinear-challenges"
+            else:
+                self.wandb_group = f"mlp-{self.dataset_type}"
+        
+        # Add dataset-specific tags
+        if "xor" in self.dataset_type.lower():
+            self.wandb_tags.extend(["xor", "breakthrough", "nonlinear"])
+        if "circle" in self.dataset_type.lower():
+            self.wandb_tags.extend(["circles", "challenge", "nonlinear"])
+        
+        # Auto-generate notes if empty
+        if not self.wandb_notes:
+            self.wandb_notes = f"MLP {self.architecture_name} solving {self.dataset_type} problem"
 
 
 # =============================================================================
@@ -116,9 +163,29 @@ if HAS_ENGINE:
             "output_dir": "outputs",
             "log_freq": 10,
             "verbose": True,
-            "use_wandb": False,
+            
+            # Enhanced wandb configuration for MLP
+            "use_wandb": True,  # Enable by default
             "wandb_project": "ai-from-scratch-mlp",
-            "wandb_tags": ["mlp", experiment_name],
+            "wandb_name": None,  # Auto-generated
+            "wandb_tags": ["mlp", experiment_name, "backpropagation"],
+            "wandb_notes": f"MLP training on {experiment_name} - demonstrating non-linear learning",
+            "wandb_mode": "online",
+            
+            # MLP-specific wandb features
+            "wandb_watch_model": True,  # Essential for MLP education
+            "wandb_watch_log": "gradients",  # Show backpropagation
+            "wandb_watch_freq": 50,
+            
+            # Artifact configuration
+            "wandb_log_checkpoints": True,
+            "wandb_log_visualizations": True,
+            "wandb_log_datasets": False,
+            
+            # Group organization
+            "wandb_group": f"mlp-{experiment_name}",
+            "wandb_job_type": "train",
+            
             "random_seed": 42,
             "device": "cpu",
         }

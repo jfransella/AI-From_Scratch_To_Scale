@@ -104,9 +104,29 @@ def get_training_config(experiment_name: str, **overrides) -> TrainingConfig:
         # Logging and tracking
         "log_freq": 10,
         "verbose": True,
-        "use_wandb": False,
+        
+        # Enhanced wandb configuration  
+        "use_wandb": True,  # Enable by default now
         "wandb_project": "ai-from-scratch-perceptron",
+        "wandb_name": None,  # Will be auto-generated
         "wandb_tags": [MODEL_NAME.lower(), experiment_name],
+        "wandb_notes": f"Training {MODEL_NAME} on {experiment_name} dataset",
+        "wandb_mode": "online",
+        
+        # Advanced wandb features
+        "wandb_watch_model": True,
+        "wandb_watch_log": "gradients",
+        "wandb_watch_freq": 50,
+        
+        # Artifact configuration
+        "wandb_log_checkpoints": True,
+        "wandb_log_visualizations": True,
+        "wandb_log_datasets": False,
+        
+        # Group and sweep support
+        "wandb_group": f"perceptron-{experiment_name}",
+        "wandb_job_type": "train",
+        
         # Reproducibility
         "random_seed": 42,
         # Device

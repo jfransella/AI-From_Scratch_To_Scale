@@ -11,9 +11,19 @@ import platform
 
 try:
     import torch
-    _TORCH_AVAILABLE = True
+    # Verify torch is properly loaded by checking for essential attributes
+    if hasattr(torch, '__version__') and hasattr(torch, 'device') and hasattr(torch, 'tensor'):
+        _TORCH_AVAILABLE = True
+        TorchDevice = torch.device
+    else:
+        # torch module exists but is broken/incomplete
+        _TORCH_AVAILABLE = False
+        torch = None
+        TorchDevice = Any
 except ImportError:
+    torch = None
     _TORCH_AVAILABLE = False
+    TorchDevice = Any
 
 from .exceptions import DeviceError
 
@@ -337,7 +347,7 @@ def _test_device(device: str):
         raise DeviceError(f"Device {device} functionality test failed: {e}")
 
 
-def _get_cuda_info(device: torch.device) -> Dict[str, Any]:
+def _get_cuda_info(device: TorchDevice) -> Dict[str, Any]:
     """Get CUDA-specific device information."""
     info = {}
     

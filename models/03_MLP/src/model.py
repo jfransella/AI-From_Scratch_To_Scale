@@ -488,26 +488,67 @@ class MLP(nn.Module):
 
     def get_model_info(self) -> Dict[str, Any]:
         """
-        Get information about the model architecture.
-
+        Get comprehensive model information for wandb integration.
+        
         Returns:
-            Dictionary containing model information
+            Dictionary containing model metadata and current state
         """
-        total_params = sum(p.numel() for p in self.parameters())
-        trainable_params = sum(p.numel() for p in self.parameters() if p.requires_grad)
-
         return {
+            # Core identification
             "model_name": "MLP",
+            "full_name": "Multi-Layer Perceptron",
+            "category": "foundation",
+            "module": 1,
+            "pattern": "engine-based",
+            
+            # Historical context
+            "year_introduced": 1969,
+            "authors": ["Marvin Minsky", "Seymour Papert", "Paul Werbos"],
+            "paper_title": "Perceptrons: An Introduction to Computational Geometry",
+            "key_innovations": [
+                "Universal function approximation",
+                "Solved XOR problem",
+                "Backpropagation learning",
+                "Hidden layer representations"
+            ],
+            
+            # Architecture details
+            "architecture_type": "multi-layer-feedforward",
             "input_size": self.input_size,
-            "hidden_size": self.hidden_layers[0] if self.hidden_layers else None,
+            "hidden_layers": self.hidden_layers,
             "output_size": self.output_size,
             "activation": self.activation_name,
             "weight_init": self.weight_init,
-            "total_parameters": total_params,
-            "trainable_parameters": trainable_params,
-            "architecture": str(self),
+            "total_parameters": self._count_parameters(),
+            
+            # Training characteristics
+            "learning_algorithm": "backpropagation",
+            "loss_function": "binary-cross-entropy" if self.output_size == 1 else "cross-entropy",
+            "optimizer": "sgd",
+            
+            # Implementation details
+            "framework": "pytorch",
+            "precision": "float32",
+            "device": str(self.device),
+            
+            # Capabilities
+            "can_solve_xor": len(self.hidden_layers) > 0 and all(h > 0 for h in self.hidden_layers),
+            "is_nonlinear": True,
+            "universal_approximator": True,
+            
+            # Current state
             "is_fitted": self.is_fitted,
-            "epochs_trained": self.training_history.get("epochs_trained", 0),
+            "training_history": self.training_history,
+            
+            # Educational metadata
+            "difficulty_level": "intermediate",
+            "estimated_training_time": "minutes",
+            "key_learning_objectives": [
+                "Understanding backpropagation",
+                "Non-linear problem solving",
+                "XOR breakthrough moment",
+                "Gradient flow through layers"
+            ]
         }
 
     def save_checkpoint(

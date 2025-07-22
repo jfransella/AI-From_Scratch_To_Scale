@@ -654,3 +654,130 @@ pip list | grep -E "(torch|numpy|matplotlib)"
 - Always test with `debug_small` first before running full experiments
 
 This reference is designed to be your go-to resource for rapid development and troubleshooting. Happy coding! 🚀
+
+---
+
+## **🔬 Wandb Integration Reference**
+
+### **Quick Start Commands**
+
+```powershell
+# Train with wandb
+python src\train.py --experiment xor_breakthrough --wandb
+
+# Train with custom project and tags
+python src\train.py --experiment iris_binary --wandb --wandb-project my-research --tags strength comparison
+
+# Train with offline mode
+python src\train.py --experiment debug_small --wandb --mode offline
+
+# Run hyperparameter sweep
+wandb sweep docs\templates\wandb_sweep.yaml
+wandb agent {sweep_id}
+```
+
+### **Project Naming Convention**
+
+| Model | Project Name |
+|-------|--------------|
+| Perceptron | `ai-from-scratch-perceptron` |
+| ADALINE | `ai-from-scratch-adaline` |
+| MLP | `ai-from-scratch-mlp` |
+| LeNet-5 | `ai-from-scratch-lenet5` |
+| ResNet | `ai-from-scratch-resnet` |
+| Transformer | `ai-from-scratch-transformer` |
+
+### **Standard Tags**
+
+**Base Tags (Automatic)**:
+
+- Model name: `perceptron`, `adaline`, `mlp`
+- Module: `module-1`, `module-2`, etc.
+- Category: `foundation`, `cnn`, `sequence`, `generative`, `modern`
+- Pattern: `engine-based`, `simple`
+
+**Experiment Tags**:
+
+- Type: `strength`, `weakness`, `comparison`, `debug`
+- Dataset: `synthetic`, `real`, `vision`, `nlp`
+- Scale: `small`, `medium`, `large`
+
+### **Configuration Templates**
+
+**Simple Pattern Integration**:
+
+```python
+from docs.templates.wandb_config_example import SimpleWandbIntegration, get_model_info_template
+
+# Setup model info
+model_info = get_model_info_template()
+model_info.update({"name": "ADALINE", "category": "foundation"})
+
+# Create wandb helper
+wandb_helper = SimpleWandbIntegration(model_info)
+
+# Initialize and use
+wandb_helper.init_wandb("experiment_name")
+wandb_helper.log_metrics({"loss": 0.1}, step=1)
+wandb_helper.finish()
+```
+
+**Engine Pattern Integration**:
+
+```python
+# Automatic integration through TrainingConfig
+config = get_training_config("experiment_name", 
+                           use_wandb=True,
+                           wandb_tags=["strength", "comparison"])
+```
+
+### **Artifact Types**
+
+| Type | Description | Examples |
+|------|-------------|----------|
+| `model` | Model checkpoints and weights | `.pth`, `.pkl` files |
+| `dataset` | Dataset versions and metadata | Processed data, statistics |
+| `visualization` | Generated plots and images | Learning curves, decision boundaries |
+| `analysis` | Analysis reports and comparisons | Comparison studies, ablations |
+
+### **Common Wandb Commands**
+
+```powershell
+# Login to wandb
+wandb login
+
+# Check wandb status
+wandb status
+
+# Sync offline runs
+wandb sync wandb\offline-run-*
+
+# View local runs
+wandb runs
+
+# Download artifacts
+wandb artifact get project/artifact:version
+```
+
+### **Dashboard Organization**
+
+**Module-Based Organization**:
+
+```text
+ai-from-scratch-{model}/
+├── module-1-foundations/
+├── module-2-cnn-revolution/
+├── module-3-cnn-applications/
+├── module-4-sequence-models/
+├── module-5-generative-era/
+└── module-6-modern-paradigm/
+```
+
+**Experiment Grouping**:
+
+- `{model-name}-strengths`
+- `{model-name}-weaknesses`
+- `{model-name}-vs-{other-model}`
+- `{model-name}-sweep-{date}`
+
+---

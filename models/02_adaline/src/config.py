@@ -40,6 +40,13 @@ class ADALINEConfig:
     save_model: bool = True
     visualize: bool = False
     
+    # Wandb integration (following Simple Pattern for ADALINE)
+    use_wandb: bool = True
+    wandb_project: str = "ai-from-scratch-adaline"
+    wandb_tags: list = None
+    wandb_notes: str = ""
+    wandb_mode: str = "online"
+    
     # Reproducibility
     random_seed: int = 42
 

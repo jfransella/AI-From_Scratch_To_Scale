@@ -1,25 +1,29 @@
 """
-Random seed utilities for AI From Scratch to Scale project.
+Random seed management utilities for reproducible experiments.
 
-Provides reproducible random seed management across different libraries
-(Python random, NumPy, PyTorch) to ensure experimental reproducibility.
+Provides unified seed setting across NumPy, PyTorch, and Python's random module
+to ensure consistent results across different runs of the same experiment.
 """
 
-import random
-import os
-from typing import Optional
 import logging
+import os
+import random
+from typing import Optional
 
-try:
-    import numpy as np
-    _NUMPY_AVAILABLE = True
-except ImportError:
-    _NUMPY_AVAILABLE = False
+import numpy as np
+_NUMPY_AVAILABLE = True
 
+# Handle torch imports gracefully
 try:
     import torch
-    _TORCH_AVAILABLE = True
+    if hasattr(torch, '__version__') and hasattr(torch, 'manual_seed'):
+        _TORCH_AVAILABLE = True
+    else:
+        # torch exists but is broken
+        _TORCH_AVAILABLE = False
+        torch = None
 except ImportError:
+    torch = None
     _TORCH_AVAILABLE = False
 
 

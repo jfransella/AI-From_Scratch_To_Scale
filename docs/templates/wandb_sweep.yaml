@@ -1,0 +1,64 @@
+# Wandb Sweep Configuration Template
+# Usage: wandb sweep docs/templates/wandb_sweep.yaml
+
+program: src/train.py
+method: bayes
+project: ai-from-scratch-{model-name}
+name: {model-name}-hyperparameter-sweep
+
+parameters:
+  # Core hyperparameters
+  learning_rate:
+    distribution: log_uniform_values
+    min: 0.0001
+    max: 0.1
+  
+  batch_size:
+    values: [16, 32, 64, 128]
+  
+  epochs:
+    distribution: int_uniform
+    min: 100
+    max: 1000
+  
+  # Model-specific parameters (uncomment as needed)
+  # hidden_size:
+  #   values: [32, 64, 128, 256]
+  # 
+  # dropout_rate:
+  #   distribution: uniform
+  #   min: 0.0
+  #   max: 0.5
+  #
+  # weight_decay:
+  #   distribution: log_uniform_values
+  #   min: 1e-6
+  #   max: 1e-2
+  
+  # Fixed parameters
+  experiment:
+    value: {experiment_name}
+  
+  wandb:
+    value: true
+  
+  visualize:
+    value: true
+
+# Optimization goal
+metric:
+  name: val_accuracy
+  goal: maximize
+
+# Early termination for efficiency
+early_terminate:
+  type: hyperband
+  min_iter: 50
+  max_iter: 500
+
+# Run configuration
+run_cap: 50
+command:
+  - python
+  - ${program}
+  - ${args} 

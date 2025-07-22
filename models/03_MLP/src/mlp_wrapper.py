@@ -574,11 +574,10 @@ class MLPWrapper(nn.Module, BaseModel):
                 architecture_metrics = {
                     "model/input_size": self.input_size,
                     "model/hidden_layers": len(self.hidden_layers),
-                    "model/hidden_layer_sizes": self.hidden_layers,
+                    "model/first_hidden_size": self.hidden_layers[0] if self.hidden_layers else 0,
                     "model/output_size": self.output_size,
                     "model/total_parameters": model_info.get("total_parameters", 0),
-                    "model/activation": self.activation,
-                    "model/can_solve_xor": model_info.get("can_solve_xor", False),
+                    "model/can_solve_xor": int(model_info.get("can_solve_xor", False)),  # Convert bool to int
                     "config/learning_rate": config.learning_rate,
                     "config/max_epochs": config.max_epochs
                 }
@@ -735,12 +734,12 @@ class MLPWrapper(nn.Module, BaseModel):
             final_metrics = {
                 "final/loss": final_results["final_loss"],
                 "final/accuracy": final_results["final_train_accuracy"],
-                "final/converged": final_results["converged"],
+                "final/converged": int(final_results["converged"]),  # Convert bool to int
                 "final/epochs_trained": final_results["epochs_trained"]
             }
             
             if is_xor_problem:
-                final_metrics["final/xor_solved"] = final_results["xor_solved"]
+                final_metrics["final/xor_solved"] = int(final_results["xor_solved"])  # Convert bool to int
                 if final_results["breakthrough_epoch"]:
                     final_metrics["final/breakthrough_epoch"] = final_results["breakthrough_epoch"]
             

@@ -227,11 +227,8 @@ from engine.base import BaseModel
 from utils import get_logger, set_random_seed
 
 # Import model-specific components
-try:
-    from .constants import AUTHORS, MODEL_NAME, MODEL_VERSION, YEAR_INTRODUCED
-except ImportError:
-    # Fallback for direct imports (e.g., during testing)
-    from constants import AUTHORS, MODEL_NAME, MODEL_VERSION, YEAR_INTRODUCED
+# Always use absolute imports for better compatibility
+from constants import AUTHORS, MODEL_NAME, MODEL_VERSION, YEAR_INTRODUCED
 
 
 class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-attributes
@@ -534,6 +531,7 @@ class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-
             "model_version": MODEL_VERSION,
             "original_author": AUTHORS[0] if AUTHORS else "Frank Rosenblatt",
             "total_parameters": total_params,
+            "activation": self.activation,  # Legacy field name for activation_function
         }
 
     def save_checkpoint(

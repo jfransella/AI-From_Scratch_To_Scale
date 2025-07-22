@@ -6,6 +6,8 @@ separable problems like XOR, overcoming the fundamental limitations of
 single-layer perceptrons through the use of hidden layers and backpropagation.
 """
 
+import sys
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Callable, Any
 
 import torch
@@ -13,13 +15,30 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
-# Import shared packages
-from utils import get_logger, set_random_seed
+# Add project root to path for shared imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+# Import shared packages gracefully
+try:
+    from utils import get_logger, set_random_seed
+    _UTILS_AVAILABLE = True
+except ImportError:
+    _UTILS_AVAILABLE = False
+    
+    def get_logger(name):
+        import logging
+        return logging.getLogger(name)
+    
+    def set_random_seed(seed):
+        import random
+        random.seed(seed)
+        torch.manual_seed(seed)
+        np.random.seed(seed)
 
 # Import engine framework (optional)
 try:
     from engine.base import BaseModel
-
     HAS_BASE_MODEL = True
 except ImportError:
     BaseModel = object

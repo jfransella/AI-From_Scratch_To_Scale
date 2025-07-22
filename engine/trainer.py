@@ -568,7 +568,7 @@ class Trainer:
         self.logger.info(f"Starting training: {self.config.experiment_name}")
 
         # Setup model and training
-        model = model.to(self.config.device)
+        model = model.to(self.device)
         optimizer = self._setup_optimizer(model)
         scheduler = self._setup_scheduler(optimizer)
 

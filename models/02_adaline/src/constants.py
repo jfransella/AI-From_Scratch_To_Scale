@@ -12,6 +12,7 @@ from typing import Dict, Any
 # =============================================================================
 
 MODEL_NAME = "ADALINE"
+MODEL_VERSION = "1.0.0"  # Added for compatibility with test framework
 FULL_NAME = "Adaptive Linear Neuron"
 YEAR_INTRODUCED = 1960
 AUTHORS = ["Bernard Widrow", "Ted Hoff"]
@@ -48,6 +49,10 @@ MIN_LEARNING_RATE = 1e-6
 MAX_LEARNING_RATE = 1.0
 DEFAULT_TOLERANCE = 1e-6
 DEFAULT_MAX_EPOCHS = 1000
+
+# Model parameters (added for compatibility with test framework)
+DEFAULT_ACTIVATION = "linear"  # ADALINE uses linear activation
+DEFAULT_INIT_METHOD = "zeros"  # ADALINE traditionally starts with zero weights
 
 # Activation and initialization
 ACTIVATION_FUNCTION = "linear"  # No activation (continuous output)

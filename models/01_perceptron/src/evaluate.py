@@ -19,15 +19,10 @@ from data_utils import load_dataset
 from engine.evaluator import Evaluator
 
 # Import model-specific components
-try:
-    from .config import get_evaluation_config, get_dataset_config, get_model_config
-    from .model import Perceptron
-    from .constants import MODEL_NAME, ALL_EXPERIMENTS
-except ImportError:
-    # Fallback for direct imports (e.g., during testing)
-    from config import get_evaluation_config, get_dataset_config, get_model_config
-    from model import Perceptron
-    from constants import MODEL_NAME, ALL_EXPERIMENTS
+# Always use absolute imports for better compatibility
+from config import get_evaluation_config, get_dataset_config, get_model_config
+from model import Perceptron
+from constants import MODEL_NAME, ALL_EXPERIMENTS
 
 # Optional plotting imports (handled gracefully if not installed)
 try:

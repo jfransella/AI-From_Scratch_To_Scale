@@ -165,6 +165,17 @@ LOSS_FUNCTIONS = {
 }
 
 # =============================================================================
+# TEST FRAMEWORK COMPATIBILITY CONSTANTS
+# =============================================================================
+
+# Default parameters for test framework compatibility
+DEFAULT_ACTIVATION = "relu"  # Modern default for MLPs
+DEFAULT_INIT_METHOD = "he_normal"  # Appropriate for ReLU networks
+DEFAULT_LEARNING_RATE = 0.1  # From DEFAULT_TRAINING_CONFIG
+DEFAULT_MAX_EPOCHS = 1000  # From DEFAULT_TRAINING_CONFIG
+DEFAULT_TOLERANCE = 1e-6  # From DEFAULT_TRAINING_CONFIG
+
+# =============================================================================
 # DATASET CONFIGURATIONS
 # =============================================================================
 

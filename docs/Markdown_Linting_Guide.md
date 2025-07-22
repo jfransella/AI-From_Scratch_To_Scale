@@ -22,7 +22,9 @@ npm install -g markdownlint-cli
 
 # Or install as project dependency
 npm install
-```text`n### 2. VS Code Extension
+```
+
+### 2. VS Code Extension
 
 Install the `markdownlint` extension in VS Code:
 
@@ -126,7 +128,8 @@ Access via `Ctrl+Shift+P` → "Tasks: Run Task":
 # Check all files for issues
 .\scripts\fix_markdown.ps1 -CheckOnly
 
-# Fix all auto-fixable issues (2)
+# Fix all auto-fixable issues
+ (2)
 .\scripts\fix_markdown.ps1
 
 # Verbose output

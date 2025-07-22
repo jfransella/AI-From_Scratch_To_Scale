@@ -309,7 +309,7 @@ class TestPerceptronModelInfo:
         # Check required keys
         required_keys = [
             'model_name', 'model_version', 'year_introduced', 'original_author',
-            'input_size', 'output_size', 'activation', 'total_parameters',
+            'input_size', 'output_size', 'activation_function', 'total_parameters',
             'trainable_parameters'
         ]
         
@@ -320,7 +320,7 @@ class TestPerceptronModelInfo:
         assert info['model_name'] == MODEL_NAME
         assert info['input_size'] == 4
         assert info['output_size'] == 1
-        assert info['activation'] == 'step'
+        assert info['activation_function'] == 'step'
         assert info['total_parameters'] > 0
         assert info['trainable_parameters'] > 0
     

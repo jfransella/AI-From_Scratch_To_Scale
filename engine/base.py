@@ -8,7 +8,7 @@ for models, training results, and other core components of the training system.
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 # Handle torch imports gracefully
 try:
@@ -172,38 +172,31 @@ class BaseModel(ABC):
     @abstractmethod
     def forward(self, x: TorchTensor) -> TorchTensor:
         """Forward pass through the model."""
-        pass
 
     @abstractmethod
     def fit(self, x_data: TorchTensor, y_target: TorchTensor) -> Dict[str, Any]:
         """Train the model on the given data."""
-        pass
 
     @abstractmethod
     def predict(self, x: TorchTensor) -> TorchTensor:
         """Make predictions on the given data."""
-        pass
 
     @abstractmethod
     def get_loss(self, outputs: TorchTensor, targets: TorchTensor) -> TorchTensor:
         """Compute loss for the given outputs and targets."""
-        pass
 
     @abstractmethod
     def get_model_info(self) -> Dict[str, Any]:
         """Get information about the model architecture and status."""
-        pass
 
     @abstractmethod
     def save_model(self, filepath: str):
         """Save the model to disk."""
-        pass
 
     @classmethod
     @abstractmethod
     def load_model(cls, filepath: str) -> "BaseModel":
         """Load a model from disk."""
-        pass
 
     # New wandb integration methods
     def init_wandb(
@@ -347,10 +340,10 @@ class BaseModel(ABC):
         if self.wandb_run is not None:
             try:
                 image = wandb.Image(image_path, caption=caption)
-                
+
                 # Use unique keys for different visualization types to avoid step slider grouping
                 image_filename = Path(image_path).stem.lower()
-                
+
                 if "training_history" in image_filename or "history" in image_filename:
                     key = "training_history_plot"
                 elif "decision_boundary" in image_filename or "boundary" in image_filename:
@@ -362,13 +355,13 @@ class BaseModel(ABC):
                 else:
                     # Fallback to generic visualization key
                     key = "visualization"
-                
+
                 # Log without step parameter for static visualizations unless explicitly provided
                 if step is not None:
                     self.wandb_run.log({key: image}, step=step)
                 else:
                     self.wandb_run.log({key: image})
-                    
+
             except Exception as e:
                 self.logger.warning(f"Failed to log image to wandb: {e}")
 

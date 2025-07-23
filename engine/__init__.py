@@ -21,12 +21,12 @@ __all__ = [
     # Core training
     "Trainer",
     "TrainingConfig",
-    # Core evaluation  
+    # Core evaluation
     "Evaluator",
     "EvaluationConfig",
     "ModelMetrics",
     # Base interfaces
     "BaseModel",
-    "TrainingResult", 
+    "TrainingResult",
     "EvaluationResult"
-] 
+]

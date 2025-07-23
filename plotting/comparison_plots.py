@@ -10,9 +10,7 @@ class ComparisonPlotter:
 
 def plot_model_comparison(results, title="Model Comparison", save_path: Optional[str] = None):
     """Plot model comparison results."""
-    pass
 
 
 def plot_performance_heatmap(results, title="Performance Heatmap", save_path: Optional[str] = None):
     """Plot performance heatmap."""
-    pass 

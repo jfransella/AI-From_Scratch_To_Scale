@@ -27,7 +27,9 @@ sys.path.insert(0, str(perceptron_src))
 
 def import_from_src(module_name, symbol=None):
     """Import a module from perceptron src directory."""
-    spec = importlib.util.spec_from_file_location(module_name, perceptron_src / f"{module_name}.py")
+    spec = importlib.util.spec_from_file_location(
+        module_name, perceptron_src / f"{module_name}.py"
+    )
     if spec is None:
         raise ImportError(f"Could not load module {module_name}")
     mod = importlib.util.module_from_spec(spec)
@@ -67,7 +69,7 @@ class TestEvaluateScriptIntegration:
             capture_output=True,
             text=True,
             check=False,
-            cwd=str(perceptron_src.parent)  # Run from models/01_perceptron directory
+            cwd=str(perceptron_src.parent),  # Run from models/01_perceptron directory
         )
 
         assert result.returncode == 0
@@ -79,14 +81,18 @@ class TestEvaluateScriptIntegration:
         """Test that the script fails gracefully with missing checkpoint."""
         result = subprocess.run(
             [
-                sys.executable, "-m", "src.evaluate",
-                "--checkpoint", "nonexistent.pth",
-                "--experiment", "debug_small"
+                sys.executable,
+                "-m",
+                "src.evaluate",
+                "--checkpoint",
+                "nonexistent.pth",
+                "--experiment",
+                "debug_small",
             ],
             capture_output=True,
             text=True,
             check=False,
-            cwd=str(perceptron_src.parent)
+            cwd=str(perceptron_src.parent),
         )
 
         assert result.returncode == 1
@@ -96,14 +102,18 @@ class TestEvaluateScriptIntegration:
         """Test that the script fails with invalid experiment name."""
         result = subprocess.run(
             [
-                sys.executable, "-m", "src.evaluate",
-                "--checkpoint", self.checkpoint_path,
-                "--experiment", "invalid_experiment"
+                sys.executable,
+                "-m",
+                "src.evaluate",
+                "--checkpoint",
+                self.checkpoint_path,
+                "--experiment",
+                "invalid_experiment",
             ],
             capture_output=True,
             text=True,
             check=False,
-            cwd=str(perceptron_src.parent)
+            cwd=str(perceptron_src.parent),
         )
 
         assert result.returncode == 1
@@ -118,17 +128,22 @@ class TestEvaluateScriptIntegration:
 
         result = subprocess.run(
             [
-                sys.executable, "-m", "src.evaluate",
-                "--checkpoint", self.checkpoint_path,
-                "--experiment", "debug_small",
-                "--split", "test",
-                "--verbose"
+                sys.executable,
+                "-m",
+                "src.evaluate",
+                "--checkpoint",
+                self.checkpoint_path,
+                "--experiment",
+                "debug_small",
+                "--split",
+                "test",
+                "--verbose",
             ],
             capture_output=True,
             text=True,
             check=False,
             cwd=str(perceptron_src.parent),
-            timeout=60  # 60 second timeout
+            timeout=60,  # 60 second timeout
         )
 
         # Check that the script ran successfully
@@ -146,10 +161,12 @@ class TestEvaluateScriptIntegration:
                 "No module named 'engine'",
                 "Could not load dataset",
                 "charmap' codec can't encode character",  # Windows encoding issue with unicode
-                "UnicodeEncodeError"
+                "UnicodeEncodeError",
             ]
 
-            has_acceptable_error = any(error in error_output for error in acceptable_errors)
+            has_acceptable_error = any(
+                error in error_output for error in acceptable_errors
+            )
             if not has_acceptable_error:
                 # Unexpected error - fail the test
                 pytest.fail(f"Unexpected error: {error_output}")
@@ -249,7 +266,7 @@ class TestEvaluationFunctionUnits:
             "f1_score": 0.85,
             "num_samples": 100,
             "experiment_name": "test_experiment",
-            "model_name": "Perceptron"
+            "model_name": "Perceptron",
         }
 
         # Save to file

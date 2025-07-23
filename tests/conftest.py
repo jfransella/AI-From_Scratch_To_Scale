@@ -28,12 +28,8 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "integration: Integration tests for component interactions"
     )
-    config.addinivalue_line(
-        "markers", "smoke: Smoke tests for basic functionality"
-    )
-    config.addinivalue_line(
-        "markers", "slow: Slow tests that should be run separately"
-    )
+    config.addinivalue_line("markers", "smoke: Smoke tests for basic functionality")
+    config.addinivalue_line("markers", "slow: Slow tests that should be run separately")
 
 
 def pytest_collection_modifyitems(config, items):
@@ -67,9 +63,11 @@ def test_data_dir():
 def temp_dir():
     """Create a temporary directory for tests."""
     import tempfile
+
     temp_dir = tempfile.mkdtemp()
     yield temp_dir
     import shutil
+
     shutil.rmtree(temp_dir, ignore_errors=True)
 
 
@@ -77,13 +75,13 @@ def temp_dir():
 def mock_config():
     """Return a mock configuration for testing."""
     return {
-        'input_size': 4,
-        'learning_rate': 0.1,
-        'max_epochs': 10,
-        'tolerance': 1e-6,
-        'activation': 'step',
-        'init_method': 'zeros',
-        'random_state': 42
+        "input_size": 4,
+        "learning_rate": 0.1,
+        "max_epochs": 10,
+        "tolerance": 1e-6,
+        "activation": "step",
+        "init_method": "zeros",
+        "random_state": 42,
     }
 
 
@@ -91,9 +89,10 @@ def mock_config():
 def mock_data():
     """Return mock data for testing."""
     import torch
+
     return {
-        'X': torch.randn(100, 4),
-        'y': torch.randint(0, 2, (100,)).float(),
-        'X_test': torch.randn(20, 4),
-        'y_test': torch.randint(0, 2, (20,)).float()
-    } 
+        "X": torch.randn(100, 4),
+        "y": torch.randint(0, 2, (100,)).float(),
+        "X_test": torch.randn(20, 4),
+        "y_test": torch.randint(0, 2, (20,)).float(),
+    }

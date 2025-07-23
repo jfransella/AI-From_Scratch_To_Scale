@@ -90,14 +90,31 @@ Your `Ctrl+Shift+P → Tasks: Run Task` now includes:
 - **Plot Integration** - High-quality SVG plots
 - **Kernel Management** - Smart kernel selection
 
-## 🔄 **Linter Coordination**
+## 🔄 **Linter Coordination** 
 
 The three linters work together without conflicts:
 
 - **No duplicate warnings** - Each focuses on different aspects
-- **Compatible formatting** - All use 88-character line length
+- **Compatible formatting** - All use 88-character line length ✅ **UPDATED**
 - **Smart ignores** - Pylint disabled where Flake8 handles better
 - **Research-friendly** - Relaxed rules for ML experimentation
+- **Notebook support** - Special rules for Jupyter notebooks ✅ **NEW**
+
+### **📏 Line Length Standardization** ✅ **COMPLETED**
+
+**All tools now aligned at 88 characters:**
+- **Flake8**: 88 chars (updated from 120)
+- **Black**: 88 chars (already configured)  
+- **VS Code**: 88 chars (already configured)
+- **Markdownlint**: 120 chars (appropriate for docs)
+
+### **🎯 Enhanced File-Specific Rules** ✅ **NEW**
+
+**Flake8 now includes smart per-file ignores:**
+- **Notebooks**: Longer lines allowed for markdown/output
+- **Training scripts**: More experimental code patterns allowed
+- **Config files**: Extended line lengths for readability
+- **Tests**: Relaxed rules for test-specific patterns
 
 ## 📈 **Performance Optimizations**
 

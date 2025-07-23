@@ -1,0 +1,165 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Quick Lint Fix - All",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "scripts/quick_lint_fix.py"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "detail": "Apply automated fixes for common linting issues (whitespace, imports, basic formatting)"
+        },
+        {
+            "label": "Quick Lint Fix - Specific Path",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "scripts/quick_lint_fix.py",
+                "--path",
+                "${input:directoryPath}"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "detail": "Apply automated fixes for common linting issues to a specific directory"
+        },
+        {
+            "label": "Advanced Lint Fix",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "scripts/advanced_lint_fix.py"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "detail": "Apply advanced automated fixes (f-strings, multiple statements, bare except)"
+        },
+        {
+            "label": "Lint Check - All",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "-m",
+                "flake8",
+                "--statistics",
+                "--count",
+                "data_utils/",
+                "utils/",
+                "engine/",
+                "plotting/"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": {
+                "owner": "python",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(\\w\\d+)\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "code": 4,
+                    "message": 5
+                }
+            },
+            "detail": "Run flake8 linting check on main project directories"
+        },
+        {
+            "label": "Lint Check - Current File",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "-m",
+                "flake8",
+                "${file}"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": {
+                "owner": "python",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(\\w\\d+)\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "code": 4,
+                    "message": 5
+                }
+            },
+            "detail": "Run flake8 linting check on the currently open file"
+        },
+        {
+            "label": "Lint Fix Dry Run",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "scripts/quick_lint_fix.py",
+                "--dry-run"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "detail": "Show what would be fixed without making changes"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "directoryPath",
+            "description": "Directory to apply linting fixes to",
+            "default": "data_utils",
+            "type": "pickString",
+            "options": [
+                "data_utils",
+                "utils",
+                "engine",
+                "plotting",
+                "models/01_perceptron/src",
+                "models/02_adaline/src",
+                "models/03_mlp/src",
+                "tests"
+            ]
+        }
+    ]
+}

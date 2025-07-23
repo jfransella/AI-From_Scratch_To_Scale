@@ -4,18 +4,7 @@
     "python.defaultInterpreterPath": "${workspaceFolder}/models/01_perceptron/.venv/Scripts/python.exe",
     "python.terminal.activateEnvironment": true,
     // Python Path Configuration for Language Server
-    "python.analysis.extraPaths": [
-        ".",
-        "./data_utils",
-        "./engine",
-        "./plotting",
-        "./utils",
-        "./models/01_perceptron/src",
-        "./models/02_adaline/src",
-        "./models/03_mlp/src"
-    ],
     "python.analysis.autoImportCompletions": true,
-    "python.analysis.autoSearchPaths": true,
     // Linting Configuration - Multiple linters for comprehensive code quality
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": true,
@@ -38,23 +27,6 @@
         "docs/examples/**",
         "docs/validation/**",
         "Documentation/templates/**"
-    ],
-    "python.analysis.exclude": [
-        "docs/templates/**",
-        "docs/examples/**",
-        "docs/validation/**",
-        "Documentation/templates/**",
-        ".vscode/**",
-        "**/.venv/**",
-        "**/venv/**",
-        "**/__pycache__/**",
-        "**/.git/**",
-        "**/.pytest_cache/**",
-        "**/build/**",
-        "**/dist/**",
-        "**/*.egg-info/**",
-        "**/.coverage",
-        "**/.mypy_cache/**"
     ],
     // Mypy specific settings  
     "python.linting.mypyArgs": [
@@ -133,8 +105,7 @@
     "jupyter.themeMatplotlibPlots": true,
     // Git Configuration
     "git.ignoreLimitWarning": true,
-    // Pylance/Pyright Configuration
-    "python.analysis.typeCheckingMode": "basic",
+    // Pylance/Pyright Configuration - Note: Main config is in pyrightconfig.json
     "python.analysis.completeFunctionParens": true,
     "python.analysis.indexing": true,
     "python.analysis.packageIndexDepths": [
@@ -159,7 +130,6 @@
             "depth": 2
         }
     ],
-    "python.analysis.stubPath": "./typings",
     "python.analysis.importFormat": "relative",
     "python.analysis.inlayHints.variableTypes": true,
     "python.analysis.inlayHints.functionReturnTypes": true,
@@ -278,11 +248,6 @@
     "markdown.extension.toc.plaintext": false,
     "markdown.extension.toc.includeAnchor": true,
     "markdown.extension.toc.anchorLink": true,
-    "markdown.extension.toc.anchorLinkSpace": false,
-    "markdown.extension.toc.anchorLinkStyle": "github",
-    "markdown.extension.toc.anchorLinkSymbol": "#",
-    "markdown.extension.toc.anchorLinkBefore": false,
-    "markdown.extension.toc.anchorLinkAfter": true,
     "markdown.extension.toc.anchorLinkSpace": false,
     "markdown.extension.toc.anchorLinkStyle": "github",
     "markdown.extension.toc.anchorLinkSymbol": "#",

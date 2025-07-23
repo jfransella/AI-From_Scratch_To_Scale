@@ -107,4 +107,4 @@ def plot_confusion_matrix(y_true: Sequence, y_pred: Sequence, class_names: Optio
     set_axis_labels(ax, xlabel="Predicted Label", ylabel="True Label", title=title)
     if save_path:
         save_figure(fig, save_path)
-    return fig 
+    return fig

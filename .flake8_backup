@@ -1,6 +1,6 @@
 [flake8]
 # AI-From_Scratch_To_Scale project linting configuration
-max-line-length = 88
+max-line-length = 120
 max-complexity = 15
 
 extend-ignore = 
@@ -10,6 +10,8 @@ extend-ignore =
     E501,
     # W503: line break before binary operator (preferred style)
     W503,
+    # F401: imported but unused (handled by isort in some cases)
+    # F841: local variable assigned but never used (common in research code)
 
 # Exclude common directories
 exclude = 
@@ -25,16 +27,31 @@ exclude =
     .tox,
     .mypy_cache,
     .pytest_cache,
+    # Documentation and templates
     docs/templates,
     docs/examples,
+    docs/validation,
+    Documentation/templates,
+    # VS Code configuration
     .vscode,
+
+# File patterns to check
+filename = *.py
 
 # Error reporting
 statistics = True
 count = True
 show-source = True
 
-# Per-file ignores
+# Complexity settings
+max-complexity = 10
+max-cognitive-complexity = 12
+
+# Import settings (work with isort)
+import-order-style = google
+application-import-names = data_utils,engine,plotting,utils
+
+# Per-file ignores (if needed)
 per-file-ignores = 
     # Tests can have longer lines and unused imports
     tests/*:E501,F401,F841
@@ -43,9 +60,4 @@ per-file-ignores =
     # Config files can have longer lines
     */config.py:E501
     # Constants files can have longer lines  
-    */constants.py:E501
-    # Notebooks can have longer lines due to markdown/output cells
-    notebooks/*:E501,F401
-    **/notebooks/*:E501,F401
-    # Training scripts can be more experimental
-    */train.py:E501,F401
+    */constants.py:E501 

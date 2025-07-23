@@ -5,11 +5,9 @@ Provides comprehensive evaluation capabilities including metrics computation,
 result analysis, and performance benchmarking across different model types.
 """
 
-import logging
 import time
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 # Handle torch imports gracefully
 try:
@@ -85,7 +83,7 @@ class ModelMetrics:
 
     # Core metrics
     accuracy: float = 0.0
-    loss: float = float("inf")
+    loss: float = float("in")
 
     # Classification metrics
     precision: Optional[float] = None
@@ -124,7 +122,7 @@ class ModelMetrics:
             lines.append(f"F1-Score: {self.f1_score:.4f}")
 
         if self.per_class_accuracy and len(self.per_class_accuracy) > 1:
-            lines.append(f"\nPer-Class Metrics:")
+            lines.append("\nPer-Class Metrics:")
             for class_name, acc in self.per_class_accuracy.items():
                 lines.append(f"  {class_name}: {acc:.4f}")
 
@@ -202,7 +200,7 @@ class Evaluator:
                 loss = model.get_loss(outputs, y).item()
             except Exception as e:
                 self.logger.warning(f"Could not compute loss: {e}")
-                loss = float("inf")
+                loss = float("in")
 
             # Get probabilities if available
             probabilities = None
@@ -256,8 +254,8 @@ class Evaluator:
 
         # Verbose output
         if self.config.verbose:
-            print(f"\nEvaluation Results:")
-            print(f"{'='*50}")
+            print("\nEvaluation Results:")
+            print(f"{'=' * 50}")
             print(f"Dataset: {dataset_name}")
             print(f"Samples: {result.num_samples}")
             print(f"Accuracy: {result.accuracy:.4f}")
@@ -271,7 +269,7 @@ class Evaluator:
             print(f"Evaluation time: {result.evaluation_time:.2f}s")
 
             if metrics.confusion_matrix is not None:
-                print(f"\nConfusion Matrix:")
+                print("\nConfusion Matrix:")
                 print(metrics.confusion_matrix)
 
         # Save results if requested
@@ -436,10 +434,10 @@ class Evaluator:
 
         # Print comparison if verbose
         if self.config.verbose:
-            print(f"\nModel Comparison Results:")
-            print(f"{'='*60}")
+            print("\nModel Comparison Results:")
+            print(f"{'=' * 60}")
             print(f"{'Model':<15} {'Accuracy':<10} {'Loss':<10} {'F1-Score':<10}")
-            print(f"{'-'*60}")
+            print(f"{'-' * 60}")
 
             for name, result in results.items():
                 f1_str = f"{result.f1_score:.4f}" if result.f1_score else "N/A"

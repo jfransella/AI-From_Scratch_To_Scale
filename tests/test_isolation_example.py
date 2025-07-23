@@ -9,7 +9,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from tests.test_isolation import ModelTestIsolation
+from tests.test_isolation import ModelTestIsolation  # noqa: E402
 
 
 def test_perceptron_isolation():

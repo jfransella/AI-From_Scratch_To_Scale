@@ -21,18 +21,18 @@ __version__ = "1.0.0"
 __all__ = [
     # Training visualization
     "TrainingPlotter",
-    "plot_training_history", 
+    "plot_training_history",
     "plot_learning_curves",
     # Model analysis
     "ModelPlotter",
     "plot_decision_boundary",
     "plot_confusion_matrix",
     # Comparison plots
-    "ComparisonPlotter", 
+    "ComparisonPlotter",
     "plot_model_comparison",
     "plot_performance_heatmap",
     # Utilities
     "setup_plotting_style",
     "save_figure",
     "create_subplots"
-] 
+]

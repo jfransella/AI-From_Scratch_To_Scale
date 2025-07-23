@@ -23,91 +23,105 @@ try:
     else:
         # torch exists but is broken - create dummy torch
         _TORCH_AVAILABLE = False
-        
+
         class DummyDevice:
             def __init__(self, device_str):
                 self.type = "cpu"
+
             def __str__(self):
                 return "cpu"
-                
+
         class DummyTorch:
             @staticmethod
             def device(device_str):
                 return DummyDevice(device_str)
-        
+
         class DummyOptim:
             class SGD:
                 def __init__(self, params, lr=0.01, **kwargs):
                     self.param_groups = [{'lr': lr, 'params': list(params)}]
+
                 def step(self):
                     pass
+
                 def zero_grad(self):
                     pass
-            
+
             class Adam:
                 def __init__(self, params, lr=0.001, **kwargs):
                     self.param_groups = [{'lr': lr, 'params': list(params)}]
+
                 def step(self):
                     pass
+
                 def zero_grad(self):
                     pass
-                    
+
             class AdamW:
                 def __init__(self, params, lr=0.001, **kwargs):
                     self.param_groups = [{'lr': lr, 'params': list(params)}]
+
                 def step(self):
                     pass
+
                 def zero_grad(self):
                     pass
-        
+
         torch = DummyTorch()
         optim = DummyOptim()
         nn = None
         TorchTensor = Any
 except ImportError:
     torch = None
-    optim = None  
+    optim = None
     nn = None
     _TORCH_AVAILABLE = False
     TorchTensor = Any
-    
+
     # Create dummy torch for ImportError case too
     class DummyDevice:
         def __init__(self, device_str):
             self.type = "cpu"
+
         def __str__(self):
             return "cpu"
-            
+
     class DummyTorch:
         @staticmethod
         def device(device_str):
             return DummyDevice(device_str)
-    
+
     class DummyOptim:
         class SGD:
             def __init__(self, params, lr=0.01, **kwargs):
                 self.param_groups = [{'lr': lr, 'params': list(params)}]
+
             def step(self):
                 pass
+
             def zero_grad(self):
                 pass
-        
+
         class Adam:
             def __init__(self, params, lr=0.001, **kwargs):
                 self.param_groups = [{'lr': lr, 'params': list(params)}]
+
             def step(self):
                 pass
+
             def zero_grad(self):
                 pass
-                
+
         class AdamW:
             def __init__(self, params, lr=0.001, **kwargs):
                 self.param_groups = [{'lr': lr, 'params': list(params)}]
+
             def step(self):
                 pass
+
             def zero_grad(self):
                 pass
-    
+
     torch = DummyTorch()
     optim = DummyOptim()
 
@@ -120,7 +134,7 @@ except ImportError:
     _WANDB_AVAILABLE = False
 
 from utils import set_random_seed, get_logger
-from .base import BaseModel, TrainingResult, DataSplit, ModelAdapter
+from .base import BaseModel, TrainingResult, DataSplit
 
 
 @dataclass
@@ -165,7 +179,7 @@ class TrainingConfig:
     # Logging and tracking
     log_freq: int = 10  # Log every N epochs
     verbose: bool = True
-    
+
     # Enhanced wandb configuration
     use_wandb: bool = False
     wandb_project: Optional[str] = None
@@ -173,17 +187,17 @@ class TrainingConfig:
     wandb_tags: List[str] = field(default_factory=list)
     wandb_notes: Optional[str] = None
     wandb_mode: str = "online"  # "online", "offline", "disabled"
-    
+
     # Advanced wandb features
     wandb_watch_model: bool = False
     wandb_watch_log: str = "gradients"  # "gradients", "parameters", "all"
     wandb_watch_freq: int = 100
-    
+
     # Artifact configuration
     wandb_log_checkpoints: bool = True
     wandb_log_visualizations: bool = True
     wandb_log_datasets: bool = False
-    
+
     # Group and sweep support
     wandb_group: Optional[str] = None
     wandb_job_type: Optional[str] = None
@@ -262,58 +276,58 @@ class Trainer:
         except Exception as e:
             self.logger.warning(f"Failed to initialize wandb: {e}")
             self.config.use_wandb = False
-    
+
     def _init_trainer_wandb(self):
         """
         Initialize wandb at trainer level with enhanced configuration.
-        
+
         This method sets up trainer-level wandb configuration and prepares
         for model-level wandb integration.
         """
         if not self.config.use_wandb or not _WANDB_AVAILABLE:
             return
-        
+
         try:
             # Generate default project name if not provided
             if not self.config.wandb_project:
                 model_name = self.config.model_name.lower().replace(" ", "-")
                 self.config.wandb_project = f"ai-from-scratch-{model_name}"
-            
+
             # Generate default run name if not provided
             if not self.config.wandb_name:
                 self.config.wandb_name = f"{self.config.experiment_name}-{self.config.model_name}"
-            
+
             # Add automatic tags
             auto_tags = [
                 self.config.model_name.lower(),
                 self.config.experiment_name,
                 "trainer-managed"
             ]
-            
+
             # Merge with user-provided tags
             all_tags = list(set(self.config.wandb_tags + auto_tags))
             self.config.wandb_tags = all_tags
-            
+
             self.logger.info(f"Trainer wandb configured: project={self.config.wandb_project}, "
                              f"name={self.config.wandb_name}")
-            
+
         except Exception as e:
             self.logger.warning(f"Failed to configure trainer wandb: {e}")
             self.config.use_wandb = False
-    
+
     def _setup_model_wandb(self, model: BaseModel) -> bool:
         """
         Set up wandb integration for the model.
-        
+
         Args:
             model: The model to set up wandb for
-            
+
         Returns:
             bool: True if setup successful, False otherwise
         """
         if not self.config.use_wandb or not hasattr(model, 'init_wandb'):
             return False
-        
+
         try:
             # Initialize model wandb
             success = model.init_wandb(
@@ -324,7 +338,7 @@ class Trainer:
                 notes=self.config.wandb_notes,
                 mode=self.config.wandb_mode
             )
-            
+
             if success and self.config.wandb_watch_model:
                 # Set up model watching
                 model.watch_model(
@@ -332,80 +346,80 @@ class Trainer:
                     log_freq=self.config.wandb_watch_freq
                 )
                 self.logger.info("Model watching enabled")
-            
+
             return success
-            
+
         except Exception as e:
             self.logger.warning(f"Failed to setup model wandb: {e}")
             return False
-    
+
     def _log_training_metrics(self, model: BaseModel, epoch: int, metrics: Dict[str, Any]):
         """
         Log training metrics to wandb through the model.
-        
+
         Args:
             model: The model to log metrics through
             epoch: Current epoch number
             metrics: Dictionary of metrics to log
         """
-        if (self.config.use_wandb and 
+        if (self.config.use_wandb and
             hasattr(model, 'log_metrics') and
-            hasattr(model, 'wandb_run') and 
-            model.wandb_run is not None):
-            
+            hasattr(model, 'wandb_run') and
+                model.wandb_run is not None):
+
             try:
                 # Add epoch to metrics
                 metrics_with_epoch = {"epoch": epoch, **metrics}
                 model.log_metrics(metrics_with_epoch, step=epoch)
-                
+
             except Exception as e:
                 self.logger.warning(f"Failed to log metrics to wandb: {e}")
-    
-    def _log_checkpoint_artifact(self, model: BaseModel, checkpoint_path: str, 
+
+    def _log_checkpoint_artifact(self, model: BaseModel, checkpoint_path: str,
                                  epoch: int, description: str = None):
         """
         Log model checkpoint as wandb artifact.
-        
+
         Args:
             model: The model to log artifact through
             checkpoint_path: Path to the checkpoint file
             epoch: Current epoch number
             description: Optional description for the artifact
         """
-        if (self.config.use_wandb and 
+        if (self.config.use_wandb and
             self.config.wandb_log_checkpoints and
             hasattr(model, 'log_artifact') and
-            hasattr(model, 'wandb_run') and 
-            model.wandb_run is not None):
-            
+            hasattr(model, 'wandb_run') and
+                model.wandb_run is not None):
+
             try:
                 if not description:
                     description = f"Model checkpoint at epoch {epoch}"
-                
+
                 model.log_artifact(
                     checkpoint_path,
                     artifact_type="model",
                     description=description
                 )
                 self.logger.info(f"Logged checkpoint artifact: {checkpoint_path}")
-                
+
             except Exception as e:
                 self.logger.warning(f"Failed to log checkpoint artifact: {e}")
-    
+
     def _finish_model_wandb(self, model: BaseModel):
         """
         Finish wandb run for the model.
-        
+
         Args:
             model: The model to finish wandb for
         """
-        if (self.config.use_wandb and 
-            hasattr(model, 'finish_wandb')):
-            
+        if (self.config.use_wandb and
+                hasattr(model, 'finish_wandb')):
+
             try:
                 model.finish_wandb()
                 self.logger.info("Model wandb run finished")
-                
+
             except Exception as e:
                 self.logger.warning(f"Failed to finish model wandb: {e}")
 
@@ -491,7 +505,7 @@ class Trainer:
         """Compute accuracy for given data."""
         # Store original training mode
         was_training = model.training
-        
+
         model.eval()
         with torch.no_grad():
             outputs = model.forward(x)
@@ -500,13 +514,13 @@ class Trainer:
             else:
                 # Default binary classification
                 predictions = (outputs >= 0.5).float().squeeze()
-            
+
             correct = (predictions == y).float().sum()
             accuracy = correct / len(y)
-            
+
         # Restore original training mode
         model.train(was_training)
-        
+
         return accuracy.item()
 
     def _create_data_loaders(self, data_split: DataSplit):
@@ -522,9 +536,9 @@ class Trainer:
             self.logger.info(f"Epoch {epoch:4d}: {metrics_str}")
 
         # Log to wandb if available - use model's wandb run if it exists
-        if (hasattr(self, 'current_model') and 
-            hasattr(self.current_model, 'wandb_run') and 
-            self.current_model.wandb_run is not None):
+        if (hasattr(self, 'current_model') and
+            hasattr(self.current_model, 'wandb_run') and
+                self.current_model.wandb_run is not None):
             try:
                 self.current_model.log_metrics(metrics, step=epoch)
             except Exception as e:
@@ -563,7 +577,7 @@ class Trainer:
         """
         # Store reference to current model for wandb integration
         self.current_model = model
-        
+
         start_time = time.time()
         self.logger.info(f"Starting training: {self.config.experiment_name}")
 
@@ -581,12 +595,12 @@ class Trainer:
             model_architecture=self.config.model_name,
             dataset_name=self.config.dataset_name,
             hyperparameters=self.config.__dict__.copy(),
-            final_loss=float("inf"),
+            final_loss=float("in"),
             final_train_accuracy=0.0,
         )
 
         # Training state
-        best_loss = float("inf")
+        best_loss = float("in")
         patience_counter = 0
         start_time = time.time()
 
@@ -745,7 +759,7 @@ class Trainer:
             results[experiment_config.experiment_name] = result
 
             self.logger.info(
-                f"Completed experiment {i+1}/{len(experiments)}: {experiment_config.experiment_name}"
+                f"Completed experiment {i + 1}/{len(experiments)}: {experiment_config.experiment_name}"
             )
 
         return results

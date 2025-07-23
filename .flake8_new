@@ -44,8 +44,3 @@ per-file-ignores =
     */config.py:E501
     # Constants files can have longer lines  
     */constants.py:E501
-    # Notebooks can have longer lines due to markdown/output cells
-    notebooks/*:E501,F401
-    **/notebooks/*:E501,F401
-    # Training scripts can be more experimental
-    */train.py:E501,F401

@@ -75,11 +75,11 @@ __version__ = "1.0.0"
 __all__ = [
     # Main dataset loading
     "load_dataset",
-    "get_dataset_info", 
+    "get_dataset_info",
     "list_available_datasets",
     # BaseDataset classes
     "BaseDataset",
-    "SyntheticDataset", 
+    "SyntheticDataset",
     "RealDataset",
     "create_dataset",
     "create_synthetic_dataset",
@@ -94,14 +94,14 @@ __all__ = [
     # Enhanced caching
     "DatasetCache",
     "cache_dataset",
-    "load_cached_dataset", 
+    "load_cached_dataset",
     "get_cache_stats",
     "cleanup_cache",
     "get_cache",
     # Metadata schema
     "DatasetMetadata",
     "DatasetShape",
-    "DatasetStatistics", 
+    "DatasetStatistics",
     "PreprocessingInfo",
     "DatasetCompatibility",
     "MetadataValidator",
@@ -112,7 +112,7 @@ __all__ = [
     # File organization
     "ProjectOrganizer",
     "analyze_project_organization",
-    "create_project_directories", 
+    "create_project_directories",
     "generate_organization_report",
     # # Preprocessing
     # "StandardScaler",
@@ -121,7 +121,7 @@ __all__ = [
     # "train_test_split_data",
     # Synthetic datasets
     "generate_xor_dataset",
-    "generate_circles_dataset", 
+    "generate_circles_dataset",
     "generate_linear_dataset",
     "generate_classification_dataset"
-] 
+]

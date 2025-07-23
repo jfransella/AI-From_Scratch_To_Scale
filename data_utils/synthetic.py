@@ -12,9 +12,9 @@ from utils import get_logger, set_random_seed
 from utils.exceptions import DataError
 
 
-def generate_xor_dataset(n_samples: int = 1000,
-                         noise: float = 0.1,
-                         random_state: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+def generate_xor_dataset(
+    n_samples: int = 1000, noise: float = 0.1, random_state: Optional[int] = None
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Generate XOR dataset - classic non-linearly separable problem.
 
@@ -57,8 +57,12 @@ def generate_xor_dataset(n_samples: int = 1000,
                 end_idx = min(idx + n_per_class, n_samples)
 
                 # Generate samples around this corner
-                X[start_idx:end_idx, 0] = x1 + np.random.normal(0, noise, end_idx - start_idx)
-                X[start_idx:end_idx, 1] = x2 + np.random.normal(0, noise, end_idx - start_idx)
+                X[start_idx:end_idx, 0] = x1 + np.random.normal(
+                    0, noise, end_idx - start_idx
+                )
+                X[start_idx:end_idx, 1] = x2 + np.random.normal(
+                    0, noise, end_idx - start_idx
+                )
 
                 # XOR logic
                 y[start_idx:end_idx] = x1 ^ x2
@@ -85,10 +89,12 @@ def generate_xor_dataset(n_samples: int = 1000,
         raise DataError(f"Failed to generate XOR dataset: {e}")
 
 
-def generate_circles_dataset(n_samples: int = 1000,
-                             noise: float = 0.1,
-                             factor: float = 0.8,
-                             random_state: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+def generate_circles_dataset(
+    n_samples: int = 1000,
+    noise: float = 0.1,
+    factor: float = 0.8,
+    random_state: Optional[int] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Generate concentric circles dataset - another non-linearly separable problem.
 
@@ -126,16 +132,17 @@ def generate_circles_dataset(n_samples: int = 1000,
         inner_circ_y = np.sin(linspace_in) * factor
 
         # Combine circles
-        X = np.vstack([
-            np.column_stack([outer_circ_x, outer_circ_y]),
-            np.column_stack([inner_circ_x, inner_circ_y])
-        ])
+        X = np.vstack(
+            [
+                np.column_stack([outer_circ_x, outer_circ_y]),
+                np.column_stack([inner_circ_x, inner_circ_y]),
+            ]
+        )
 
         # Labels: outer circle = 1, inner circle = 0
-        y = np.hstack([
-            np.ones(n_samples_out, dtype=int),
-            np.zeros(n_samples_in, dtype=int)
-        ])
+        y = np.hstack(
+            [np.ones(n_samples_out, dtype=int), np.zeros(n_samples_in, dtype=int)]
+        )
 
         # Add noise
         if noise > 0:
@@ -157,11 +164,13 @@ def generate_circles_dataset(n_samples: int = 1000,
         raise DataError(f"Failed to generate circles dataset: {e}")
 
 
-def generate_linear_dataset(n_samples: int = 1000,
-                            n_features: int = 2,
-                            n_classes: int = 2,
-                            noise: float = 0.1,
-                            random_state: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+def generate_linear_dataset(
+    n_samples: int = 1000,
+    n_features: int = 2,
+    n_classes: int = 2,
+    noise: float = 0.1,
+    random_state: Optional[int] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Generate linearly separable dataset.
 
@@ -182,7 +191,9 @@ def generate_linear_dataset(n_samples: int = 1000,
         set_random_seed(random_state)
 
     logger = get_logger(__name__)
-    logger.debug(f"Generating linear dataset: {n_samples} samples, {n_features} features, {n_classes} classes")
+    logger.debug(
+        f"Generating linear dataset: {n_samples} samples, {n_features} features, {n_classes} classes"
+    )
 
     try:
         from sklearn.datasets import make_classification
@@ -195,7 +206,7 @@ def generate_linear_dataset(n_samples: int = 1000,
             n_clusters_per_class=1,
             n_classes=n_classes,
             flip_y=noise,
-            random_state=random_state
+            random_state=random_state,
         )
 
         # Ensure y is 2D for consistency
@@ -213,7 +224,9 @@ def generate_linear_dataset(n_samples: int = 1000,
         raise DataError(f"Failed to generate linear dataset: {e}")
 
 
-def generate_classification_dataset(dataset_type: str, **kwargs) -> Tuple[np.ndarray, np.ndarray]:
+def generate_classification_dataset(
+    dataset_type: str, **kwargs
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Generate classification dataset of specified type.
 
@@ -229,9 +242,9 @@ def generate_classification_dataset(dataset_type: str, **kwargs) -> Tuple[np.nda
         X, y = generate_classification_dataset('circles', factor=0.3)
     """
     generators = {
-        'xor': generate_xor_dataset,
-        'circles': generate_circles_dataset,
-        'linear': generate_linear_dataset
+        "xor": generate_xor_dataset,
+        "circles": generate_circles_dataset,
+        "linear": generate_linear_dataset,
     }
 
     if dataset_type not in generators:
@@ -261,17 +274,17 @@ def get_dataset_properties(X: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
     """
     try:
         properties = {
-            'n_samples': X.shape[0],
-            'n_features': X.shape[1] if X.ndim > 1 else 1,
-            'n_classes': len(np.unique(y)),
-            'class_distribution': dict(zip(*np.unique(y, return_counts=True))),
-            'feature_ranges': {
-                'min': np.min(X, axis=0).tolist(),
-                'max': np.max(X, axis=0).tolist(),
-                'mean': np.mean(X, axis=0).tolist(),
-                'std': np.std(X, axis=0).tolist()
+            "n_samples": X.shape[0],
+            "n_features": X.shape[1] if X.ndim > 1 else 1,
+            "n_classes": len(np.unique(y)),
+            "class_distribution": dict(zip(*np.unique(y, return_counts=True))),
+            "feature_ranges": {
+                "min": np.min(X, axis=0).tolist(),
+                "max": np.max(X, axis=0).tolist(),
+                "mean": np.mean(X, axis=0).tolist(),
+                "std": np.std(X, axis=0).tolist(),
             },
-            'is_balanced': _check_class_balance(y)
+            "is_balanced": _check_class_balance(y),
         }
 
         return properties
@@ -280,9 +293,12 @@ def get_dataset_properties(X: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
         raise DataError(f"Failed to compute dataset properties: {e}")
 
 
-def visualize_2d_dataset(X: np.ndarray, y: np.ndarray,
-                         title: str = "Dataset Visualization",
-                         save_path: Optional[str] = None) -> None:
+def visualize_2d_dataset(
+    X: np.ndarray,
+    y: np.ndarray,
+    title: str = "Dataset Visualization",
+    save_path: Optional[str] = None,
+) -> None:
     """
     Visualize 2D dataset with class colors.
 
@@ -310,17 +326,18 @@ def visualize_2d_dataset(X: np.ndarray, y: np.ndarray,
 
         for i, cls in enumerate(classes):
             mask = y == cls
-            plt.scatter(X[mask, 0], X[mask, 1],
-                        c=[colors[i]], label=f'Class {cls}', alpha=0.7)
+            plt.scatter(
+                X[mask, 0], X[mask, 1], c=[colors[i]], label=f"Class {cls}", alpha=0.7
+            )
 
-        plt.xlabel('Feature 1')
-        plt.ylabel('Feature 2')
+        plt.xlabel("Feature 1")
+        plt.ylabel("Feature 2")
         plt.title(title)
         plt.legend()
         plt.grid(True, alpha=0.3)
 
         if save_path:
-            plt.savefig(save_path, dpi=150, bbox_inches='tight')
+            plt.savefig(save_path, dpi=150, bbox_inches="tight")
             logger = get_logger(__name__)
             logger.info(f"Saved plot to {save_path}")
 
@@ -335,8 +352,10 @@ def visualize_2d_dataset(X: np.ndarray, y: np.ndarray,
 
 # Private helper functions
 
-def _generate_simple_linear_dataset(n_samples: int, n_features: int,
-                                    n_classes: int, noise: float) -> Tuple[np.ndarray, np.ndarray]:
+
+def _generate_simple_linear_dataset(
+    n_samples: int, n_features: int, n_classes: int, noise: float
+) -> Tuple[np.ndarray, np.ndarray]:
     """Simple fallback for linear dataset generation without sklearn."""
     logger = get_logger(__name__)
     logger.debug("Using simple linear dataset generation")
@@ -352,7 +371,9 @@ def _generate_simple_linear_dataset(n_samples: int, n_features: int,
         y = (scores > 0).astype(int)
     else:
         # Divide score range into n_classes bins
-        y = np.digitize(scores, bins=np.linspace(scores.min(), scores.max(), n_classes + 1)[1:-1])
+        y = np.digitize(
+            scores, bins=np.linspace(scores.min(), scores.max(), n_classes + 1)[1:-1]
+        )
 
     # Add noise
     if noise > 0:

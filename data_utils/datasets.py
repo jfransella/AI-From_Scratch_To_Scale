@@ -13,11 +13,13 @@ from utils.exceptions import DataError
 from .synthetic import (
     generate_xor_dataset,
     generate_circles_dataset,
-    generate_linear_dataset
+    generate_linear_dataset,
 )
 
 
-def load_dataset(dataset_name: str, dataset_params: Optional[Dict[str, Any]] = None, **kwargs) -> Tuple[np.ndarray, np.ndarray]:
+def load_dataset(  # noqa: C901
+    dataset_name: str, dataset_params: Optional[Dict[str, Any]] = None, **kwargs
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Load dataset by name with unified interface.
 
@@ -46,104 +48,96 @@ def load_dataset(dataset_name: str, dataset_params: Optional[Dict[str, Any]] = N
         kwargs.update(dataset_params)
 
     # Synthetic datasets
-    if dataset_name == 'xor_problem' or dataset_name == 'xor':
+    if dataset_name == "xor_problem" or dataset_name == "xor":
         return generate_xor_dataset(
-            n_samples=kwargs.get('n_samples', 1000),
-            noise=kwargs.get('noise', 0.1),
-            random_state=kwargs.get('random_state', 42)
+            n_samples=kwargs.get("n_samples", 1000),
+            noise=kwargs.get("noise", 0.1),
+            random_state=kwargs.get("random_state", 42),
         )
 
-    elif dataset_name == 'circles_dataset' or dataset_name == 'circles':
+    elif dataset_name == "circles_dataset" or dataset_name == "circles":
         return generate_circles_dataset(
-            n_samples=kwargs.get('n_samples', 1000),
-            noise=kwargs.get('noise', 0.1),
-            factor=kwargs.get('factor', 0.8),
-            random_state=kwargs.get('random_state', 42)
+            n_samples=kwargs.get("n_samples", 1000),
+            noise=kwargs.get("noise", 0.1),
+            factor=kwargs.get("factor", 0.8),
+            random_state=kwargs.get("random_state", 42),
         )
 
-    elif dataset_name == 'linear_separable':
+    elif dataset_name == "linear_separable":
         return generate_linear_dataset(
-            n_samples=kwargs.get('n_samples', 1000),
-            n_features=kwargs.get('n_features', 2),
-            n_classes=kwargs.get('n_classes', 2),
-            noise=kwargs.get('noise', 0.05),
-            random_state=kwargs.get('random_state', 42)
+            n_samples=kwargs.get("n_samples", 1000),
+            n_features=kwargs.get("n_features", 2),
+            n_classes=kwargs.get("n_classes", 2),
+            noise=kwargs.get("noise", 0.05),
+            random_state=kwargs.get("random_state", 42),
         )
 
-    elif dataset_name == 'debug_small':
+    elif dataset_name == "debug_small":
         return generate_linear_dataset(
-            n_samples=100,
-            n_features=2,
-            n_classes=2,
-            noise=0.01,
-            random_state=42
+            n_samples=100, n_features=2, n_classes=2, noise=0.01, random_state=42
         )
 
-    elif dataset_name == 'debug_linear':
+    elif dataset_name == "debug_linear":
         return generate_linear_dataset(
-            n_samples=200,
-            n_features=2,
-            n_classes=2,
-            noise=0.05,
-            random_state=42
+            n_samples=200, n_features=2, n_classes=2, noise=0.05, random_state=42
         )
 
-    elif dataset_name == 'simple_linear':
+    elif dataset_name == "simple_linear":
         return generate_linear_dataset(
-            n_samples=kwargs.get('n_samples', 200),
-            n_features=kwargs.get('n_features', 2),
-            n_classes=kwargs.get('n_classes', 2),
-            noise=kwargs.get('noise', 0.05),
-            random_state=kwargs.get('random_state', 42)
+            n_samples=kwargs.get("n_samples", 200),
+            n_features=kwargs.get("n_features", 2),
+            n_classes=kwargs.get("n_classes", 2),
+            noise=kwargs.get("noise", 0.05),
+            random_state=kwargs.get("random_state", 42),
         )
 
-    elif dataset_name == 'noisy_linear':
+    elif dataset_name == "noisy_linear":
         return generate_linear_dataset(
-            n_samples=kwargs.get('n_samples', 500),
-            n_features=kwargs.get('n_features', 2),
-            n_classes=kwargs.get('n_classes', 2),
-            noise=kwargs.get('noise', 0.15),
-            random_state=kwargs.get('random_state', 42)
+            n_samples=kwargs.get("n_samples", 500),
+            n_features=kwargs.get("n_features", 2),
+            n_classes=kwargs.get("n_classes", 2),
+            noise=kwargs.get("noise", 0.15),
+            random_state=kwargs.get("random_state", 42),
         )
 
     # Real datasets
-    elif dataset_name == 'iris_binary':
+    elif dataset_name == "iris_binary":
         # Only pass supported parameters
         iris_kwargs = {}
-        if 'random_state' in kwargs:
-            iris_kwargs['random_state'] = kwargs['random_state']
+        if "random_state" in kwargs:
+            iris_kwargs["random_state"] = kwargs["random_state"]
         return _load_iris_binary(**iris_kwargs)
 
-    elif dataset_name == 'iris_setosa_versicolor':
+    elif dataset_name == "iris_setosa_versicolor":
         # Only pass supported parameters
         iris_kwargs = {}
-        if 'random_state' in kwargs:
-            iris_kwargs['random_state'] = kwargs['random_state']
+        if "random_state" in kwargs:
+            iris_kwargs["random_state"] = kwargs["random_state"]
         return _load_iris_setosa_versicolor(**iris_kwargs)
 
-    elif dataset_name == 'iris_versicolor_virginica':
+    elif dataset_name == "iris_versicolor_virginica":
         # Only pass supported parameters
         iris_kwargs = {}
-        if 'random_state' in kwargs:
-            iris_kwargs['random_state'] = kwargs['random_state']
+        if "random_state" in kwargs:
+            iris_kwargs["random_state"] = kwargs["random_state"]
         return _load_iris_versicolor_virginica(**iris_kwargs)
 
-    elif dataset_name == 'breast_cancer_binary' or dataset_name == 'breast_cancer':
+    elif dataset_name == "breast_cancer_binary" or dataset_name == "breast_cancer":
         # Only pass supported parameters
         cancer_kwargs = {}
-        if 'random_state' in kwargs:
-            cancer_kwargs['random_state'] = kwargs['random_state']
+        if "random_state" in kwargs:
+            cancer_kwargs["random_state"] = kwargs["random_state"]
         return _load_breast_cancer_binary(**cancer_kwargs)
 
-    elif dataset_name == 'mnist_subset' or dataset_name == 'mnist_binary':
+    elif dataset_name == "mnist_subset" or dataset_name == "mnist_binary":
         # Pass relevant parameters for MNIST
         mnist_kwargs = {}
-        if 'digits' in kwargs:
-            mnist_kwargs['digits'] = kwargs['digits']
-        if 'max_samples_per_class' in kwargs:
-            mnist_kwargs['max_samples_per_class'] = kwargs['max_samples_per_class']
-        if 'random_state' in kwargs:
-            mnist_kwargs['random_state'] = kwargs['random_state']
+        if "digits" in kwargs:
+            mnist_kwargs["digits"] = kwargs["digits"]
+        if "max_samples_per_class" in kwargs:
+            mnist_kwargs["max_samples_per_class"] = kwargs["max_samples_per_class"]
+        if "random_state" in kwargs:
+            mnist_kwargs["random_state"] = kwargs["random_state"]
         return _load_mnist_subset(**mnist_kwargs)
 
     else:
@@ -166,90 +160,90 @@ def get_dataset_info(dataset_name: str) -> Dict[str, Any]:
         print(f"Classes: {info['n_classes']}, Features: {info['n_features']}")
     """
     dataset_info = {
-        'xor_problem': {
-            'type': 'synthetic',
-            'n_classes': 2,
-            'n_features': 2,
-            'linearly_separable': False,
-            'description': 'XOR problem - classic non-linearly separable dataset'
+        "xor_problem": {
+            "type": "synthetic",
+            "n_classes": 2,
+            "n_features": 2,
+            "linearly_separable": False,
+            "description": "XOR problem - classic non-linearly separable dataset",
         },
-        'circles_dataset': {
-            'type': 'synthetic',
-            'n_classes': 2,
-            'n_features': 2,
-            'linearly_separable': False,
-            'description': 'Concentric circles - non-linearly separable dataset'
+        "circles_dataset": {
+            "type": "synthetic",
+            "n_classes": 2,
+            "n_features": 2,
+            "linearly_separable": False,
+            "description": "Concentric circles - non-linearly separable dataset",
         },
-        'linear_separable': {
-            'type': 'synthetic',
-            'n_classes': 2,
-            'n_features': 2,
-            'linearly_separable': True,
-            'description': 'Linearly separable synthetic dataset'
+        "linear_separable": {
+            "type": "synthetic",
+            "n_classes": 2,
+            "n_features": 2,
+            "linearly_separable": True,
+            "description": "Linearly separable synthetic dataset",
         },
-        'debug_small': {
-            'type': 'synthetic',
-            'n_classes': 2,
-            'n_features': 2,
-            'linearly_separable': True,
-            'description': 'Small linearly separable dataset for debugging'
+        "debug_small": {
+            "type": "synthetic",
+            "n_classes": 2,
+            "n_features": 2,
+            "linearly_separable": True,
+            "description": "Small linearly separable dataset for debugging",
         },
-        'debug_linear': {
-            'type': 'synthetic',
-            'n_classes': 2,
-            'n_features': 2,
-            'linearly_separable': True,
-            'description': 'Medium linearly separable dataset for debugging'
+        "debug_linear": {
+            "type": "synthetic",
+            "n_classes": 2,
+            "n_features": 2,
+            "linearly_separable": True,
+            "description": "Medium linearly separable dataset for debugging",
         },
-        'simple_linear': {
-            'type': 'synthetic',
-            'n_classes': 2,
-            'n_features': 2,
-            'linearly_separable': True,
-            'description': 'Simple linearly separable dataset for ADALINE demonstrations'
+        "simple_linear": {
+            "type": "synthetic",
+            "n_classes": 2,
+            "n_features": 2,
+            "linearly_separable": True,
+            "description": "Simple linearly separable dataset for ADALINE demonstrations",
         },
-        'noisy_linear': {
-            'type': 'synthetic',
-            'n_classes': 2,
-            'n_features': 2,
-            'linearly_separable': True,
-            'description': 'Noisy linearly separable dataset for convergence studies'
+        "noisy_linear": {
+            "type": "synthetic",
+            "n_classes": 2,
+            "n_features": 2,
+            "linearly_separable": True,
+            "description": "Noisy linearly separable dataset for convergence studies",
         },
-        'iris_binary': {
-            'type': 'real',
-            'n_classes': 2,
-            'n_features': 4,
-            'linearly_separable': True,
-            'description': 'Iris dataset binary classification (setosa vs non-setosa)'
+        "iris_binary": {
+            "type": "real",
+            "n_classes": 2,
+            "n_features": 4,
+            "linearly_separable": True,
+            "description": "Iris dataset binary classification (setosa vs non-setosa)",
         },
-        'iris_setosa_versicolor': {
-            'type': 'real',
-            'n_classes': 2,
-            'n_features': 4,
-            'linearly_separable': True,
-            'description': 'Iris dataset (setosa vs versicolor) - linearly separable'
+        "iris_setosa_versicolor": {
+            "type": "real",
+            "n_classes": 2,
+            "n_features": 4,
+            "linearly_separable": True,
+            "description": "Iris dataset (setosa vs versicolor) - linearly separable",
         },
-        'iris_versicolor_virginica': {
-            'type': 'real',
-            'n_classes': 2,
-            'n_features': 4,
-            'linearly_separable': False,
-            'description': 'Iris dataset (versicolor vs virginica) - not linearly separable'
+        "iris_versicolor_virginica": {
+            "type": "real",
+            "n_classes": 2,
+            "n_features": 4,
+            "linearly_separable": False,
+            "description": "Iris dataset (versicolor vs virginica) - not linearly separable",
         },
-        'breast_cancer_binary': {
-            'type': 'real',
-            'n_classes': 2,
-            'n_features': 30,
-            'linearly_separable': True,
-            'description': 'Breast cancer Wisconsin dataset'
+        "breast_cancer_binary": {
+            "type": "real",
+            "n_classes": 2,
+            "n_features": 30,
+            "linearly_separable": True,
+            "description": "Breast cancer Wisconsin dataset",
         },
-        'mnist_subset': {
-            'type': 'real',
-            'n_classes': 2,
-            'n_features': 784,
-            'linearly_separable': False,
-            'description': 'MNIST subset (0 vs 1) - flattened images'
-        }
+        "mnist_subset": {
+            "type": "real",
+            "n_classes": 2,
+            "n_features": 784,
+            "linearly_separable": False,
+            "description": "MNIST subset (0 vs 1) - flattened images",
+        },
     }
 
     if dataset_name not in dataset_info:
@@ -271,10 +265,18 @@ def list_available_datasets() -> List[str]:
         print(f"Available datasets: {datasets}")
     """
     return [
-        'xor_problem', 'circles_dataset', 'linear_separable',
-        'debug_small', 'debug_linear', 'simple_linear', 'noisy_linear',
-        'iris_binary', 'iris_setosa_versicolor', 'iris_versicolor_virginica',
-        'breast_cancer_binary', 'mnist_subset'
+        "xor_problem",
+        "circles_dataset",
+        "linear_separable",
+        "debug_small",
+        "debug_linear",
+        "simple_linear",
+        "noisy_linear",
+        "iris_binary",
+        "iris_setosa_versicolor",
+        "iris_versicolor_virginica",
+        "breast_cancer_binary",
+        "mnist_subset",
     ]
 
 
@@ -307,7 +309,9 @@ def validate_dataset(X: np.ndarray, y: np.ndarray) -> None:
         raise DataError(f"y must be 1D array, got {y.ndim}D")
 
     if X.shape[0] != y.shape[0]:
-        raise DataError(f"X and y must have same number of samples: {X.shape[0]} vs {y.shape[0]}")
+        raise DataError(
+            f"X and y must have same number of samples: {X.shape[0]} vs {y.shape[0]}"
+        )
 
     if X.shape[0] == 0:
         raise DataError("Dataset cannot be empty")
@@ -325,7 +329,10 @@ def validate_dataset(X: np.ndarray, y: np.ndarray) -> None:
 
 # Private helper functions for loading real datasets
 
-def _load_iris_binary(random_state: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+
+def _load_iris_binary(
+    random_state: Optional[int] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
     """Load Iris dataset for binary classification (setosa vs non-setosa)."""
     try:
         from sklearn.datasets import load_iris
@@ -353,16 +360,22 @@ def _load_iris_binary(random_state: Optional[int] = None) -> Tuple[np.ndarray, n
         X_scaled = X_scaled[indices]
         y_binary = y_binary[indices]
 
-        logger.info(f"Loaded Iris binary: {X_scaled.shape}, classes: {np.unique(y_binary)}")
+        logger.info(
+            f"Loaded Iris binary: {X_scaled.shape}, classes: {np.unique(y_binary)}"
+        )
         return X_scaled, y_binary
 
     except ImportError:
         logger = get_logger(__name__)
-        logger.warning("scikit-learn not available, generating synthetic iris-like dataset")
+        logger.warning(
+            "scikit-learn not available, generating synthetic iris-like dataset"
+        )
         return _generate_iris_like_dataset()
 
 
-def _load_iris_setosa_versicolor(random_state: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+def _load_iris_setosa_versicolor(
+    random_state: Optional[int] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
     """Load Iris dataset for binary classification (setosa vs versicolor)."""
     try:
         from sklearn.datasets import load_iris
@@ -395,16 +408,22 @@ def _load_iris_setosa_versicolor(random_state: Optional[int] = None) -> Tuple[np
         X_scaled = X_scaled[indices]
         y_binary = y_binary[indices]
 
-        logger.info(f"Loaded Iris setosa vs versicolor: {X_scaled.shape}, classes: {np.unique(y_binary)}")
+        logger.info(
+            f"Loaded Iris setosa vs versicolor: {X_scaled.shape}, classes: {np.unique(y_binary)}"
+        )
         return X_scaled, y_binary
 
     except ImportError:
         logger = get_logger(__name__)
-        logger.warning("scikit-learn not available, generating synthetic iris-like dataset")
+        logger.warning(
+            "scikit-learn not available, generating synthetic iris-like dataset"
+        )
         return _generate_iris_like_dataset()
 
 
-def _load_iris_versicolor_virginica(random_state: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+def _load_iris_versicolor_virginica(
+    random_state: Optional[int] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
     """Load Iris dataset for binary classification (versicolor vs virginica)."""
     try:
         from sklearn.datasets import load_iris
@@ -437,16 +456,22 @@ def _load_iris_versicolor_virginica(random_state: Optional[int] = None) -> Tuple
         X_scaled = X_scaled[indices]
         y_binary = y_binary[indices]
 
-        logger.info(f"Loaded Iris versicolor vs virginica: {X_scaled.shape}, classes: {np.unique(y_binary)}")
+        logger.info(
+            f"Loaded Iris versicolor vs virginica: {X_scaled.shape}, classes: {np.unique(y_binary)}"
+        )
         return X_scaled, y_binary
 
     except ImportError:
         logger = get_logger(__name__)
-        logger.warning("scikit-learn not available, generating synthetic iris-like dataset")
+        logger.warning(
+            "scikit-learn not available, generating synthetic iris-like dataset"
+        )
         return _generate_iris_like_dataset()
 
 
-def _load_breast_cancer_binary(random_state: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+def _load_breast_cancer_binary(
+    random_state: Optional[int] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
     """Load breast cancer dataset for binary classification."""
     try:
         from sklearn.datasets import load_breast_cancer
@@ -476,13 +501,17 @@ def _load_breast_cancer_binary(random_state: Optional[int] = None) -> Tuple[np.n
 
     except ImportError:
         logger = get_logger(__name__)
-        logger.warning("scikit-learn not available, generating synthetic cancer-like dataset")
+        logger.warning(
+            "scikit-learn not available, generating synthetic cancer-like dataset"
+        )
         return _generate_cancer_like_dataset()
 
 
-def _load_mnist_subset(digits: Tuple[int, int] = (0, 1),
-                       max_samples_per_class: int = 1000,
-                       random_state: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+def _load_mnist_subset(
+    digits: Tuple[int, int] = (0, 1),
+    max_samples_per_class: int = 1000,
+    random_state: Optional[int] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
     """Load MNIST subset for binary classification."""
     try:
         from sklearn.datasets import fetch_openml
@@ -492,7 +521,7 @@ def _load_mnist_subset(digits: Tuple[int, int] = (0, 1),
         logger.debug(f"Loading MNIST subset: digits {digits}")
 
         # Load MNIST
-        mnist = fetch_openml('mnist_784', version=1, as_frame=False, parser='auto')
+        mnist = fetch_openml("mnist_784", version=1, as_frame=False, parser="auto")
         X, y = mnist.data, mnist.target.astype(int)
 
         # Filter for specific digits
@@ -512,7 +541,9 @@ def _load_mnist_subset(digits: Tuple[int, int] = (0, 1),
             for label in [0, 1]:
                 label_indices = np.where(y_binary == label)[0]
                 if len(label_indices) > max_samples_per_class:
-                    selected = np.random.choice(label_indices, max_samples_per_class, replace=False)
+                    selected = np.random.choice(
+                        label_indices, max_samples_per_class, replace=False
+                    )
                     indices.extend(selected)
                 else:
                     indices.extend(label_indices)
@@ -536,12 +567,16 @@ def _load_mnist_subset(digits: Tuple[int, int] = (0, 1),
         X_scaled = X_scaled[indices]
         y_binary = y_binary[indices]
 
-        logger.info(f"Loaded MNIST subset: {X_scaled.shape}, classes: {np.unique(y_binary)}")
+        logger.info(
+            f"Loaded MNIST subset: {X_scaled.shape}, classes: {np.unique(y_binary)}"
+        )
         return X_scaled, y_binary
 
     except ImportError:
         logger = get_logger(__name__)
-        logger.warning("scikit-learn not available, generating synthetic MNIST-like dataset")
+        logger.warning(
+            "scikit-learn not available, generating synthetic MNIST-like dataset"
+        )
         return _generate_mnist_like_dataset()
 
 
@@ -552,11 +587,7 @@ def _generate_iris_like_dataset() -> Tuple[np.ndarray, np.ndarray]:
 
     # Create linearly separable dataset with 4 features
     X, y = generate_linear_dataset(
-        n_samples=150,
-        n_features=4,
-        n_classes=2,
-        noise=0.1,
-        random_state=42
+        n_samples=150, n_features=4, n_classes=2, noise=0.1, random_state=42
     )
 
     return X, y
@@ -569,11 +600,7 @@ def _generate_cancer_like_dataset() -> Tuple[np.ndarray, np.ndarray]:
 
     # Create linearly separable dataset with 30 features
     X, y = generate_linear_dataset(
-        n_samples=569,
-        n_features=30,
-        n_classes=2,
-        noise=0.1,
-        random_state=42
+        n_samples=569, n_features=30, n_classes=2, noise=0.1, random_state=42
     )
 
     return X, y

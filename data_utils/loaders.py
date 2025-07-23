@@ -12,8 +12,10 @@ import numpy as np
 # Handle torch imports gracefully
 try:
     import torch
-    if hasattr(torch, '__version__') and hasattr(torch, 'utils'):
+
+    if hasattr(torch, "__version__") and hasattr(torch, "utils"):
         from torch.utils.data import DataLoader, Dataset, random_split
+
         _TORCH_AVAILABLE = True
         TorchTensor = torch.Tensor
         # Use actual torch Dataset as base class
@@ -32,6 +34,7 @@ try:
 
             def __getitem__(self, idx):
                 return None, None
+
 except ImportError:
     torch = None
     _TORCH_AVAILABLE = False
@@ -46,37 +49,38 @@ except ImportError:
         def __getitem__(self, idx):
             return None, None
 
+
 from utils import get_logger
 from .base_datasets import BaseDataset
 
 
 # DataLoader Configuration Standards from Project Strategy
 DATALOADER_CONFIGS = {
-    'small_datasets': {  # < 10K samples
-        'batch_size': 64,
-        'shuffle': True,
-        'num_workers': 2,
-        'pin_memory': True,
-        'drop_last': False,
-        'persistent_workers': False
+    "small_datasets": {  # < 10K samples
+        "batch_size": 64,
+        "shuffle": True,
+        "num_workers": 2,
+        "pin_memory": True,
+        "drop_last": False,
+        "persistent_workers": False,
     },
-    'medium_datasets': {  # 10K - 100K samples
-        'batch_size': 128,
-        'shuffle': True,
-        'num_workers': 4,
-        'pin_memory': True,
-        'drop_last': False,
-        'persistent_workers': True
+    "medium_datasets": {  # 10K - 100K samples
+        "batch_size": 128,
+        "shuffle": True,
+        "num_workers": 4,
+        "pin_memory": True,
+        "drop_last": False,
+        "persistent_workers": True,
     },
-    'large_datasets': {  # > 100K samples
-        'batch_size': 256,
-        'shuffle': True,
-        'num_workers': 8,
-        'pin_memory': True,
-        'drop_last': True,
-        'persistent_workers': True,
-        'prefetch_factor': 2
-    }
+    "large_datasets": {  # > 100K samples
+        "batch_size": 256,
+        "shuffle": True,
+        "num_workers": 8,
+        "pin_memory": True,
+        "drop_last": True,
+        "persistent_workers": True,
+        "prefetch_factor": 2,
+    },
 }
 
 # Dataset size thresholds
@@ -92,9 +96,12 @@ class TensorDataset(BaseDatasetClass):
     following the project's dataset strategy for consistent interfaces.
     """
 
-    def __init__(self, X: Union[TorchTensor, 'np.ndarray'],
-                 y: Union[TorchTensor, 'np.ndarray'],
-                 transform: Optional[callable] = None):
+    def __init__(
+        self,
+        X: Union[TorchTensor, "np.ndarray"],
+        y: Union[TorchTensor, "np.ndarray"],
+        transform: Optional[callable] = None,
+    ):
         """
         Initialize TensorDataset.
 
@@ -119,7 +126,9 @@ class TensorDataset(BaseDatasetClass):
         self.transform = transform
 
         # Ensure same length
-        assert len(self.X) == len(self.y), f"X and y must have same length: {len(self.X)} vs {len(self.y)}"
+        assert len(self.X) == len(
+            self.y
+        ), f"X and y must have same length: {len(self.X)} vs {len(self.y)}"
 
     def __len__(self) -> int:
         """Return dataset length."""
@@ -160,8 +169,9 @@ class BaseDatasetWrapper(BaseDatasetClass):
         return self.base_dataset[idx]
 
 
-def get_dataloader_config(dataset_size: int,
-                          custom_config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def get_dataloader_config(
+    dataset_size: int, custom_config: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """
     Get appropriate DataLoader configuration based on dataset size.
 
@@ -180,11 +190,11 @@ def get_dataloader_config(dataset_size: int,
 
     # Determine dataset category
     if dataset_size < SMALL_DATASET_THRESHOLD:
-        category = 'small_datasets'
+        category = "small_datasets"
     elif dataset_size < LARGE_DATASET_THRESHOLD:
-        category = 'medium_datasets'
+        category = "medium_datasets"
     else:
-        category = 'large_datasets'
+        category = "large_datasets"
 
     # Get base configuration
     config = DATALOADER_CONFIGS[category].copy()
@@ -198,10 +208,12 @@ def get_dataloader_config(dataset_size: int,
     return config
 
 
-def create_dataloader(dataset: Union[Dataset, BaseDataset, Tuple[TorchTensor, TorchTensor]],
-                      batch_size: Optional[int] = None,
-                      shuffle: Optional[bool] = None,
-                      custom_config: Optional[Dict[str, Any]] = None) -> DataLoader:
+def create_dataloader(
+    dataset: Union[Dataset, BaseDataset, Tuple[TorchTensor, TorchTensor]],
+    batch_size: Optional[int] = None,
+    shuffle: Optional[bool] = None,
+    custom_config: Optional[Dict[str, Any]] = None,
+) -> DataLoader:
     """
     Create optimized DataLoader with automatic configuration.
 
@@ -237,27 +249,30 @@ def create_dataloader(dataset: Union[Dataset, BaseDataset, Tuple[TorchTensor, To
 
     # Override specific parameters if provided
     if batch_size is not None:
-        config['batch_size'] = batch_size
+        config["batch_size"] = batch_size
     if shuffle is not None:
-        config['shuffle'] = shuffle
+        config["shuffle"] = shuffle
 
     # Adjust num_workers for small datasets or Windows
     import platform
-    if len(dataset) < 1000 or platform.system() == 'Windows':
-        config['num_workers'] = 0  # Avoid multiprocessing overhead
-        config['persistent_workers'] = False
+
+    if len(dataset) < 1000 or platform.system() == "Windows":
+        config["num_workers"] = 0  # Avoid multiprocessing overhead
+        config["persistent_workers"] = False
 
     logger.info(f"Created DataLoader for {len(dataset)} samples with config: {config}")
 
     return DataLoader(dataset, **config)
 
 
-def create_train_val_test_loaders(dataset: Union[BaseDataset, Dataset, Tuple[TorchTensor, TorchTensor]],
-                                  train_split: float = 0.7,
-                                  val_split: float = 0.15,
-                                  test_split: float = 0.15,
-                                  batch_size: Optional[int] = None,
-                                  custom_config: Optional[Dict[str, Any]] = None) -> Tuple[DataLoader, DataLoader, DataLoader]:
+def create_train_val_test_loaders(
+    dataset: Union[BaseDataset, Dataset, Tuple[TorchTensor, TorchTensor]],
+    train_split: float = 0.7,
+    val_split: float = 0.15,
+    test_split: float = 0.15,
+    batch_size: Optional[int] = None,
+    custom_config: Optional[Dict[str, Any]] = None,
+) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
     Create train, validation, and test DataLoaders with automatic splitting.
 
@@ -280,7 +295,9 @@ def create_train_val_test_loaders(dataset: Union[BaseDataset, Dataset, Tuple[Tor
 
     # Validate split ratios
     if abs(train_split + val_split + test_split - 1.0) > 1e-6:
-        raise ValueError(f"Split ratios must sum to 1.0, got {train_split + val_split + test_split}")
+        raise ValueError(
+            f"Split ratios must sum to 1.0, got {train_split + val_split + test_split}"
+        )
 
     # Convert to PyTorch Dataset if needed
     if isinstance(dataset, tuple) and len(dataset) == 2:
@@ -296,33 +313,47 @@ def create_train_val_test_loaders(dataset: Union[BaseDataset, Dataset, Tuple[Tor
     val_size = int(val_split * total_size)
     test_size = total_size - train_size - val_size  # Ensure exact total
 
-    logger.info(f"Splitting dataset: train={train_size}, val={val_size}, test={test_size}")
+    logger.info(
+        f"Splitting dataset: train={train_size}, val={val_size}, test={test_size}"
+    )
 
     # Split dataset
     train_dataset, val_dataset, test_dataset = random_split(
-        dataset, [train_size, val_size, test_size],
-        generator=torch.Generator().manual_seed(42)
+        dataset,
+        [train_size, val_size, test_size],
+        generator=torch.Generator().manual_seed(42),
     )
 
     # Create loaders with appropriate configurations
     train_config = custom_config.copy() if custom_config else {}
-    train_config['shuffle'] = True  # Always shuffle training data
+    train_config["shuffle"] = True  # Always shuffle training data
 
     val_test_config = custom_config.copy() if custom_config else {}
-    val_test_config['shuffle'] = False  # Don't shuffle validation/test data
+    val_test_config["shuffle"] = False  # Don't shuffle validation/test data
 
-    train_loader = create_dataloader(train_dataset, batch_size, custom_config=train_config)
-    val_loader = create_dataloader(val_dataset, batch_size, custom_config=val_test_config)
-    test_loader = create_dataloader(test_dataset, batch_size, custom_config=val_test_config)
+    train_loader = create_dataloader(
+        train_dataset, batch_size, custom_config=train_config
+    )
+    val_loader = create_dataloader(
+        val_dataset, batch_size, custom_config=val_test_config
+    )
+    test_loader = create_dataloader(
+        test_dataset, batch_size, custom_config=val_test_config
+    )
 
     return train_loader, val_loader, test_loader
 
 
-def create_data_loaders(X_train: TorchTensor, y_train: TorchTensor,
-                        X_val: Optional[TorchTensor] = None, y_val: Optional[TorchTensor] = None,
-                        X_test: Optional[TorchTensor] = None, y_test: Optional[TorchTensor] = None,
-                        batch_size: Optional[int] = None,
-                        custom_config: Optional[Dict[str, Any]] = None) -> Tuple[DataLoader, ...]:
+def create_data_loaders(
+    X_train: TorchTensor,
+    y_train: TorchTensor,
+    X_val: Optional[TorchTensor] = None,
+    y_val: Optional[TorchTensor] = None,
+    X_test: Optional[TorchTensor] = None,
+    y_test: Optional[TorchTensor] = None,
+    batch_size: Optional[int] = None,
+    custom_config: Optional[Dict[str, Any]] = None,
+) -> Tuple[DataLoader, ...]:
     """
     Create DataLoaders from separate train/val/test tensors.
 
@@ -345,22 +376,28 @@ def create_data_loaders(X_train: TorchTensor, y_train: TorchTensor,
 
     # Training loader (always shuffle)
     train_config = custom_config.copy() if custom_config else {}
-    train_config['shuffle'] = True
-    train_loader = create_dataloader((X_train, y_train), batch_size, custom_config=train_config)
+    train_config["shuffle"] = True
+    train_loader = create_dataloader(
+        (X_train, y_train), batch_size, custom_config=train_config
+    )
     loaders.append(train_loader)
 
     # Validation loader (don't shuffle)
     if X_val is not None and y_val is not None:
         val_config = custom_config.copy() if custom_config else {}
-        val_config['shuffle'] = False
-        val_loader = create_dataloader((X_val, y_val), batch_size, custom_config=val_config)
+        val_config["shuffle"] = False
+        val_loader = create_dataloader(
+            (X_val, y_val), batch_size, custom_config=val_config
+        )
         loaders.append(val_loader)
 
     # Test loader (don't shuffle)
     if X_test is not None and y_test is not None:
         test_config = custom_config.copy() if custom_config else {}
-        test_config['shuffle'] = False
-        test_loader = create_dataloader((X_test, y_test), batch_size, custom_config=test_config)
+        test_config["shuffle"] = False
+        test_loader = create_dataloader(
+            (X_test, y_test), batch_size, custom_config=test_config
+        )
         loaders.append(test_loader)
 
     logger.info(f"Created {len(loaders)} DataLoaders")
@@ -385,12 +422,12 @@ def get_dataset_info_from_loader(dataloader: DataLoader) -> Dict[str, Any]:
     dataset = dataloader.dataset
 
     info = {
-        'dataset_size': len(dataset),
-        'batch_size': dataloader.batch_size,
-        'num_batches': len(dataloader),
-        'shuffle': dataloader.sampler is not None,
-        'num_workers': dataloader.num_workers,
-        'pin_memory': dataloader.pin_memory
+        "dataset_size": len(dataset),
+        "batch_size": dataloader.batch_size,
+        "num_batches": len(dataloader),
+        "shuffle": dataloader.sampler is not None,
+        "num_workers": dataloader.num_workers,
+        "pin_memory": dataloader.pin_memory,
     }
 
     # Try to get sample shape
@@ -398,12 +435,16 @@ def get_dataset_info_from_loader(dataloader: DataLoader) -> Dict[str, Any]:
         sample_batch = next(iter(dataloader))
         if isinstance(sample_batch, (list, tuple)) and len(sample_batch) == 2:
             X_batch, y_batch = sample_batch
-            info.update({
-                'feature_shape': tuple(X_batch.shape[1:]),
-                'target_shape': tuple(y_batch.shape[1:]) if y_batch.dim() > 1 else (),
-                'feature_dtype': str(X_batch.dtype),
-                'target_dtype': str(y_batch.dtype)
-            })
+            info.update(
+                {
+                    "feature_shape": tuple(X_batch.shape[1:]),
+                    "target_shape": (
+                        tuple(y_batch.shape[1:]) if y_batch.dim() > 1 else ()
+                    ),
+                    "feature_dtype": str(X_batch.dtype),
+                    "target_dtype": str(y_batch.dtype),
+                }
+            )
     except Exception:
         pass  # Skip if unable to get sample
 

@@ -15,7 +15,10 @@ from typing import Dict, Any
 # Basic model information
 MODEL_NAME = "Perceptron"
 MODEL_VERSION = "1.0.0"
-MODEL_DESCRIPTION = "The first artificial neural network capable of learning linearly separable patterns"
+MODEL_DESCRIPTION = (
+    "The first artificial neural network capable of learning "
+    "linearly separable patterns"
+)
 
 # Historical information
 YEAR_INTRODUCED = 1957
@@ -116,7 +119,10 @@ DATASET_SPECS = {
         "output_size": 1,
         "expected_accuracy": 0.98,
         "difficulty": "easy",
-        "description": "Binary classification of Iris setosa vs versicolor - linearly separable",
+        "description": (
+            "Binary classification of Iris setosa vs versicolor - "
+            "linearly separable"
+        ),
     },
     "linear_separable": {
         "dataset_name": "linear_separable",
@@ -220,7 +226,7 @@ def validate_learning_rate(lr: float) -> float:
     """Validate and clip learning rate to acceptable range."""
     if lr < MIN_LEARNING_RATE:
         return MIN_LEARNING_RATE
-    elif lr > MAX_LEARNING_RATE:
+    if lr > MAX_LEARNING_RATE:
         return MAX_LEARNING_RATE
     return lr
 
@@ -229,7 +235,7 @@ def validate_epochs(epochs: int) -> int:
     """Validate and clip epochs to acceptable range."""
     if epochs < MIN_EPOCHS:
         return MIN_EPOCHS
-    elif epochs > MAX_EPOCHS:
+    if epochs > MAX_EPOCHS:
         return MAX_EPOCHS
     return epochs
 
@@ -312,14 +318,13 @@ def validate_parameter(param_name: str, value: Any) -> Any:
     """
     if param_name == "learning_rate":
         return validate_learning_rate(float(value))
-    elif param_name == "max_epochs":
+    if param_name == "max_epochs":
         return validate_epochs(int(value))
-    elif param_name == "activation":
+    if param_name == "activation":
         return validate_activation(str(value))
-    elif param_name == "init_method":
+    if param_name == "init_method":
         return validate_init_method(str(value))
-    else:
-        return value
+    return value
 
 
 def get_expected_performance(experiment_name: str) -> Dict[str, Any]:
@@ -365,7 +370,9 @@ EXPERIMENT_CONTEXTS = {
     "weakness": {
         "purpose": "Expose Perceptron limitations on non-linearly separable data",
         "expected_outcome": "Poor accuracy and/or non-convergence",
-        "learning_objective": "Understanding Perceptron limitations and motivation for MLPs",
+        "learning_objective": (
+            "Understanding Perceptron limitations and motivation for MLPs"
+        ),
     },
     "debug": {
         "purpose": "Quick validation of implementation and setup",

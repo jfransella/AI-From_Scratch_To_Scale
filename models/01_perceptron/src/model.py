@@ -5,17 +5,20 @@ This module implements the classic Rosenblatt Perceptron (1957), the first
 artificial neural network capable of learning linearly separable patterns.
 """
 
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, Optional, Any
 from pathlib import Path
 
-import numpy as np
-
 # Handle torch imports gracefully
-try:
+try:  # noqa: C901
     import torch
-    if hasattr(torch, '__version__') and hasattr(torch, 'nn') and hasattr(torch, 'tensor'):
+
+    if (
+        hasattr(torch, "__version__")
+        and hasattr(torch, "nn")
+        and hasattr(torch, "tensor")
+    ):
         from torch import nn
-        import torch.nn.functional as F
+
         _TORCH_AVAILABLE = True
         # Use actual torch classes
         BaseNNModule = nn.Module
@@ -26,24 +29,32 @@ try:
         torch = None
         nn = None
         F = None
+
         # Create dummy base classes
         class BaseNNModule:
             def __init__(self):
                 pass
+
             def parameters(self):
                 return []
+
             def to(self, device):
                 return self
+
             def train(self, mode=True):
                 return self
+
             def eval(self):
                 return self
+
             def state_dict(self):
                 return {}
+
             def load_state_dict(self, state_dict):
                 pass
+
         TorchTensor = Any
-        
+
         # Create dummy nn module with Linear class
         class DummyNN:
             class Linear:
@@ -52,98 +63,119 @@ try:
                     self.out_features = out_features
                     self.weight = DummyParameter((out_features, in_features))
                     self.bias = DummyParameter((out_features,)) if bias else None
-                
+
                 def __call__(self, x):
                     return x  # Dummy forward pass
-                    
+
             class BCEWithLogitsLoss:
                 def __call__(self, input, target):
                     return DummyTensor(0.0)  # Dummy loss
-            
+
             class init:
                 @staticmethod
                 def zeros_(tensor):
                     pass  # Dummy weight initialization
+
                 @staticmethod
                 def xavier_normal_(tensor):
                     pass
+
                 @staticmethod
                 def xavier_uniform_(tensor):
                     pass
+
                 @staticmethod
                 def kaiming_normal_(tensor, **kwargs):
                     pass
+
                 @staticmethod
                 def kaiming_uniform_(tensor, **kwargs):
                     pass
+
                 @staticmethod
                 def normal_(tensor, mean=0, std=1):
                     pass
-                
+
         class DummyParameter:
             def __init__(self, shape):
                 self.data = DummyTensor(shape)
-                
+
         class DummyTensor:
             def __init__(self, value):
                 self.value = value
+
             def item(self):
                 return 0.0
+
             def cpu(self):
                 return self
+
             def numpy(self):
                 import numpy as np
+
                 return np.array([[0.0]])  # Dummy numpy array
+
             def tolist(self):
                 return [[0.0]]
-                
+
         class DummyTorch:
             @staticmethod
             def no_grad():
                 return DummyContext()
+
             @staticmethod
             def device(device_str):
                 return DummyDevice(device_str)
-                
+
         class DummyDevice:
             def __init__(self, device_str):
                 self.type = "cpu"
                 self.index = None
+
             def __str__(self):
                 return "cpu"
-                
+
         class DummyContext:
             def __enter__(self):
                 return self
+
             def __exit__(self, exc_type, exc_val, exc_tb):
                 pass
-        
+
         nn = DummyNN()
         torch = DummyTorch()
-        
+
 except ImportError:
     torch = None
     nn = None
     F = None
     _TORCH_AVAILABLE = False
+
     # Create dummy base classes
     class BaseNNModule:
         def __init__(self):
             pass
+
         def parameters(self):
             return []
+
         def to(self, device):
             return self
+
         def train(self, mode=True):
             return self
+
         def eval(self):
             return self
+
         def state_dict(self):
             return {}
+
         def load_state_dict(self, state_dict):
             pass
+
     TorchTensor = Any
-    
+
     # Create dummy nn module with Linear class
     class DummyNN:
         class Linear:
@@ -152,72 +184,85 @@ except ImportError:
                 self.out_features = out_features
                 self.weight = DummyParameter((out_features, in_features))
                 self.bias = DummyParameter((out_features,)) if bias else None
-            
+
             def __call__(self, x):
                 return x  # Dummy forward pass
-                
+
         class BCEWithLogitsLoss:
             def __call__(self, input, target):
                 return DummyTensor(0.0)  # Dummy loss
-        
+
         class init:
             @staticmethod
             def zeros_(tensor):
                 pass  # Dummy weight initialization
+
             @staticmethod
             def xavier_normal_(tensor):
                 pass
+
             @staticmethod
             def xavier_uniform_(tensor):
                 pass
+
             @staticmethod
             def kaiming_normal_(tensor, **kwargs):
                 pass
+
             @staticmethod
             def kaiming_uniform_(tensor, **kwargs):
                 pass
+
             @staticmethod
             def normal_(tensor, mean=0, std=1):
                 pass
-                
+
     class DummyParameter:
         def __init__(self, shape):
             self.data = DummyTensor(shape)
-            
+
     class DummyTensor:
         def __init__(self, value):
             self.value = value
+
         def item(self):
             return 0.0
+
         def cpu(self):
             return self
+
         def numpy(self):
             import numpy as np
+
             return np.array([[0.0]])  # Dummy numpy array
+
         def tolist(self):
             return [[0.0]]
-            
+
     class DummyTorch:
         @staticmethod
         def no_grad():
             return DummyContext()
+
         @staticmethod
         def device(device_str):
             return DummyDevice(device_str)
-            
+
     class DummyDevice:
         def __init__(self, device_str):
             self.type = "cpu"
             self.index = None
+
         def __str__(self):
             return "cpu"
-            
+
     class DummyContext:
         def __enter__(self):
             return self
+
         def __exit__(self, exc_type, exc_val, exc_tb):
             pass
-        
+
     nn = DummyNN()
     torch = DummyTorch()
 
@@ -231,7 +276,9 @@ from utils import get_logger, set_random_seed
 from constants import AUTHORS, MODEL_NAME, MODEL_VERSION, YEAR_INTRODUCED
 
 
-class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-attributes
+class Perceptron(
+    BaseNNModule, BaseModel
+):  # pylint: disable=too-many-instance-attributes
     """
     Classic Perceptron implementation with BaseModel interface.
 
@@ -304,7 +351,7 @@ class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-
 
         # Initialize weights
         self._initialize_weights()
-        
+
         # Ensure parameters require gradients (important for training)
         if _TORCH_AVAILABLE and torch is not None:
             for param in self.parameters():
@@ -422,20 +469,20 @@ class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-
     def get_loss(self, outputs: TorchTensor, targets: TorchTensor) -> TorchTensor:
         """
         Compute loss for training.
-        
+
         Uses BCEWithLogitsLoss for numerical stability.
-        
+
         Args:
             outputs: Raw model outputs (logits) [batch_size, 1]
             targets: Target labels [batch_size] or [batch_size, 1]
-            
+
         Returns:
             Loss tensor
         """
-        # Ensure outputs are [batch_size, 1] 
+        # Ensure outputs are [batch_size, 1]
         if outputs.dim() == 1:
             outputs = outputs.unsqueeze(1)
-            
+
         # Ensure targets are [batch_size, 1] to match outputs
         if targets.dim() == 1:
             targets = targets.unsqueeze(1)
@@ -444,9 +491,9 @@ class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-
             if targets.dim() == 0:  # Handle single sample case
                 targets = targets.unsqueeze(0)
             targets = targets.unsqueeze(1)
-            
+
         targets = targets.float()
-        
+
         criterion = nn.BCEWithLogitsLoss()
         return criterion(outputs, targets)
 
@@ -468,18 +515,19 @@ class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-
             "category": "foundation",
             "module": 1,
             "pattern": "engine-based",
-            
             # Historical context
             "year_introduced": YEAR_INTRODUCED,
             "authors": AUTHORS,
-            "paper_title": "The perceptron: a probabilistic model for information storage and organization in the brain",
+            "paper_title": (
+                "The perceptron: a probabilistic model for information "
+                "storage and organization in the brain"
+            ),
             "key_innovations": [
                 "First neural network that could learn from data",
                 "Perceptron learning rule for weight updates",
                 "Foundation for all modern neural networks",
-                "Demonstrated machine learning capabilities"
+                "Demonstrated machine learning capabilities",
             ],
-            
             # Architecture details
             "architecture_type": "single-layer",
             "input_size": self.input_size,
@@ -488,19 +536,20 @@ class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-
             "trainable_parameters": trainable_params,
             "activation_function": self.activation,
             "hidden_layers": 0,
-            
             # Training characteristics
             "learning_algorithm": "perceptron-rule",
             "loss_function": "bce-with-logits",
             "optimizer": "sgd",
             "convergence_guarantee": "linearly separable data",
-            
             # Implementation details
             "framework": "pytorch",
             "precision": "float32",
             "device_support": ["cpu", "cuda", "mps"],
-            "device": str(next(iter(self.parameters())).device) if list(self.parameters()) else "cpu",
-            
+            "device": (
+                str(next(iter(self.parameters())).device)
+                if list(self.parameters())
+                else "cpu"
+            ),
             # Educational metadata
             "difficulty_level": "beginner",
             "estimated_training_time": "seconds to minutes",
@@ -508,24 +557,21 @@ class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-
                 "Understand linear decision boundaries",
                 "Learn perceptron learning rule",
                 "Discover limitations of linear models",
-                "Foundation of neural networks"
+                "Foundation of neural networks",
             ],
-            
             # Training state
             "is_fitted": self.is_fitted,
             "epochs_trained": self.training_history.get("epochs_trained", 0),
-            "converged": len(self.training_history.get("loss", [])) > 0 and self.training_history["loss"][-1] <= self.tolerance,
-            
+            "converged": len(self.training_history.get("loss", [])) > 0
+            and self.training_history["loss"][-1] <= self.tolerance,
             # Training configuration
             "learning_rate": self.learning_rate,
             "max_epochs": self.max_epochs,
             "tolerance": self.tolerance,
             "init_method": self.init_method,
-            
             # Current weights (for analysis)
             "weights": self.linear.weight.data.cpu().numpy().tolist(),
             "bias": self.linear.bias.data.cpu().numpy().tolist(),
-            
             # Legacy compatibility
             "model_name": MODEL_NAME,
             "model_version": MODEL_VERSION,
@@ -745,20 +791,22 @@ class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-
         self.logger.info("Training completed: %.4f accuracy", accuracy)
         return self.training_history
 
-    def fit_historical(self, x_data: TorchTensor, y_target: TorchTensor, verbose: bool = False) -> Dict[str, Any]:
+    def fit_historical(
+        self, x_data: TorchTensor, y_target: TorchTensor, verbose: bool = False
+    ) -> Dict[str, Any]:
         """
         Train using the original 1957 Rosenblatt Perceptron Learning Rule.
-        
+
         This method implements the historical algorithm without gradients:
         - Uses step function activation
         - Only updates weights on errors
         - Simple rule-based learning (no calculus!)
-        
+
         Args:
             x_data: Input features
             y_target: Target labels (0 or 1)
             verbose: Print training progress
-            
+
         Returns:
             Training results and history
         """
@@ -766,20 +814,20 @@ class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-
         self.logger.info("   • No gradients, no backpropagation")
         self.logger.info("   • Error-driven weight updates only")
         self.logger.info("   • Step function activation")
-        
+
         # Ensure data is 2D
         if x_data.dim() == 1:
             x_data = x_data.unsqueeze(0)
         if y_target.dim() == 1:
             y_target = y_target.unsqueeze(1)
-            
+
         n_samples = x_data.shape[0]
-        
+
         # Initialize weights to zeros (historical default)
         with torch.no_grad():
             self.linear.weight.fill_(0.0)
             self.linear.bias.fill_(0.0)
-        
+
         # Training history
         history = {
             "loss": [],
@@ -787,92 +835,104 @@ class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-
             "errors": [],
             "weight_updates": [],
             "converged": False,
-            "convergence_epoch": None
+            "convergence_epoch": None,
         }
-        
+
         # Historical perceptron training loop
         for epoch in range(self.max_epochs):
             epoch_errors = 0
             epoch_updates = 0
-            
+
             # Process each sample individually (historical approach)
             for i in range(n_samples):
-                x_i = x_data[i:i+1]  # Keep batch dimension
-                y_i = y_target[i:i+1]
-                
+                x_i = x_data[i : i + 1]  # Keep batch dimension
+                y_i = y_target[i : i + 1]
+
                 # Forward pass with step function
                 with torch.no_grad():
                     raw_output = self.linear(x_i)
                     prediction = (raw_output >= 0.0).float()  # Step function
-                    
+
                     # Check for error
                     error = y_i - prediction
-                    
+
                     if error.abs().sum() > 0:  # Only update on errors
                         epoch_errors += 1
                         epoch_updates += 1
-                        
+
                         # Historical perceptron learning rule
                         # w = w + η * (target - prediction) * input
                         weight_update = self.learning_rate * error * x_i
                         bias_update = self.learning_rate * error
-                        
+
                         # Apply updates
                         self.linear.weight.data += weight_update
                         self.linear.bias.data += bias_update
-            
+
             # Compute epoch metrics
             with torch.no_grad():
                 outputs = self.linear(x_data)
                 predictions = (outputs >= 0.0).float()
                 accuracy = (predictions == y_target).float().mean().item()
-                
+
                 # Use simple squared error for loss (not BCE)
                 loss = torch.mean((y_target - predictions) ** 2).item()
-            
+
             # Store history
             history["loss"].append(loss)
             history["accuracy"].append(accuracy)
             history["errors"].append(epoch_errors)
             history["weight_updates"].append(epoch_updates)
-            
+
             # Progress logging
             if verbose or epoch % max(1, self.max_epochs // 10) == 0:
-                self.logger.info(f"Epoch {epoch:3d}: Accuracy={accuracy:.4f}, Errors={epoch_errors:2d}, Loss={loss:.6f}")
-            
+                self.logger.info(
+                    f"Epoch {epoch:3d}: Accuracy={accuracy:.4f}, "
+                    f"Errors={epoch_errors:2d}, Loss={loss:.6f}"
+                )
+
             # Convergence check (no errors = perfect classification)
             if epoch_errors == 0:
                 history["converged"] = True
                 history["convergence_epoch"] = epoch
                 if verbose:
                     self.logger.info(f"✅ CONVERGED at epoch {epoch}! No more errors.")
-                    self.logger.info("🎉 Historical perceptron found perfect linear separator!")
+                    self.logger.info(
+                        "🎉 Historical perceptron found perfect linear separator!"
+                    )
                 break
-                
+
             # Early stopping if loss is below tolerance
             if loss < self.tolerance:
                 history["converged"] = True
                 history["convergence_epoch"] = epoch
                 break
-        
+
         # Update training state
         self.is_fitted = True
         self.training_history.update(history)
-        
+
         final_accuracy = history["accuracy"][-1]
-        
+
         if verbose:
-            self.logger.info(f"\n🏛️ Historical Perceptron Training Complete:")
+            self.logger.info("\n🏛️ Historical Perceptron Training Complete:")
             self.logger.info(f"   Final Accuracy: {final_accuracy:.4f}")
             self.logger.info(f"   Epochs Trained: {epoch + 1}")
             self.logger.info(f"   Converged: {history['converged']}")
-            
+
             if final_accuracy >= 0.99:
-                self.logger.info("🎯 Perfect separation achieved! (Linearly separable data)")
+                self.logger.info(
+                    "🎯 Perfect separation achieved! (Linearly separable data)"
+                )
             elif final_accuracy < 0.6:
-                self.logger.info("⚠️  Poor performance - likely non-linearly separable data")
-                self.logger.info("   This demonstrates the fundamental limitation Minsky & Papert identified!")
-        
+                self.logger.info(
+                    "⚠️  Poor performance - likely non-linearly separable data"
+                )
+                self.logger.info(
+                    "   This demonstrates the fundamental limitation "
+                    "Minsky & Papert identified!"
+                )
+
         return {
             "final_accuracy": final_accuracy,
             "epochs_trained": epoch + 1,
@@ -880,15 +940,14 @@ class Perceptron(BaseNNModule, BaseModel):  # pylint: disable=too-many-instance-
             "convergence_epoch": history.get("convergence_epoch"),
             "final_loss": history["loss"][-1],
             "total_errors": sum(history["errors"]),
-            "algorithm": "historical_perceptron_1957"
+            "algorithm": "historical_perceptron_1957",
         }
 
     def __repr__(self) -> str:
         """String representation of the model."""
         return (
             f"Perceptron(input_size={self.input_size}, "
-            f"activation='{self.activation}', "
-            f"lr={self.learning_rate}, "
+            f"activation='{self.activation}', lr={self.learning_rate}, "
             f"fitted={self.is_fitted})"
         )
 

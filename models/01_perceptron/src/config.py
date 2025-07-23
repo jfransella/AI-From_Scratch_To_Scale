@@ -15,7 +15,10 @@ project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 # Import from engine package
-from engine import TrainingConfig, EvaluationConfig  # noqa: E402  # pylint: disable=wrong-import-position
+from engine import (  # noqa: E402
+    TrainingConfig,
+    EvaluationConfig,
+)
 
 # Import constants - handle both direct and relative imports
 try:
@@ -55,25 +58,25 @@ except ImportError:
 
 def apply_wandb_defaults(config_dict: dict, experiment_name: str) -> dict:
     """Apply comprehensive wandb defaults according to integration plan standards."""
-    
+
     # Auto-generate project name if not set
     if not config_dict.get("wandb_project"):
         config_dict["wandb_project"] = "ai-from-scratch-perceptron"
-    
-    # Auto-generate run name if not set  
+
+    # Auto-generate run name if not set
     if not config_dict.get("wandb_name"):
         config_dict["wandb_name"] = f"perceptron-{experiment_name}"
-    
+
     # Enhanced auto-tagging system
     base_tags = [
         "perceptron",
-        "module-1", 
+        "module-1",
         "foundation",
         "engine-based",  # Perceptron uses engine framework
         experiment_name,
-        "perceptron-rule"
+        "perceptron-rule",
     ]
-    
+
     # Add experiment-specific tags
     if "strength" in experiment_name.lower():
         base_tags.append("strength")
@@ -85,29 +88,30 @@ def apply_wandb_defaults(config_dict: dict, experiment_name: str) -> dict:
         base_tags.append("comparison")
     elif "xor" in experiment_name.lower():
         base_tags.append("limitation")
-        
+
     # Add dataset-specific tags
     dataset_name = config_dict.get("dataset_name", "")
     if dataset_name:
         base_tags.append(dataset_name.lower().replace("_", "-"))
-    
+
     config_dict["wandb_tags"] = base_tags
-    
+
     # Auto-generate notes if not set
     if not config_dict.get("wandb_notes"):
         config_dict["wandb_notes"] = (
-            f"Perceptron training on {experiment_name} dataset using classic learning rule. "
-            f"Demonstrates fundamental neural network concepts from 1957."
+            f"Perceptron training on {experiment_name} dataset using "
+            f"classic learning rule. Demonstrates fundamental neural "
+            f"network concepts from 1957."
         )
-    
+
     # Set group for organization
     if not config_dict.get("wandb_group"):
         config_dict["wandb_group"] = "module-1-foundations"
-    
+
     # Set job type
     if not config_dict.get("wandb_job_type"):
         config_dict["wandb_job_type"] = "train"
-    
+
     return config_dict
 
 
@@ -117,31 +121,25 @@ def create_wandb_config_dict(experiment_name: str, config_dict: dict) -> dict:
         # Experiment info
         "experiment_name": experiment_name,
         "dataset_name": config_dict.get("dataset_name"),
-        
         # Model architecture
         "model_name": "Perceptron",
         "activation": "step",
         "learning_algorithm": "perceptron-rule",
-        
         # Training parameters
         "learning_rate": config_dict.get("learning_rate"),
         "max_epochs": config_dict.get("max_epochs"),
         "convergence_threshold": config_dict.get("convergence_threshold"),
         "batch_size": config_dict.get("batch_size") or "full-batch",
-        
         # Training characteristics
         "optimizer_type": config_dict.get("optimizer_type"),
         "early_stopping": config_dict.get("early_stopping"),
         "patience": config_dict.get("patience"),
-        
         # Data parameters
         "validation_split": config_dict.get("validation_split"),
         "random_seed": config_dict.get("random_seed"),
-        
         # Device and framework
         "device": config_dict.get("device"),
         "framework": "pytorch",
-        
         # Logging parameters
         "log_freq": config_dict.get("log_freq"),
         "verbose": config_dict.get("verbose"),
@@ -199,7 +197,6 @@ def get_training_config(experiment_name: str, **overrides) -> TrainingConfig:
         # Logging and tracking
         "log_freq": 10,
         "verbose": True,
-        
         # Enhanced wandb configuration following integration plan
         "use_wandb": False,  # Will be enabled via command line or overrides
         "wandb_project": None,  # Will be auto-generated
@@ -207,22 +204,18 @@ def get_training_config(experiment_name: str, **overrides) -> TrainingConfig:
         "wandb_tags": [],  # Will be auto-generated
         "wandb_notes": None,  # Will be auto-generated
         "wandb_mode": "online",  # "online", "offline", "disabled"
-        
         # Advanced wandb features
         "wandb_watch_model": True,
         "wandb_watch_log": "gradients",  # "gradients", "parameters", "all"
         "wandb_watch_freq": 50,
-        
         # Artifact configuration
         "wandb_log_checkpoints": True,
         "wandb_log_visualizations": True,
         "wandb_log_datasets": False,
-        
         # Group and sweep support
         "wandb_group": None,  # Will be auto-generated
         "wandb_job_type": None,  # Will be auto-generated
         "wandb_sweep_id": None,
-        
         # Reproducibility
         "random_seed": 42,
         # Device
@@ -431,7 +424,8 @@ def get_dataset_config(experiment_name: str) -> Dict[str, Any]:
 
 def get_complete_config(experiment_name: str, **overrides) -> Dict[str, Any]:
     """
-    Get complete configuration for an experiment including training, evaluation, and model configs.
+    Get complete configuration for an experiment including training,
+    evaluation, and model configs.
 
     Args:
         experiment_name: Name of the experiment
@@ -470,9 +464,9 @@ def print_config_summary(experiment_name: str):
         print(f"Expected Accuracy: {config['dataset_config']['expected_accuracy']:.3f}")
         print(f"Difficulty: {config['dataset_config']['difficulty']}")
         type_str = (
-            "Strength" if exp_info["is_strength"]
-            else "Weakness" if exp_info["is_weakness"]
-            else "Debug"
+            "Strength"
+            if exp_info["is_strength"]
+            else "Weakness" if exp_info["is_weakness"] else "Debug"
         )
         print(f"Type: {type_str}")
 

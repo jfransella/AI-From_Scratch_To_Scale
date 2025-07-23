@@ -26,8 +26,13 @@ class BaseDataset(ABC):
     for consistent dataset handling across all models.
     """
 
-    def __init__(self, data_dir: Union[str, Path], split: str = 'train',
-                 transform: Optional[Callable] = None, **kwargs):
+    def __init__(
+        self,
+        data_dir: Union[str, Path],
+        split: str = "train",
+        transform: Optional[Callable] = None,
+        **kwargs,
+    ):
         """
         Initialize BaseDataset.
 
@@ -52,7 +57,12 @@ class BaseDataset(ABC):
         # Generate or load dataset metadata
         self.dataset_metadata = self._generate_or_load_metadata()
 
-        self.logger.info(f"Loaded {self.__class__.__name__} - Split: {split}, Samples: {len(self)}")
+        self.logger.info(
+            "Loaded %s - Split: %s, Samples: %d",
+            self.__class__.__name__,
+            split,
+            len(self),
+        )
 
     @abstractmethod
     def _load_data(self) -> Any:
@@ -64,10 +74,10 @@ class BaseDataset(ABC):
         metadata_path = self.data_dir / f"{self.data_dir.name}_metadata.json"
         if metadata_path.exists():
             try:
-                with open(metadata_path, 'r', encoding='utf-8') as f:
+                with open(metadata_path, "r", encoding="utf-8") as f:
                     return json.load(f)
-            except Exception as e:
-                self.logger.warning(f"Failed to load metadata: {e}")
+            except (OSError, IOError, json.JSONDecodeError) as e:
+                self.logger.warning("Failed to load metadata: %s", e)
 
         return self._generate_default_metadata()
 
@@ -79,24 +89,24 @@ class BaseDataset(ABC):
             "splits": {},
             "preprocessing": {},
             "created_at": None,
-            "checksum": None
+            "checksum": None,
         }
 
     def __len__(self) -> int:
         """Return number of samples in the dataset."""
         if isinstance(self.data, (list, tuple)):
             return len(self.data)
-        elif isinstance(self.data, dict) and 'X' in self.data:
-            return len(self.data['X'])
-        elif hasattr(self.data, '__len__'):
+        if isinstance(self.data, dict) and "X" in self.data:
+            return len(self.data["X"])
+        if hasattr(self.data, "__len__"):
             return len(self.data)
-        else:
-            raise DataError("Cannot determine dataset length")
+
+        raise DataError("Cannot determine dataset length")
 
     def __getitem__(self, idx: int) -> Tuple[Any, Any]:
         """Get a single sample from the dataset."""
         if isinstance(self.data, dict):
-            sample = (self.data['X'][idx], self.data['y'][idx])
+            sample = (self.data["X"][idx], self.data["y"][idx])
         elif isinstance(self.data, (list, tuple)) and len(self.data) == 2:
             sample = (self.data[0][idx], self.data[1][idx])
         else:
@@ -113,17 +123,23 @@ class BaseDataset(ABC):
             "name": self.data_dir.name,
             "split": self.split,
             "size": len(self),
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
         if isinstance(self.data, dict):
-            if 'X' in self.data and 'y' in self.data:
-                info.update({
-                    "n_features": self.data['X'].shape[1] if self.data['X'].ndim > 1 else 1,
-                    "n_classes": len(np.unique(self.data['y'])),
-                    "feature_shape": self.data['X'].shape[1:],
-                    "class_distribution": dict(zip(*np.unique(self.data['y'], return_counts=True)))
-                })
+            if "X" in self.data and "y" in self.data:
+                info.update(
+                    {
+                        "n_features": (
+                            self.data["X"].shape[1] if self.data["X"].ndim > 1 else 1
+                        ),
+                        "n_classes": len(np.unique(self.data["y"])),
+                        "feature_shape": self.data["X"].shape[1:],
+                        "class_distribution": dict(
+                            zip(*np.unique(self.data["y"], return_counts=True))
+                        ),
+                    }
+                )
 
         return info
 
@@ -131,28 +147,33 @@ class BaseDataset(ABC):
         """Generate or load comprehensive dataset metadata."""
         try:
             # Try to load existing metadata first
-            metadata_path = self.data_dir / f"{self.data_dir.name}_dataset_metadata.json"
+            metadata_path = (
+                self.data_dir / f"{self.data_dir.name}_dataset_metadata.json"
+            )
             if metadata_path.exists():
                 try:
                     from .metadata import load_metadata_from_file
+
                     return load_metadata_from_file(metadata_path, validate=False)
-                except Exception as e:
-                    self.logger.warning(f"Failed to load existing metadata: {e}")
+                except (OSError, IOError, ImportError) as e:
+                    self.logger.warning("Failed to load existing metadata: %s", e)
 
             # Generate new metadata from data
             # Use the actual dataset name, not the directory name
-            dataset_name = getattr(self, 'dataset_name', None) or getattr(self, 'dataset_type', self.data_dir.name)
+            dataset_name = getattr(self, "dataset_name", None) or getattr(
+                self, "dataset_type", self.data_dir.name
+            )
             dataset_metadata = create_metadata_from_data(
                 data=self.data,
                 name=dataset_name,
-                dataset_type=self.kwargs.get('dataset_type', 'unknown'),
-                description=f"Dataset loaded from {self.data_dir} (split: {self.split})"
+                dataset_type=self.kwargs.get("dataset_type", "unknown"),
+                description=f"Dataset loaded from {self.data_dir} (split: {self.split})",
             )
 
             # Add split information
             dataset_metadata.add_split_info(
                 split_name=self.split,
-                n_samples=len(self.data['X']) if 'X' in self.data else len(self.data)
+                n_samples=len(self.data["X"]) if "X" in self.data else len(self.data),
             )
 
             # Save the generated metadata
@@ -160,28 +181,31 @@ class BaseDataset(ABC):
 
             return dataset_metadata
 
-        except Exception as e:
-            self.logger.warning(f"Failed to generate metadata: {e}")
+        except (OSError, IOError, ImportError, AttributeError) as e:
+            self.logger.warning("Failed to generate metadata: %s", e)
             # Return minimal metadata as fallback
             return DatasetMetadata(
                 name=self.data_dir.name,
-                dataset_type='unknown',
-                category='unknown',
-                description=f"Fallback metadata for {self.data_dir.name}"
+                dataset_type="unknown",
+                category="unknown",
+                description=f"Fallback metadata for {self.data_dir.name}",
             )
 
-    def save_dataset_metadata(self, dataset_metadata: DatasetMetadata,
-                              metadata_path: Optional[Path] = None) -> None:
+    def save_dataset_metadata(
+        self, dataset_metadata: DatasetMetadata, metadata_path: Optional[Path] = None
+    ) -> None:
         """Save comprehensive dataset metadata to file."""
         if metadata_path is None:
-            metadata_path = self.data_dir / f"{self.data_dir.name}_dataset_metadata.json"
+            metadata_path = (
+                self.data_dir / f"{self.data_dir.name}_dataset_metadata.json"
+            )
 
         try:
             metadata_path.parent.mkdir(parents=True, exist_ok=True)
             dataset_metadata.save_to_file(metadata_path)
-            self.logger.debug(f"Saved dataset metadata to {metadata_path}")
-        except Exception as e:
-            self.logger.error(f"Failed to save dataset metadata: {e}")
+            self.logger.debug("Saved dataset metadata to %s", metadata_path)
+        except (OSError, IOError, AttributeError) as e:
+            self.logger.error("Failed to save dataset metadata: %s", e)
 
     def save_metadata(self, metadata_path: Optional[Path] = None) -> None:
         """Save basic metadata to file (legacy method)."""
@@ -190,11 +214,11 @@ class BaseDataset(ABC):
 
         try:
             metadata_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(metadata_path, 'w', encoding='utf-8') as f:
+            with open(metadata_path, "w", encoding="utf-8") as f:
                 json.dump(self.metadata, f, indent=2, default=str)
-            self.logger.info(f"Saved metadata to {metadata_path}")
-        except Exception as e:
-            self.logger.error(f"Failed to save metadata: {e}")
+            self.logger.info("Saved metadata to %s", metadata_path)
+        except (OSError, IOError) as e:
+            self.logger.error("Failed to save metadata: %s", e)
 
 
 class SyntheticDataset(BaseDataset):
@@ -205,8 +229,14 @@ class SyntheticDataset(BaseDataset):
     Supports caching and parameter-based generation.
     """
 
-    def __init__(self, dataset_type: str, data_dir: Union[str, Path] = None,
-                 split: str = 'train', transform: Optional[Callable] = None, **kwargs):
+    def __init__(
+        self,
+        dataset_type: str,
+        data_dir: Union[str, Path] = None,
+        split: str = "train",
+        transform: Optional[Callable] = None,
+        **kwargs,
+    ):
         """
         Initialize SyntheticDataset.
 
@@ -224,31 +254,39 @@ class SyntheticDataset(BaseDataset):
 
         # Store generation parameters
         self.generation_params = kwargs.copy()
-        self.generation_params['dataset_type'] = dataset_type
-        self.generation_params['split'] = split
+        self.generation_params["dataset_type"] = dataset_type
+        self.generation_params["split"] = split
 
         # Set dataset_type for metadata generation
-        kwargs['dataset_type'] = 'synthetic'
+        kwargs["dataset_type"] = "synthetic"
 
         super().__init__(data_dir, split, transform, **kwargs)
 
     def _load_data(self) -> Dict[str, np.ndarray]:
         """Load or generate synthetic data using enhanced caching."""
         # Try to load from enhanced cache first
-        cached_data = load_cached_dataset('synthetic', self.dataset_type, self.generation_params)
+        cached_data = load_cached_dataset(
+            "synthetic", self.dataset_type, self.generation_params
+        )
         if cached_data is not None:
-            self.logger.debug(f"Loaded {self.dataset_type} from enhanced cache")
+            self.logger.debug("Loaded %s from enhanced cache", self.dataset_type)
             return cached_data
 
         # Generate new data
         data = self._generate_data()
 
         # Cache using enhanced caching system
-        cache_dataset(data, 'synthetic', self.dataset_type, self.generation_params, {
-            'dataset_type': self.dataset_type,
-            'split': self.split,
-            'generation_params': self.generation_params
-        })
+        cache_dataset(
+            data,
+            "synthetic",
+            self.dataset_type,
+            self.generation_params,
+            {
+                "dataset_type": self.dataset_type,
+                "split": self.split,
+                "generation_params": self.generation_params,
+            },
+        )
 
         return data
 
@@ -257,43 +295,45 @@ class SyntheticDataset(BaseDataset):
         from .synthetic import (
             generate_xor_dataset,
             generate_circles_dataset,
-            generate_linear_dataset
+            generate_linear_dataset,
         )
 
         # Set random seed for consistent splits
-        random_state = self.generation_params.get('random_state', 42)
-        if self.split == 'val':
+        random_state = self.generation_params.get("random_state", 42)
+        if self.split == "val":
             random_state += 1
-        elif self.split == 'test':
+        elif self.split == "test":
             random_state += 2
 
-        self.logger.info(f"Generating {self.dataset_type} data for {self.split} split")
+        self.logger.info(
+            "Generating %s data for %s split", self.dataset_type, self.split
+        )
 
-        if self.dataset_type in ['xor', 'xor_problem']:
+        if self.dataset_type in ["xor", "xor_problem"]:
             X, y = generate_xor_dataset(
-                n_samples=self.generation_params.get('n_samples', 1000),
-                noise=self.generation_params.get('noise', 0.1),
-                random_state=random_state
+                n_samples=self.generation_params.get("n_samples", 1000),
+                noise=self.generation_params.get("noise", 0.1),
+                random_state=random_state,
             )
-        elif self.dataset_type in ['circles', 'circles_dataset']:
+        elif self.dataset_type in ["circles", "circles_dataset"]:
             X, y = generate_circles_dataset(
-                n_samples=self.generation_params.get('n_samples', 1000),
-                noise=self.generation_params.get('noise', 0.1),
-                factor=self.generation_params.get('factor', 0.8),
-                random_state=random_state
+                n_samples=self.generation_params.get("n_samples", 1000),
+                noise=self.generation_params.get("noise", 0.1),
+                factor=self.generation_params.get("factor", 0.8),
+                random_state=random_state,
             )
-        elif self.dataset_type in ['linear', 'linear_separable']:
+        elif self.dataset_type in ["linear", "linear_separable"]:
             X, y = generate_linear_dataset(
-                n_samples=self.generation_params.get('n_samples', 1000),
-                n_features=self.generation_params.get('n_features', 2),
-                n_classes=self.generation_params.get('n_classes', 2),
-                noise=self.generation_params.get('noise', 0.1),
-                random_state=random_state
+                n_samples=self.generation_params.get("n_samples", 1000),
+                n_features=self.generation_params.get("n_features", 2),
+                n_classes=self.generation_params.get("n_classes", 2),
+                noise=self.generation_params.get("noise", 0.1),
+                random_state=random_state,
             )
         else:
             raise DataError(f"Unknown synthetic dataset type: {self.dataset_type}")
 
-        return {'X': X, 'y': y}
+        return {"X": X, "y": y}
 
     def _get_cache_path(self) -> Path:
         """Get cache file path based on generation parameters."""
@@ -310,13 +350,13 @@ class SyntheticDataset(BaseDataset):
         """Load data from cache file."""
         data = np.load(cache_path)
         self.logger.debug(f"Loaded {self.dataset_type} from cache: {cache_path}")
-        return {'X': data['X'], 'y': data['y']}
+        return {"X": data["X"], "y": data["y"]}
 
     def _save_to_cache(self, data: Dict[str, np.ndarray], cache_path: Path) -> None:
         """Save data to cache file."""
         try:
             cache_path.parent.mkdir(parents=True, exist_ok=True)
-            np.savez_compressed(cache_path, X=data['X'], y=data['y'])
+            np.savez_compressed(cache_path, X=data["X"], y=data["y"])
             self.logger.debug(f"Cached {self.dataset_type} to: {cache_path}")
         except Exception as e:
             self.logger.warning(f"Failed to cache data: {e}")
@@ -330,9 +370,15 @@ class RealDataset(BaseDataset):
     Supports preprocessing, standardization, and caching.
     """
 
-    def __init__(self, dataset_name: str, data_dir: Union[str, Path] = None,
-                 split: str = 'train', transform: Optional[Callable] = None,
-                 download: bool = True, **kwargs):
+    def __init__(
+        self,
+        dataset_name: str,
+        data_dir: Union[str, Path] = None,
+        split: str = "train",
+        transform: Optional[Callable] = None,
+        download: bool = True,
+        **kwargs,
+    ):
         """
         Initialize RealDataset.
 
@@ -351,7 +397,7 @@ class RealDataset(BaseDataset):
             data_dir = Path("data") / "real" / dataset_name
 
         # Set dataset_type for metadata generation
-        kwargs['dataset_type'] = 'real'
+        kwargs["dataset_type"] = "real"
 
         super().__init__(data_dir, split, transform, **kwargs)
 
@@ -359,13 +405,13 @@ class RealDataset(BaseDataset):
         """Load real dataset using enhanced caching."""
         # Create cache parameters for this specific dataset configuration
         cache_params = {
-            'split': self.split,
-            'random_state': self.kwargs.get('random_state', 42),
-            'dataset_name': self.dataset_name
+            "split": self.split,
+            "random_state": self.kwargs.get("random_state", 42),
+            "dataset_name": self.dataset_name,
         }
 
         # Try to load from enhanced cache first
-        cached_data = load_cached_dataset('real', self.dataset_name, cache_params)
+        cached_data = load_cached_dataset("real", self.dataset_name, cache_params)
         if cached_data is not None:
             self.logger.debug(f"Loaded {self.dataset_name} from enhanced cache")
             return cached_data
@@ -374,12 +420,18 @@ class RealDataset(BaseDataset):
         data = self._load_and_process_raw_data()
 
         # Cache using enhanced caching system
-        cache_dataset(data, 'real', self.dataset_name, cache_params, {
-            'dataset_name': self.dataset_name,
-            'split': self.split,
-            'download': self.download,
-            'processing_params': self.kwargs
-        })
+        cache_dataset(
+            data,
+            "real",
+            self.dataset_name,
+            cache_params,
+            {
+                "dataset_name": self.dataset_name,
+                "split": self.split,
+                "download": self.download,
+                "processing_params": self.kwargs,
+            },
+        )
 
         return data
 
@@ -389,51 +441,53 @@ class RealDataset(BaseDataset):
             _load_iris_setosa_versicolor,
             _load_iris_versicolor_virginica,
             _load_breast_cancer_binary,
-            _load_mnist_subset
+            _load_mnist_subset,
         )
 
         self.logger.info(f"Loading {self.dataset_name} dataset")
 
         # Load based on dataset name
-        if self.dataset_name == 'iris_setosa_versicolor':
+        if self.dataset_name == "iris_setosa_versicolor":
             X, y = _load_iris_setosa_versicolor(
-                random_state=self.kwargs.get('random_state', 42)
+                random_state=self.kwargs.get("random_state", 42)
             )
-        elif self.dataset_name == 'iris_versicolor_virginica':
+        elif self.dataset_name == "iris_versicolor_virginica":
             X, y = _load_iris_versicolor_virginica(
-                random_state=self.kwargs.get('random_state', 42)
+                random_state=self.kwargs.get("random_state", 42)
             )
-        elif self.dataset_name == 'breast_cancer':
+        elif self.dataset_name == "breast_cancer":
             X, y = _load_breast_cancer_binary(
-                random_state=self.kwargs.get('random_state', 42)
+                random_state=self.kwargs.get("random_state", 42)
             )
-        elif self.dataset_name == 'mnist_subset':
+        elif self.dataset_name == "mnist_subset":
             X, y = _load_mnist_subset(
-                digits=self.kwargs.get('digits', (0, 1)),
-                max_samples_per_class=self.kwargs.get('max_samples_per_class', 1000),
-                random_state=self.kwargs.get('random_state', 42)
+                digits=self.kwargs.get("digits", (0, 1)),
+                max_samples_per_class=self.kwargs.get("max_samples_per_class", 1000),
+                random_state=self.kwargs.get("random_state", 42),
             )
         else:
             raise DataError(f"Unknown real dataset: {self.dataset_name}")
 
         # Split data if needed
-        if self.split in ['val', 'test']:
+        if self.split in ["val", "test"]:
             X, y = self._create_split(X, y)
 
-        return {'X': X, 'y': y}
+        return {"X": X, "y": y}
 
-    def _create_split(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def _create_split(
+        self, X: np.ndarray, y: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """Create validation or test split from full data."""
         from sklearn.model_selection import train_test_split
 
-        random_state = self.kwargs.get('random_state', 42)
+        random_state = self.kwargs.get("random_state", 42)
 
-        if self.split == 'val':
+        if self.split == "val":
             # Use 20% for validation
             _, X_split, _, y_split = train_test_split(
                 X, y, test_size=0.2, random_state=random_state, stratify=y
             )
-        elif self.split == 'test':
+        elif self.split == "test":
             # Use 20% for test (different from validation)
             _, X_split, _, y_split = train_test_split(
                 X, y, test_size=0.2, random_state=random_state + 1, stratify=y
@@ -455,7 +509,7 @@ class RealDataset(BaseDataset):
         params = [
             self.dataset_name,
             self.split,
-            str(self.kwargs.get('random_state', 42))
+            str(self.kwargs.get("random_state", 42)),
         ]
         filename = "_".join(params) + ".npz"
 
@@ -465,19 +519,20 @@ class RealDataset(BaseDataset):
         """Load processed data from cache."""
         data = np.load(cache_path)
         self.logger.debug(f"Loaded {self.dataset_name} from cache: {cache_path}")
-        return {'X': data['X'], 'y': data['y']}
+        return {"X": data["X"], "y": data["y"]}
 
     def _save_to_cache(self, data: Dict[str, np.ndarray], cache_path: Path) -> None:
         """Save processed data to cache."""
         try:
             cache_path.parent.mkdir(parents=True, exist_ok=True)
-            np.savez_compressed(cache_path, X=data['X'], y=data['y'])
+            np.savez_compressed(cache_path, X=data["X"], y=data["y"])
             self.logger.debug(f"Cached {self.dataset_name} to: {cache_path}")
         except Exception as e:
             self.logger.warning(f"Failed to cache data: {e}")
 
 
 # Factory functions for easy dataset creation
+
 
 def create_dataset(dataset_type: str, dataset_name: str, **kwargs) -> BaseDataset:
     """
@@ -495,9 +550,9 @@ def create_dataset(dataset_type: str, dataset_name: str, **kwargs) -> BaseDatase
         dataset = create_dataset('synthetic', 'xor', n_samples=500)
         dataset = create_dataset('real', 'iris_setosa_versicolor', split='train')
     """
-    if dataset_type == 'synthetic':
+    if dataset_type == "synthetic":
         return SyntheticDataset(dataset_name, **kwargs)
-    elif dataset_type == 'real':
+    elif dataset_type == "real":
         return RealDataset(dataset_name, **kwargs)
     else:
         raise DataError(f"Unknown dataset type: {dataset_type}")

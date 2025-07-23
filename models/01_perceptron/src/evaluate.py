@@ -105,12 +105,12 @@ def prepare_evaluation_data(dataset_config: dict, split: str = "test") -> tuple:
         x_eval, y_eval = x_features[:n_train], y_target[:n_train]
         logger.info("Using train split: %d samples", len(x_eval))
         return x_eval, y_eval
-    else:  # test split
-        # Use last 20% for test split evaluation
-        n_train = int(0.8 * len(x_features))
-        x_eval, y_eval = x_features[n_train:], y_target[n_train:]
-        logger.info("Using test split: %d samples", len(x_eval))
-        return x_eval, y_eval
+    # test split
+    # Use last 20% for test split evaluation
+    n_train = int(0.8 * len(x_features))
+    x_eval, y_eval = x_features[n_train:], y_target[n_train:]
+    logger.info("Using test split: %d samples", len(x_eval))
+    return x_eval, y_eval
 
 
 def print_dataset_info(dataset_config: dict, experiment_name: str, num_samples: int):
@@ -185,7 +185,8 @@ def print_educational_insights(experiment_name: str, results):
     ]:
         if actual_acc >= 0.9:
             print(
-                "✓ This result demonstrates Perceptron's strength on linearly separable data"
+                "✓ This result demonstrates Perceptron's strength on "
+                "linearly separable data"
             )
             print("✓ The high accuracy confirms the data is linearly separable")
         else:

@@ -11,18 +11,14 @@ Key components:
 - Dataset factory for easy dataset creation
 """
 
-from .datasets import (
-    load_dataset,
-    get_dataset_info,
-    list_available_datasets
-)
+from .datasets import load_dataset, get_dataset_info, list_available_datasets
 from .base_datasets import (
     BaseDataset,
     SyntheticDataset,
     RealDataset,
     create_dataset,
     create_synthetic_dataset,
-    create_real_dataset
+    create_real_dataset,
 )
 from .loaders import (
     create_data_loaders,
@@ -30,7 +26,7 @@ from .loaders import (
     create_dataloader,
     get_dataloader_config,
     TensorDataset,
-    BaseDatasetWrapper
+    BaseDatasetWrapper,
 )
 from .cache import (
     DatasetCache,
@@ -38,7 +34,7 @@ from .cache import (
     load_cached_dataset,
     get_cache_stats,
     cleanup_cache,
-    get_cache
+    get_cache,
 )
 from .metadata import (
     DatasetMetadata,
@@ -50,14 +46,15 @@ from .metadata import (
     create_metadata_from_data,
     validate_dataset_metadata,
     save_metadata_to_file,
-    load_metadata_from_file
+    load_metadata_from_file,
 )
 from .organization import (
     ProjectOrganizer,
     analyze_project_organization,
     create_project_directories,
-    generate_organization_report
+    generate_organization_report,
 )
+
 # from .preprocessing import (
 #     StandardScaler,
 #     MinMaxScaler,
@@ -68,7 +65,7 @@ from .synthetic import (
     generate_xor_dataset,
     generate_circles_dataset,
     generate_linear_dataset,
-    generate_classification_dataset
+    generate_classification_dataset,
 )
 
 __version__ = "1.0.0"
@@ -123,5 +120,5 @@ __all__ = [
     "generate_xor_dataset",
     "generate_circles_dataset",
     "generate_linear_dataset",
-    "generate_classification_dataset"
+    "generate_classification_dataset",
 ]

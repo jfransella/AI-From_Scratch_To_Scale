@@ -6,7 +6,7 @@ for the Perceptron, the first artificial neural network model.
 """
 
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 # =============================================================================
 # MODEL METADATA

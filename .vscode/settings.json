@@ -5,23 +5,19 @@
     "python.terminal.activateEnvironment": true,
     // Python Path Configuration for Language Server
     "python.analysis.autoImportCompletions": true,
-    // Linting Configuration - Multiple linters for comprehensive code quality
+    // Linting Configuration - Using Pylint + Mypy for comprehensive code quality
     "python.linting.enabled": true,
-    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Enabled": false,
     "python.linting.pylintEnabled": true,
     "python.linting.banditEnabled": false,
     "python.linting.mypyEnabled": true,
     "python.languageServer": "Pylance",
-    // Flake8 specific settings
-    "python.linting.flake8Args": [
-        "--config=.flake8"
-    ],
-    "python.linting.lintOnSave": true,
-    "python.linting.maxNumberOfProblems": 100,
     // Pylint specific settings
     "python.linting.pylintArgs": [
         "--rcfile=.pylintrc"
     ],
+    "python.linting.lintOnSave": true,
+    "python.linting.maxNumberOfProblems": 100,
     "python.linting.ignorePatterns": [
         "docs/templates/**",
         "docs/examples/**",

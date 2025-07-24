@@ -5,8 +5,10 @@ This module implements the classic Rosenblatt Perceptron (1957), the first
 artificial neural network capable of learning linearly separable patterns.
 """
 
-from typing import Dict, Optional, Any
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
 
 # Handle torch imports gracefully
 try:  # noqa: C901
@@ -17,6 +19,7 @@ try:  # noqa: C901
         and hasattr(torch, "nn")
         and hasattr(torch, "tensor")
     ):
+        import torch.nn.functional as F
         from torch import nn
 
         _TORCH_AVAILABLE = True
@@ -266,14 +269,14 @@ except ImportError:
     nn = DummyNN()
     torch = DummyTorch()
 
+# Import model-specific components
+# Always use absolute imports for better compatibility
+from constants import AUTHORS, MODEL_NAME, MODEL_VERSION, YEAR_INTRODUCED
+
 from engine.base import BaseModel
 
 # Import shared packages
 from utils import get_logger, set_random_seed
-
-# Import model-specific components
-# Always use absolute imports for better compatibility
-from constants import AUTHORS, MODEL_NAME, MODEL_VERSION, YEAR_INTRODUCED
 
 
 class Perceptron(
@@ -887,8 +890,7 @@ class Perceptron(
             # Progress logging
             if verbose or epoch % max(1, self.max_epochs // 10) == 0:
                 self.logger.info(
-                    f"Epoch {epoch:3d}: Accuracy={accuracy:.4f}, "
-                    f"Errors={epoch_errors:2d}, Loss={loss:.6f}"
+                    f"Epoch {epoch:3d}: Accuracy={accuracy:.4f}, Errors={epoch_errors:2d}, Loss={loss:.6f}"
                 )
 
             # Convergence check (no errors = perfect classification)
@@ -929,8 +931,7 @@ class Perceptron(
                     "⚠️  Poor performance - likely non-linearly separable data"
                 )
                 self.logger.info(
-                    "   This demonstrates the fundamental limitation "
-                    "Minsky & Papert identified!"
+                    "   This demonstrates the fundamental limitation Minsky & Papert identified!"
                 )
 
         return {

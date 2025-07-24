@@ -68,7 +68,10 @@ class DatasetStatistics:
 @dataclass
 class PreprocessingInfo:
     """Preprocessing steps applied to dataset."""
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3048305baf15e05456e16ae347f669533e0d7110
     steps: List[Dict[str, Any]] = field(default_factory=list)
     normalization: Optional[str] = None
     scaling: Optional[str] = None
@@ -99,6 +102,14 @@ class PreprocessingInfo:
 @dataclass
 class DatasetCompatibility:
     """Dataset compatibility information with models."""
+<<<<<<< HEAD
+=======
+    model_types: List[str] = field(default_factory=list)
+    frameworks: List[str] = field(default_factory=list)
+    min_memory_mb: float = 0.0
+    recommended_batch_sizes: Dict[str, int] = field(default_factory=dict)
+    performance_notes: List[str] = field(default_factory=list)
+>>>>>>> 3048305baf15e05456e16ae347f669533e0d7110
 
     model_types: List[str] = field(default_factory=list)
     frameworks: List[str] = field(default_factory=list)
@@ -399,9 +410,13 @@ class MetadataValidator:
         for field_name in self.REQUIRED_FIELDS:
             value = getattr(metadata, field_name, None)
             if not value or (isinstance(value, str) and not value.strip()):
+<<<<<<< HEAD
                 results["errors"].append(
                     f"Required field '{field_name}' is missing or empty"
                 )
+=======
+                results['errors'].append(f"Required field '{field_name}' is missing or empty")
+>>>>>>> 3048305baf15e05456e16ae347f669533e0d7110
 
     def _validate_types(self, metadata: DatasetMetadata, results: Dict):
         """Validate field types and values."""

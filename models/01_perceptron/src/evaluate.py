@@ -6,23 +6,29 @@ using the shared evaluation engine, including metrics computation,
 visualization generation, and detailed analysis.
 """
 
-import sys
 import argparse
 import json
+import sys
 import traceback
 from pathlib import Path
+
 import torch
 
-# Import shared packages
-from utils import setup_logging, get_logger
-from data_utils import load_dataset
-from engine.evaluator import Evaluator
+# Setup path for shared packages
+sys.path.insert(0, str(Path(__file__).parent.parent))
+import setup_path  # pylint: disable=unused-import,wrong-import-position
 
 # Import model-specific components
 # Always use absolute imports for better compatibility
-from config import get_evaluation_config, get_dataset_config, get_model_config
+from config import get_dataset_config, get_evaluation_config, get_model_config
+from constants import ALL_EXPERIMENTS, MODEL_NAME
 from model import Perceptron
-from constants import MODEL_NAME, ALL_EXPERIMENTS
+
+from data_utils import load_dataset
+from engine.evaluator import Evaluator
+
+# Import shared packages
+from utils import get_logger, setup_logging
 
 # Optional plotting imports (handled gracefully if not installed)
 try:

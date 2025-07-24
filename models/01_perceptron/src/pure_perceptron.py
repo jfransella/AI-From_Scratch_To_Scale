@@ -13,10 +13,18 @@ Key Features:
 - Educational focus on understanding fundamentals
 """
 
+<<<<<<< HEAD
 import numpy as np
 from typing import Optional, Dict, Any
 from pathlib import Path
+=======
+>>>>>>> 3048305baf15e05456e16ae347f669533e0d7110
 import json
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
+
 from utils import get_logger, set_random_seed
 
 
@@ -384,7 +392,11 @@ if __name__ == "__main__":
     predictions = perceptron.predict(X_and)
     accuracy = perceptron.compute_accuracy(X_and, y_and)
 
+<<<<<<< HEAD
     print("\nAND Function Results:")
+=======
+    print(f"\nAND Function Results:")
+>>>>>>> 3048305baf15e05456e16ae347f669533e0d7110
     print(f"  Accuracy: {accuracy:.1%}")
     print(f"  Final weights: {perceptron.weights}")
     print(f"  Final bias: {perceptron.bias}")

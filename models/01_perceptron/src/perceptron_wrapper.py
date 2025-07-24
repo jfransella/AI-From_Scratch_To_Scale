@@ -14,20 +14,20 @@ Design Philosophy:
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-import torch
 import numpy as np
+import torch
 from torch import nn
 
 from engine.base import BaseModel
 from utils import get_logger
 
 try:
-    from .pure_perceptron import PurePerceptron
     from .constants import AUTHORS, MODEL_NAME, MODEL_VERSION, YEAR_INTRODUCED
+    from .pure_perceptron import PurePerceptron
 except ImportError:
     # For direct execution
-    from pure_perceptron import PurePerceptron
     from constants import AUTHORS, MODEL_NAME, MODEL_VERSION, YEAR_INTRODUCED
+    from pure_perceptron import PurePerceptron
 
 
 class PerceptronWrapper(nn.Module, BaseModel):
@@ -309,6 +309,7 @@ class PerceptronWrapper(nn.Module, BaseModel):
                 )
                 self.pure_perceptron.bias += self.pure_perceptron.learning_rate * error
 
+<<<<<<< HEAD
                 print("  ❌ Wrong! Applying update...")
                 print(f"  Error: {error}")
                 print(
@@ -323,6 +324,20 @@ class PerceptronWrapper(nn.Module, BaseModel):
                 print(f"               = {self.pure_perceptron.bias:.3f}")
             else:
                 print("  ✅ Correct! No update needed.")
+=======
+                print(f"  ❌ Wrong! Applying update...")
+                print(f"  Error: {error}")
+                print(
+                    f"  Weight update: {old_weights} + {self.pure_perceptron.learning_rate} × {error} × {x}"
+                )
+                print(f"                 = {self.pure_perceptron.weights}")
+                print(
+                    f"  Bias update: {old_bias:.3f} + {self.pure_perceptron.learning_rate} × {error}"
+                )
+                print(f"               = {self.pure_perceptron.bias:.3f}")
+            else:
+                print(f"  ✅ Correct! No update needed.")
+>>>>>>> 3048305baf15e05456e16ae347f669533e0d7110
 
             print()
             step += 1
@@ -373,7 +388,14 @@ if __name__ == "__main__":
     print(f"PyTorch forward pass: {outputs.squeeze().numpy()}")
     print(f"PyTorch loss: {loss.item():.4f}")
 
+<<<<<<< HEAD
     print("\n✨ Best of both worlds:")
     print("   - Pure NumPy core for education")
     print("   - PyTorch wrapper for engine compatibility")
     print("   - Students see the real 1957 algorithm!")
+=======
+    print(f"\n✨ Best of both worlds:")
+    print(f"   - Pure NumPy core for education")
+    print(f"   - PyTorch wrapper for engine compatibility")
+    print(f"   - Students see the real 1957 algorithm!")
+>>>>>>> 3048305baf15e05456e16ae347f669533e0d7110

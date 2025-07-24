@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Fix linting issues for a single file.
+Fix linting issues for a single file using pylint and mypy.
 
 Usage:
     python scripts/fix_single_file.py path/to/file.py [--dry-run]
@@ -10,6 +10,22 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
+
+
+def check_pylint_issues(file_path: Path) -> tuple[bool, str]:
+    """Check for pylint issues."""
+    result = subprocess.run(
+        [sys.executable, "-m", "pylint", str(file_path)], capture_output=True, text=True
+    )
+    return result.returncode == 0, result.stdout
+
+
+def check_mypy_issues(file_path: Path) -> tuple[bool, str]:
+    """Check for mypy issues."""
+    result = subprocess.run(
+        [sys.executable, "-m", "mypy", str(file_path)], capture_output=True, text=True
+    )
+    return result.returncode == 0, result.stdout
 
 
 def fix_file_linting(file_path: Path, dry_run: bool = False) -> int:
@@ -28,16 +44,22 @@ def fix_file_linting(file_path: Path, dry_run: bool = False) -> int:
 
     # 1. Check current issues
     print("\n1. Checking current issues...")
-    result = subprocess.run(
-        [sys.executable, "-m", "flake8", str(file_path)], capture_output=True, text=True
-    )
 
-    if result.returncode == 0:
+    # Check pylint
+    pylint_clean, pylint_output = check_pylint_issues(file_path)
+    if not pylint_clean:
+        print("   Pylint issues found:")
+        print(pylint_output)
+
+    # Check mypy
+    mypy_clean, mypy_output = check_mypy_issues(file_path)
+    if not mypy_clean:
+        print("   Mypy issues found:")
+        print(mypy_output)
+
+    if pylint_clean and mypy_clean:
         print("   ✅ No linting issues found!")
         return 0
-    else:
-        print("   Issues found:")
-        print(result.stdout)
 
     if dry_run:
         print("\n[DRY RUN] Would apply the following fixes:")
@@ -94,17 +116,27 @@ def fix_file_linting(file_path: Path, dry_run: bool = False) -> int:
     # 5. Final check
     if not dry_run:
         print(f"\n5. Final check...")
-        result = subprocess.run(
-            [sys.executable, "-m", "flake8", str(file_path)],
-            capture_output=True,
-            text=True,
-        )
 
-        if result.returncode == 0:
-            print("   ✅ All linting issues fixed!")
+        # Check pylint
+        pylint_clean, pylint_output = check_pylint_issues(file_path)
+        if pylint_clean:
+            print("   ✅ Pylint: All issues fixed!")
         else:
-            print("   Remaining issues:")
-            print(result.stdout)
+            print("   ⚠️  Pylint: Remaining issues:")
+            print(pylint_output)
+
+        # Check mypy
+        mypy_clean, mypy_output = check_mypy_issues(file_path)
+        if mypy_clean:
+            print("   ✅ Mypy: All issues fixed!")
+        else:
+            print("   ⚠️  Mypy: Remaining issues:")
+            print(mypy_output)
+
+        if pylint_clean and mypy_clean:
+            print("   🎉 All linting tools report success!")
+        else:
+            print("   💡 Some issues may need manual fixing")
 
     print(
         f"\n{'[DRY RUN] ' if dry_run else ''}Summary: {fixes_applied} fixes {'would be ' if dry_run else ''}applied"

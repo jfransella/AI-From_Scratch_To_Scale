@@ -56,3 +56,8 @@ import plotting
 - Update documentation to reference setup_path.py pattern instead of editable installs
 - Consider applying pattern to future models as they're created
 - Remove dependency on editable installations in requirements.txt files (optional)
+- **COMPLETED**: Migrated from flake8 to pylint for consistent linting
+  - Updated VS_Code_Setup_Guide.md to reference pylint instead of flake8
+  - Updated scripts/lint.ps1 to use pylint instead of flake8
+  - Removed flake8 from requirements-dev.txt and setup.py
+  - Note: Some Python automation scripts still reference flake8 and may need future updates

@@ -14,10 +14,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Setup path for shared packages
+sys.path.insert(0, str(Path(__file__).parent.parent))
+import setup_path  # pylint: disable=unused-import,wrong-import-position
 
 # Handle torch imports gracefully
 try:
@@ -38,37 +37,51 @@ except ImportError:
 
 import torch  # noqa: E402
 
+<<<<<<< HEAD
 # Import shared packages
 from utils import setup_logging, set_random_seed, get_logger  # noqa: E402
 from data_utils import load_dataset  # noqa: E402
 from engine.trainer import Trainer  # noqa: E402
 from engine.base import DataSplit  # noqa: E402
+=======
+from data_utils import load_dataset
+from engine.base import DataSplit
+from engine.trainer import Trainer
+
+# Import shared packages
+from utils import get_logger, set_random_seed, setup_logging
+>>>>>>> 3048305baf15e05456e16ae347f669533e0d7110
 
 # Import model-specific components
 try:
     from .config import (
-        get_training_config,
-        get_model_config,
         get_dataset_config,
+        get_model_config,
+        get_training_config,
         print_config_summary,
     )
+    from .constants import ALL_EXPERIMENTS, MODEL_NAME
     from .model import Perceptron
-    from .constants import MODEL_NAME, ALL_EXPERIMENTS
 except ImportError:
     # Fallback for direct imports (e.g., during testing)
     from config import (
-        get_training_config,
-        get_model_config,
         get_dataset_config,
+        get_model_config,
+        get_training_config,
         print_config_summary,
     )
+    from constants import ALL_EXPERIMENTS, MODEL_NAME
     from model import Perceptron
-    from constants import MODEL_NAME, ALL_EXPERIMENTS
 
 # Optional plotting imports (handled gracefully if not installed)
 try:
+<<<<<<< HEAD
     from plotting import plot_training_history, plot_decision_boundary
 except ImportError:
+=======
+    from plotting import plot_decision_boundary, plot_training_history
+except ImportError as e:
+>>>>>>> 3048305baf15e05456e16ae347f669533e0d7110
     plot_training_history = None
     plot_decision_boundary = None
 

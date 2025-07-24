@@ -8,32 +8,38 @@ and EvaluationConfig classes from the engine package.
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Setup path for shared packages
+sys.path.insert(0, str(Path(__file__).parent.parent))
+import setup_path  # pylint: disable=unused-import,wrong-import-position
 
 # Import from engine package
+<<<<<<< HEAD
 from engine import (  # noqa: E402
     TrainingConfig,
     EvaluationConfig,
+=======
+from engine import (  # noqa: E402  # pylint: disable=wrong-import-position
+    EvaluationConfig,
+    TrainingConfig,
+>>>>>>> 3048305baf15e05456e16ae347f669533e0d7110
 )
 
 # Import constants - handle both direct and relative imports
 try:
     from constants import (
-        MODEL_NAME,
+        DATASET_SPECS,
+        DEFAULT_ACTIVATION,
+        DEFAULT_INIT_METHOD,
         DEFAULT_LEARNING_RATE,
         DEFAULT_MAX_EPOCHS,
         DEFAULT_TOLERANCE,
-        DEFAULT_ACTIVATION,
-        DEFAULT_INIT_METHOD,
-        DATASET_SPECS,
-        validate_experiment,
-        get_experiment_info,
+        MODEL_NAME,
         MODELS_DIR,
         PLOTS_DIR,
+        get_experiment_info,
+        validate_experiment,
     )
 except ImportError:
     # Fallback for validation system - import from same directory
@@ -42,17 +48,17 @@ except ImportError:
         sys.path.insert(0, current_dir)
 
     from constants import (
-        MODEL_NAME,
+        DATASET_SPECS,
+        DEFAULT_ACTIVATION,
+        DEFAULT_INIT_METHOD,
         DEFAULT_LEARNING_RATE,
         DEFAULT_MAX_EPOCHS,
         DEFAULT_TOLERANCE,
-        DEFAULT_ACTIVATION,
-        DEFAULT_INIT_METHOD,
-        DATASET_SPECS,
-        validate_experiment,
-        get_experiment_info,
+        MODEL_NAME,
         MODELS_DIR,
         PLOTS_DIR,
+        get_experiment_info,
+        validate_experiment,
     )
 
 

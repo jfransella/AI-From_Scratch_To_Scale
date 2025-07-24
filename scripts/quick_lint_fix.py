@@ -3,10 +3,11 @@
 Quick linting fixer for common issues in the AI-From_Scratch_To_Scale project.
 
 This script fixes the most common and easily automated issues:
-- Trailing whitespace (W291, W293)
-- Missing final newlines (W292)
-- Unused imports (F401)
-- Basic autopep8 formatting
+- Trailing whitespace (Pylint trailing-whitespace)
+- Missing final newlines (Pylint missing-final-newline)
+- Unused imports (Pylint unused-import)
+- Basic black formatting
+- Type hint issues (Mypy)
 
 Usage:
     python scripts/quick_lint_fix.py [--dry-run] [--path PATH]
@@ -203,15 +204,29 @@ def main():
     print(f"Total fixes applied: {total_fixes}")
 
     if not args.dry_run and total_fixes > 0:
-        print("\nRunning final flake8 check...")
+        print("\nRunning final linting check...")
+
+        # Run pylint check
+        print("Checking with pylint...")
         run_command(
             [
                 sys.executable,
                 "-m",
-                "flake8",
-                "--statistics",
-                "--count",
-                "--max-line-length=120",
+                "pylint",
+                "--score=no",
+                "--reports=no",
+            ]
+            + [str(p) for p in paths if p.exists()]
+        )
+
+        # Run mypy check
+        print("Checking with mypy...")
+        run_command(
+            [
+                sys.executable,
+                "-m",
+                "mypy",
+                "--no-error-summary",
             ]
             + [str(p) for p in paths if p.exists()]
         )

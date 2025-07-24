@@ -34,24 +34,30 @@ class LintingTool:
         """Run the linting tool and return (success, output)."""
         cmd = self.command + [str(p) for p in paths]
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, encoding="utf-8", errors="replace"
+            )
             stdout = result.stdout or ""
             stderr = result.stderr or ""
             output = stdout + stderr
-            
+
             # Special handling for mypy package name issues
             if self.name == "Mypy" and "is not a valid Python package name" in output:
                 # Filter out the package name error and check if there are other issues
-                lines = output.split('\n')
-                filtered_lines = [line for line in lines if "is not a valid Python package name" not in line]
-                filtered_output = '\n'.join(filtered_lines).strip()
-                
+                lines = output.split("\n")
+                filtered_lines = [
+                    line
+                    for line in lines
+                    if "is not a valid Python package name" not in line
+                ]
+                filtered_output = "\n".join(filtered_lines).strip()
+
                 # If only package name error, consider it successful
                 if not filtered_output:
                     return True, ""
                 else:
                     return result.returncode == 0, filtered_output
-            
+
             return result.returncode == 0, output
         except FileNotFoundError:
             return (
@@ -79,7 +85,15 @@ class ModernLinter:
                 "Pylint", [sys.executable, "-m", "pylint", "--score=no"]
             ),
             "mypy": LintingTool(
-                "Mypy", [sys.executable, "-m", "mypy", "--no-error-summary", "--ignore-missing-imports", "--disable-error-code=misc"]
+                "Mypy",
+                [
+                    sys.executable,
+                    "-m",
+                    "mypy",
+                    "--no-error-summary",
+                    "--ignore-missing-imports",
+                    "--disable-error-code=misc",
+                ],
             ),
         }
 
@@ -108,7 +122,9 @@ class ModernLinter:
             "--in-place",
         ] + [str(p) for p in paths]
         try:
-            result = subprocess.run(cmd, capture_output=True, encoding='utf-8', errors='replace')
+            result = subprocess.run(
+                cmd, capture_output=True, encoding="utf-8", errors="replace"
+            )
             if result.returncode == 0:
                 print("     ✅ Removed unused imports")
                 fixes_applied += 1
@@ -118,7 +134,9 @@ class ModernLinter:
         # 2. Sort imports with isort
         print("  📋 Sorting imports...")
         cmd = [sys.executable, "-m", "isort"] + [str(p) for p in paths]
-        result = subprocess.run(cmd, capture_output=True, encoding='utf-8', errors='replace')
+        result = subprocess.run(
+            cmd, capture_output=True, encoding="utf-8", errors="replace"
+        )
         if result.returncode == 0:
             print("     ✅ Sorted imports")
             fixes_applied += 1
@@ -126,7 +144,9 @@ class ModernLinter:
         # 3. Format code with black
         print("  🎨 Formatting code...")
         cmd = [sys.executable, "-m", "black"] + [str(p) for p in paths]
-        result = subprocess.run(cmd, capture_output=True, encoding='utf-8', errors='replace')
+        result = subprocess.run(
+            cmd, capture_output=True, encoding="utf-8", errors="replace"
+        )
         if result.returncode == 0:
             print("     ✅ Formatted code")
             fixes_applied += 1
@@ -214,11 +234,22 @@ def main():
 
     # Filter out common directories to skip
     skip_dirs = {
-        ".venv", "__pycache__", ".git", "node_modules",  # Common dev directories
-        ".mypy_cache", ".pytest_cache", ".coverage",     # Cache directories
-        ".vscode", ".idea",                              # IDE directories
-        "outputs", "logs", "tmp", "temp",                # Output directories
-        "dist", "build", "*.egg-info"                    # Build directories
+        ".venv",
+        "__pycache__",
+        ".git",
+        "node_modules",  # Common dev directories
+        ".mypy_cache",
+        ".pytest_cache",
+        ".coverage",  # Cache directories
+        ".vscode",
+        ".idea",  # IDE directories
+        "outputs",
+        "logs",
+        "tmp",
+        "temp",  # Output directories
+        "dist",
+        "build",
+        "*.egg-info",  # Build directories
     }
     files = [f for f in files if not any(skip_dir in f.parts for skip_dir in skip_dirs)]
 

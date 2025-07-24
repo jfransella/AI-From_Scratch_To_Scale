@@ -15,15 +15,15 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Setup path for shared packages
+sys.path.insert(0, str(Path(__file__).parent.parent))
+import setup_path  # pylint: disable=unused-import,wrong-import-position
 
 # Handle torch imports gracefully
 try:
     import torch
-    if hasattr(torch, '__version__') and hasattr(torch, 'tensor'):
+
+    if hasattr(torch, "__version__") and hasattr(torch, "tensor"):
         _TORCH_AVAILABLE = True
         TorchTensor = torch.Tensor
     else:
@@ -38,36 +38,37 @@ except ImportError:
 
 import torch
 
-# Import shared packages
-from utils import setup_logging, set_random_seed, get_logger
 from data_utils import load_dataset
-from engine.trainer import Trainer
 from engine.base import DataSplit
+from engine.trainer import Trainer
+
+# Import shared packages
+from utils import get_logger, set_random_seed, setup_logging
 
 # Import model-specific components
 try:
     from .config import (
-        get_training_config,
-        get_model_config,
         get_dataset_config,
+        get_model_config,
+        get_training_config,
         print_config_summary,
     )
+    from .constants import ALL_EXPERIMENTS, MODEL_NAME
     from .model import Perceptron
-    from .constants import MODEL_NAME, ALL_EXPERIMENTS
 except ImportError:
     # Fallback for direct imports (e.g., during testing)
     from config import (
-        get_training_config,
-        get_model_config,
         get_dataset_config,
+        get_model_config,
+        get_training_config,
         print_config_summary,
     )
+    from constants import ALL_EXPERIMENTS, MODEL_NAME
     from model import Perceptron
-    from constants import MODEL_NAME, ALL_EXPERIMENTS
 
 # Optional plotting imports (handled gracefully if not installed)
 try:
-    from plotting import plot_training_history, plot_decision_boundary
+    from plotting import plot_decision_boundary, plot_training_history
 except ImportError as e:
     plot_training_history = None
     plot_decision_boundary = None
@@ -96,10 +97,10 @@ def create_data_split(
     # Set random seed based on torch availability
     if _TORCH_AVAILABLE and torch is not None:
         torch.manual_seed(random_state)
-        
+
         n_samples = len(x_features)
         indices = torch.randperm(n_samples)
-        
+
         # Calculate split sizes
         n_test = int(test_split * n_samples)
         n_val = int(validation_split * n_samples)
@@ -109,7 +110,7 @@ def create_data_split(
         train_idx = indices[:n_train]
         val_idx = indices[n_train : n_train + n_val] if n_val > 0 else None
         test_idx = indices[n_train + n_val :] if n_test > 0 else None
-        
+
         # Create data splits using torch tensors
         x_train = x_features[train_idx]
         y_train = y_target[train_idx]
@@ -117,15 +118,16 @@ def create_data_split(
         y_val = y_target[val_idx] if val_idx is not None else None
         x_test = x_features[test_idx] if test_idx is not None else None
         y_test = y_target[test_idx] if test_idx is not None else None
-        
+
     else:
         # Use numpy when torch is not available
         import numpy as np
+
         np.random.seed(random_state)
-        
+
         n_samples = len(x_features)
         indices = np.random.permutation(n_samples)
-        
+
         # Calculate split sizes
         n_test = int(test_split * n_samples)
         n_val = int(validation_split * n_samples)
@@ -135,7 +137,7 @@ def create_data_split(
         train_idx = indices[:n_train]
         val_idx = indices[n_train : n_train + n_val] if n_val > 0 else None
         test_idx = indices[n_train + n_val :] if n_test > 0 else None
-        
+
         # Create data splits using numpy arrays
         x_train = x_features[train_idx]
         y_train = y_target[train_idx]
@@ -179,23 +181,15 @@ def parse_args():
     parser.add_argument(
         "--wandb", action="store_true", help="Enable Weights & Biases logging"
     )
-    
+
     # Enhanced wandb arguments following integration plan
+    parser.add_argument("--wandb-name", type=str, help="Override wandb run name")
+    parser.add_argument("--wandb-tags", nargs="+", help="Additional wandb tags")
     parser.add_argument(
-        "--wandb-name", 
-        type=str,
-        help="Override wandb run name"
-    )
-    parser.add_argument(
-        "--wandb-tags", 
-        nargs="+",
-        help="Additional wandb tags"
-    )
-    parser.add_argument(
-        "--wandb-mode", 
+        "--wandb-mode",
         type=str,
         choices=["online", "offline", "disabled"],
-        help="Wandb mode"
+        help="Wandb mode",
     )
     parser.add_argument(
         "--wandb-project",
@@ -203,7 +197,7 @@ def parse_args():
         default="ai-from-scratch-perceptron",
         help="Weights & Biases project name",
     )
-    
+
     parser.add_argument(
         "--visualize",
         action="store_true",
@@ -312,7 +306,7 @@ def prepare_training(args):
         overrides["device"] = args.device
     if args.wandb:
         overrides["use_wandb"] = True
-        
+
     # Handle enhanced wandb arguments
     if args.wandb_project:
         overrides["wandb_project"] = args.wandb_project
@@ -324,7 +318,7 @@ def prepare_training(args):
         overrides["wandb_tags"] = existing_tags + args.wandb_tags
     if args.wandb_mode:
         overrides["wandb_mode"] = args.wandb_mode
-        
+
     if args.debug:
         overrides["max_epochs"] = min(overrides.get("max_epochs", 50), 20)
         overrides["log_freq"] = 1
@@ -352,29 +346,37 @@ def _setup_logging_and_seed(args, training_config):
 def _load_and_prepare_data(logger, dataset_config):
     """Load and prepare dataset for training."""
     import numpy as np
-    
+
     logger.info("Loading dataset...")
     x_features, y_target = load_dataset(
         dataset_config["dataset_name"], dataset_config["dataset_params"]
     )
-    
+
     # Handle type conversion when torch is available
     if _TORCH_AVAILABLE and torch is not None:
         if not isinstance(x_features, torch.Tensor):
-            x_features = torch.tensor(x_features, dtype=torch.float32)  # inputs don't need gradients
+            x_features = torch.tensor(
+                x_features, dtype=torch.float32
+            )  # inputs don't need gradients
         if not isinstance(y_target, torch.Tensor):
-            y_target = torch.tensor(y_target, dtype=torch.float32)  # targets don't need gradients
+            y_target = torch.tensor(
+                y_target, dtype=torch.float32
+            )  # targets don't need gradients
     else:
         # When torch is not available, assume we have numpy arrays
         if not isinstance(x_features, np.ndarray):
             x_features = np.array(x_features, dtype=np.float32)
         if not isinstance(y_target, np.ndarray):
             y_target = np.array(y_target, dtype=np.float32)
-    
+
     logger.info(
         "Dataset loaded: %s features, %d classes",
         x_features.shape,
-        len(np.unique(y_target)) if hasattr(y_target, 'numpy') else len(np.unique(y_target)),
+        (
+            len(np.unique(y_target))
+            if hasattr(y_target, "numpy")
+            else len(np.unique(y_target))
+        ),
     )
     return x_features, y_target
 
@@ -385,13 +387,13 @@ def _create_model_and_trainer(logger, model_config: dict, training_config: dict)
 
     # Filter model_config to only include Perceptron-specific parameters
     perceptron_params = {
-        'input_size': model_config.get('input_size', 2),
-        'learning_rate': model_config.get('learning_rate', 0.1),
-        'max_epochs': model_config.get('max_epochs', 100),
-        'tolerance': model_config.get('tolerance', 1e-6),
-        'activation': model_config.get('activation', 'step'),
-        'init_method': model_config.get('init_method', 'zeros'),
-        'random_state': model_config.get('random_state', None)
+        "input_size": model_config.get("input_size", 2),
+        "learning_rate": model_config.get("learning_rate", 0.1),
+        "max_epochs": model_config.get("max_epochs", 100),
+        "tolerance": model_config.get("tolerance", 1e-6),
+        "activation": model_config.get("activation", "step"),
+        "init_method": model_config.get("init_method", "zeros"),
+        "random_state": model_config.get("random_state", None),
     }
 
     model = Perceptron(**perceptron_params)
@@ -401,16 +403,18 @@ def _create_model_and_trainer(logger, model_config: dict, training_config: dict)
         "Architecture: %d -> %d", model_info["input_size"], model_info["output_size"]
     )
     logger.info("Activation: %s", model_info["activation_function"])
-    
+
     logger.info("Initializing trainer...")
     trainer = Trainer(training_config)
-    
+
     # Initialize wandb through trainer if enabled
     if training_config.use_wandb:
         # Let the model handle wandb instead of trainer to avoid conflicts
-        logger.info(f"🔄 Wandb will be managed by model - project: {training_config.wandb_project}")
+        logger.info(
+            f"🔄 Wandb will be managed by model - project: {training_config.wandb_project}"
+        )
         training_config.use_wandb = False  # Disable trainer wandb
-        
+
         # Initialize wandb through the model's BaseModel interface
         # Use custom name if provided, otherwise generate timestamp-based name
         if training_config.wandb_name:
@@ -418,29 +422,29 @@ def _create_model_and_trainer(logger, model_config: dict, training_config: dict)
         else:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             run_name = f"{training_config.experiment_name}-{training_config.model_name}-{timestamp}"
-        
+
         wandb_success = model.init_wandb(
             project=training_config.wandb_project,
             name=run_name,
             tags=training_config.wandb_tags,
             config=training_config.__dict__,
             notes=training_config.wandb_notes,
-            mode=training_config.wandb_mode
+            mode=training_config.wandb_mode,
         )
-        
+
         if wandb_success:
             logger.info("✅ Wandb integration activated via BaseModel")
             if training_config.wandb_watch_model:
                 model.watch_model(
                     log=training_config.wandb_watch_log,
-                    log_freq=training_config.wandb_watch_freq
+                    log_freq=training_config.wandb_watch_freq,
                 )
                 logger.info("📊 Model watching enabled")
             else:
                 logger.info("📊 Model watching disabled in config")
         else:
             logger.warning("⚠️ Wandb setup failed, continuing without tracking")
-    
+
     return model, trainer
 
 
@@ -556,7 +560,7 @@ def _generate_visualizations(
         logger.info("\nGenerating visualizations...")
         plots_dir = Path(training_config.output_dir) / "visualizations"
         plots_dir.mkdir(exist_ok=True)
-        
+
         # Training history plot
         if plot_training_history is not None:
             plot_path = plots_dir / f"{args.experiment}_training_history.png"
@@ -567,17 +571,20 @@ def _generate_visualizations(
                 save_path=str(plot_path),
             )
             logger.info("Training history plot saved: %s", plot_path)
-            
+
             # Log to wandb if available
-            if hasattr(model, 'log_image') and hasattr(model, 'wandb_run') and model.wandb_run is not None:
+            if (
+                hasattr(model, "log_image")
+                and hasattr(model, "wandb_run")
+                and model.wandb_run is not None
+            ):
                 model.log_image(
-                    str(plot_path), 
-                    caption=f"{args.experiment} Training History"
+                    str(plot_path), caption=f"{args.experiment} Training History"
                 )
                 logger.info("Training history plot logged to wandb")
         else:
             logger.warning("plot_training_history not available")
-            
+
         # Decision boundary plot
         if plot_decision_boundary is not None and model_config["input_size"] == 2:
             boundary_path = plots_dir / f"{args.experiment}_decision_boundary.png"
@@ -589,12 +596,15 @@ def _generate_visualizations(
                 save_path=str(boundary_path),
             )
             logger.info("Decision boundary plot saved: %s", boundary_path)
-            
+
             # Log to wandb if available
-            if hasattr(model, 'log_image') and hasattr(model, 'wandb_run') and model.wandb_run is not None:
+            if (
+                hasattr(model, "log_image")
+                and hasattr(model, "wandb_run")
+                and model.wandb_run is not None
+            ):
                 model.log_image(
-                    str(boundary_path), 
-                    caption=f"{args.experiment} Decision Boundary"
+                    str(boundary_path), caption=f"{args.experiment} Decision Boundary"
                 )
                 logger.info("Decision boundary plot logged to wandb")
         elif model_config["input_size"] == 2:
@@ -632,11 +642,11 @@ def main():
     valid = validate_experiment_arg(args)
     if valid is not None:
         return valid
-    
+
     # Initialize variables for visualization
     viz_success = False
     viz_data = None
-    
+
     try:
         training_config, model_config, dataset_config, _ = prepare_training(args)
         logger, model, data_split, model_config, training_result = run_training(
@@ -644,8 +654,16 @@ def main():
         )
         # Store values for visualization
         viz_success = True
-        viz_data = (args, logger, model, data_split, model_config, training_result, training_config)
-        
+        viz_data = (
+            args,
+            logger,
+            model,
+            data_split,
+            model_config,
+            training_result,
+            training_config,
+        )
+
     except KeyboardInterrupt:
         print("Training interrupted by user")
         return 1
@@ -654,7 +672,7 @@ def main():
         print(f"ERROR: {e}")
         print(f"Traceback: {traceback.format_exc()}")
         return 1
-    
+
     # Generate visualizations outside try block to ensure they always run
     if viz_success:
         try:
@@ -663,7 +681,7 @@ def main():
         except Exception as e:
             print(f"Visualization error: {e}")
             print(f"Traceback: {traceback.format_exc()}")
-    
+
     return 0
 
 

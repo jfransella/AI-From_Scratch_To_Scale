@@ -15,10 +15,11 @@ if str(project_root) not in sys.path:
 
 # Verify imports work
 try:
-    import utils
-    import engine
-    import data_utils
-    import plotting
+    import data_utils  # pylint: disable=unused-import,import-outside-toplevel  # noqa: F401
+    import engine  # pylint: disable=unused-import,import-outside-toplevel  # noqa: F401
+    import plotting  # pylint: disable=unused-import,import-outside-toplevel  # noqa: F401
+    import utils  # pylint: disable=unused-import,import-outside-toplevel  # noqa: F401
+
     print("✅ All shared packages available for import")
 except ImportError as e:
     print(f"❌ Import error: {e}")

@@ -1,0 +1,61 @@
+[MESSAGES CONTROL]
+# Disable specific warnings for this model
+disable=
+    import-error,  # We use setup_path.py for dynamic imports
+    wrong-import-position,  # setup_path needs to be imported after sys.path modification
+    wrong-import-order,  # setup_path disrupts normal import order
+    unused-import,  # setup_path appears unused but is necessary
+    invalid-name,  # Allow 01_perceptron module name and single letter variables
+    missing-class-docstring,  # Allow missing docstrings for compatibility classes
+    missing-function-docstring,  # Allow missing docstrings for simple methods
+    too-few-public-methods,  # Allow simple classes
+    too-many-instance-attributes,  # ML models often have many attributes
+    too-many-locals,  # ML functions often have many variables
+    too-many-statements,  # ML methods can be complex
+    too-many-positional-arguments,  # ML functions often need many parameters
+    broad-exception-caught,  # Allow general exception catching in demo code
+    unused-argument,  # Allow unused arguments for interface compatibility
+    redefined-outer-name,  # Allow variable reuse in demo functions
+    redefined-builtin,  # Allow redefining 'input' for parameter names
+    reimported,  # Allow reimporting for compatibility
+    import-outside-toplevel,  # Allow imports inside functions for optional dependencies
+    protected-access,  # Allow protected access for internal model operations
+    unused-variable,  # Allow unused variables in demo code
+    unspecified-encoding,  # Allow default encoding for simple file operations
+    attribute-defined-outside-init,  # Allow dynamic attribute creation
+    no-else-return,  # Allow else after return for clarity
+    duplicate-code,  # Allow some code duplication in implementation variants
+    f-string-without-interpolation,  # Allow f-strings without variables for consistency
+    line-too-long,  # Black handles line length
+    no-member  # Allow no-member for compatibility classes
+
+[IMPORTS]
+# Allow imports from our shared packages
+ignored-modules=
+    utils,
+    engine,
+    data_utils,
+    plotting,
+    setup_path
+
+[BASIC]
+# Good variable names
+good-names=
+    i,j,k,
+    x,y,z,
+    X,Y,
+    lr,
+    cv,
+    df,
+    ts
+
+[DESIGN]
+# Allow reasonable complexity
+max-args=10
+max-locals=20
+max-branches=15
+max-statements=60
+
+[FORMAT]
+# Use black's line length
+max-line-length=88

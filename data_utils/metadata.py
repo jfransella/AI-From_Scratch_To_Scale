@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
-from dataclasses import dataclass, asdict, field_item
+from dataclasses import dataclass, asdict, field
 
 import numpy as np
 
@@ -66,7 +66,7 @@ class DatasetStatistics:
 @dataclass
 class PreprocessingInfo:
     """Preprocessing steps applied to dataset."""
-    steps: List[Dict[str, Any]] = field_item(default_factory=list)
+    steps: List[Dict[str, Any]] = field(default_factory=list)
     normalization: Optional[str] = None
     scaling: Optional[str] = None
     feature_selection: Optional[Dict[str, Any]] = None
@@ -92,11 +92,11 @@ class PreprocessingInfo:
 @dataclass
 class DatasetCompatibility:
     """Dataset compatibility information with models."""
-    model_types: List[str] = field_item(default_factory=list)
-    frameworks: List[str] = field_item(default_factory=list)
+    model_types: List[str] = field(default_factory=list)
+    frameworks: List[str] = field(default_factory=list)
     min_memory_mb: float = 0.0
-    recommended_batch_sizes: Dict[str, int] = field_item(default_factory=dict)
-    performance_notes: List[str] = field_item(default_factory=list)
+    recommended_batch_sizes: Dict[str, int] = field(default_factory=dict)
+    performance_notes: List[str] = field(default_factory=list)
 
     def add_model_compatibility(self, model_type: str, batch_size: int, notes: str = ""):
         """Add model compatibility info."""
@@ -143,20 +143,20 @@ class DatasetMetadata:
 
     # Data quality
     quality_score: float = 0.0  # 0-100 quality score
-    validation_results: Dict[str, Any] = field_item(default_factory=dict)
-    known_issues: List[str] = field_item(default_factory=list)
+    validation_results: Dict[str, Any] = field(default_factory=dict)
+    known_issues: List[str] = field(default_factory=list)
 
     # Versioning and tracking
-    created_at: str = field_item(default_factory=lambda: datetime.now().isoformat())
-    modified_at: str = field_item(default_factory=lambda: datetime.now().isoformat())
+    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    modified_at: str = field(default_factory=lambda: datetime.now().isoformat())
     checksum: str = ""
     file_size_bytes: int = 0
 
     # Splits information
-    splits: Dict[str, Dict[str, Any]] = field_item(default_factory=dict)
+    splits: Dict[str, Dict[str, Any]] = field(default_factory=dict)
 
     # Custom metadata
-    custom_fields: Dict[str, Any] = field_item(default_factory=dict)
+    custom_fields: Dict[str, Any] = field(default_factory=dict)
 
     def update_timestamp(self):
         """Update the modified timestamp."""
@@ -367,13 +367,13 @@ class MetadataValidator:
 
     def _validate_required_fields(self, metadata: DatasetMetadata, results: Dict):
         """Validate required fields are present and non-empty."""
-        for field_item in self.REQUIRED_FIELDS:
-            value = getattr(metadata, field_item, None)
+        for field_name in self.REQUIRED_FIELDS:
+            value = getattr(metadata, field_name, None)
             if not value or (isinstance(value, str) and not value.strip()):
-                results['errors'].append(f"Required field '{field_item}' is missing or empty")
+                results['errors'].append(f"Required field '{field_name}' is missing or empty")
 
     def _validate_types(self, metadata: DatasetMetadata, results: Dict):
-        """Validate field_item types and values."""
+        """Validate field types and values."""
         # Dataset type validation
         if metadata.dataset_type not in self.VALID_DATASET_TYPES:
             results['errors'].append(

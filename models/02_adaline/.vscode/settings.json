@@ -26,4 +26,4 @@
         "**/*.pyc": true,
         ".pytest_cache": true
     }
-} 
+}

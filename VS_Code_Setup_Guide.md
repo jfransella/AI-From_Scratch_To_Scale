@@ -1,6 +1,6 @@
 # VS Code Setup Guide for AI From Scratch to Scale
 
-This guide will help you set up VS Code for optimal development with our AI project, including Flake8 linting, Black
+This guide will help you set up VS Code for optimal development with our AI project, including Pylint linting, Black
 formatting, and more.
 
 ## 🚀 Quick Setup
@@ -13,7 +13,7 @@ install manually:
 **Essential Extensions:**
 
 - **Python** (`ms-python.python`) - Core Python support
-- **Flake8** (`ms-python.flake8`) - Linting with Flake8
+- **Pylint** (`ms-python.pylint`) - Linting with Pylint
 - **Black Formatter** (`ms-python.black-formatter`) - Code formatting
 - **isort** (`ms-python.isort`) - Import sorting
 - **Jupyter** (`ms-toolsai.jupyter`) - Notebook support
@@ -41,32 +41,38 @@ For best experience, open the **workspace file** instead of just the folder:
 
 - **Format on Save** - Code automatically formatted with Black
 - **Organize Imports on Save** - isort organizes imports
-- **Real-time Linting** - Flake8 shows issues as you type
+- **Real-time Linting** - Pylint shows issues as you type
 - **88 Character Line Ruler** - Visual guide for line length
 
 ### Linting Configuration
 
-Our Flake8 setup includes:
+Our Pylint setup includes:
 
-```text`n✅ Compatible with Black formatting
+```text
+✅ Comprehensive code quality checking
 ✅ 88 character line length
 ✅ Project-specific ignore rules
-✅ Complexity checking (max 10)
-✅ Import order validation
-```text`n### Formatting Configuration
+✅ Code complexity analysis
+✅ Import validation
+```
+
+### Formatting Configuration
 
 Our Black setup:
 
-```text`n✅ 88 character line length (PEP 8 extended)
+```text
+✅ 88 character line length (PEP 8 extended)
 ✅ Automatic string quote normalization
 ✅ Compatible with isort
 ✅ Python 3.8+ target versions
-```text`n## 🎯 Using the Development Tools
+```
+
+## 🎯 Using the Development Tools
 
 ### Tasks (Ctrl+Shift+P → "Tasks: Run Task")
 
 1. **Format Code** - Run Black + isort on current model
-2. **Lint Code** - Run Flake8 with problem reporting
+2. **Lint Code** - Run Pylint with problem reporting
 3. **Quality Check** - Comprehensive check (format + lint + tests)
 4. **Run Tests** - Execute pytest with proper configuration
 5. **Train Perceptron** - Start training with visualization
@@ -149,11 +155,13 @@ Ctrl+Shift+P → "Tasks: Run Task" → "Lint Code"
 Ctrl+Shift+P → "Python: Select Interpreter"
 → Choose: ./models/01_perceptron/.venv/Scripts/python.exe
 
-# Check Flake8 installation
+# Check Pylint installation
 # In terminal:
 .venv\Scripts\activate
-flake8 --version
-```text`n### Formatting Not Working?
+pylint --version
+```
+
+### Formatting Not Working?
 
 ```powershell
 # Check Black installation
@@ -161,7 +169,7 @@ black --version
 
 # Manual format:
 Shift+Alt+F
-```text`n### Virtual Environment Issues?
+```### Virtual Environment Issues?
 
 ```powershell
 # Reload window

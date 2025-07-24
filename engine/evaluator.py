@@ -83,7 +83,7 @@ class ModelMetrics:
 
     # Core metrics
     accuracy: float = 0.0
-    loss: float = float("in")
+    loss: float = float("inf")
 
     # Classification metrics
     precision: Optional[float] = None

@@ -37,20 +37,12 @@ except ImportError:
 
 import torch  # noqa: E402
 
-<<<<<<< HEAD
-# Import shared packages
-from utils import setup_logging, set_random_seed, get_logger  # noqa: E402
-from data_utils import load_dataset  # noqa: E402
-from engine.trainer import Trainer  # noqa: E402
-from engine.base import DataSplit  # noqa: E402
-=======
 from data_utils import load_dataset
 from engine.base import DataSplit
 from engine.trainer import Trainer
 
 # Import shared packages
 from utils import get_logger, set_random_seed, setup_logging
->>>>>>> 3048305baf15e05456e16ae347f669533e0d7110
 
 # Import model-specific components
 try:
@@ -75,13 +67,8 @@ except ImportError:
 
 # Optional plotting imports (handled gracefully if not installed)
 try:
-<<<<<<< HEAD
-    from plotting import plot_training_history, plot_decision_boundary
-except ImportError:
-=======
     from plotting import plot_decision_boundary, plot_training_history
 except ImportError as e:
->>>>>>> 3048305baf15e05456e16ae347f669533e0d7110
     plot_training_history = None
     plot_decision_boundary = None
 
@@ -448,7 +435,7 @@ def _create_model_and_trainer(logger, model_config: dict, training_config: dict)
         )
 
         if wandb_success:
-            logger.info("✅ Wandb integration activated via BaseModel")
+            logger.info("[SUCCESS] Wandb integration activated via BaseModel")
             if training_config.wandb_watch_model:
                 model.watch_model(
                     log=training_config.wandb_watch_log,

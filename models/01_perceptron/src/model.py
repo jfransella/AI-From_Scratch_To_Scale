@@ -898,7 +898,7 @@ class Perceptron(
                 history["converged"] = True
                 history["convergence_epoch"] = epoch
                 if verbose:
-                    self.logger.info(f"✅ CONVERGED at epoch {epoch}! No more errors.")
+                    self.logger.info(f"[CONVERGED] at epoch {epoch}! No more errors.")
                     self.logger.info(
                         "🎉 Historical perceptron found perfect linear separator!"
                     )

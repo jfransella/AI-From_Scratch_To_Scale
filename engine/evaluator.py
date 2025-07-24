@@ -200,7 +200,7 @@ class Evaluator:
                 loss = model.get_loss(outputs, y).item()
             except Exception as e:
                 self.logger.warning(f"Could not compute loss: {e}")
-                loss = float("in")
+                loss = float("inf")
 
             # Get probabilities if available
             probabilities = None

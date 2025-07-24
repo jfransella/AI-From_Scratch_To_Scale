@@ -12,54 +12,45 @@ from typing import Any, Dict
 
 # Setup path for shared packages
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Add current directory to path first for correct constants import
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
 import setup_path  # pylint: disable=unused-import,wrong-import-position
 
 # Import from engine package
-<<<<<<< HEAD
-from engine import (  # noqa: E402
-    TrainingConfig,
-    EvaluationConfig,
-=======
 from engine import (  # noqa: E402  # pylint: disable=wrong-import-position
     EvaluationConfig,
     TrainingConfig,
->>>>>>> 3048305baf15e05456e16ae347f669533e0d7110
 )
 
-# Import constants - handle both direct and relative imports
-try:
-    from constants import (
-        DATASET_SPECS,
-        DEFAULT_ACTIVATION,
-        DEFAULT_INIT_METHOD,
-        DEFAULT_LEARNING_RATE,
-        DEFAULT_MAX_EPOCHS,
-        DEFAULT_TOLERANCE,
-        MODEL_NAME,
-        MODELS_DIR,
-        PLOTS_DIR,
-        get_experiment_info,
-        validate_experiment,
-    )
-except ImportError:
-    # Fallback for validation system - import from same directory
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    if current_dir not in sys.path:
-        sys.path.insert(0, current_dir)
+# Import constants now that path is properly set
+import importlib.util
+import os
 
-    from constants import (
-        DATASET_SPECS,
-        DEFAULT_ACTIVATION,
-        DEFAULT_INIT_METHOD,
-        DEFAULT_LEARNING_RATE,
-        DEFAULT_MAX_EPOCHS,
-        DEFAULT_TOLERANCE,
-        MODEL_NAME,
-        MODELS_DIR,
-        PLOTS_DIR,
-        get_experiment_info,
-        validate_experiment,
-    )
+# Explicitly import constants from the current directory
+constants_path = os.path.join(os.path.dirname(__file__), 'constants.py')
+spec = importlib.util.spec_from_file_location("constants", constants_path)
+if spec is None or spec.loader is None:
+    raise ImportError(f"Could not load constants module from {constants_path}")
+
+constants_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(constants_module)
+
+# Extract the needed constants
+DATASET_SPECS = constants_module.DATASET_SPECS
+DEFAULT_ACTIVATION = constants_module.DEFAULT_ACTIVATION
+DEFAULT_INIT_METHOD = constants_module.DEFAULT_INIT_METHOD
+DEFAULT_LEARNING_RATE = constants_module.DEFAULT_LEARNING_RATE
+DEFAULT_MAX_EPOCHS = constants_module.DEFAULT_MAX_EPOCHS
+DEFAULT_TOLERANCE = constants_module.DEFAULT_TOLERANCE
+MODEL_NAME = constants_module.MODEL_NAME
+MODELS_DIR = constants_module.MODELS_DIR
+PLOTS_DIR = constants_module.PLOTS_DIR
+get_experiment_info = constants_module.get_experiment_info
+validate_experiment = constants_module.validate_experiment
 
 
 def apply_wandb_defaults(config_dict: dict, experiment_name: str) -> dict:

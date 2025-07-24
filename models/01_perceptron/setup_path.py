@@ -20,6 +20,6 @@ try:
     import plotting  # pylint: disable=unused-import,import-outside-toplevel  # noqa: F401
     import utils  # pylint: disable=unused-import,import-outside-toplevel  # noqa: F401
 
-    print("✅ All shared packages available for import")
+    print("[SUCCESS] All shared packages available for import")
 except ImportError as e:
-    print(f"❌ Import error: {e}")
+    print(f"[ERROR] Import error: {e}")

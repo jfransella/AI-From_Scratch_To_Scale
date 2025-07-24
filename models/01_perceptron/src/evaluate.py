@@ -19,10 +19,16 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import setup_path  # pylint: disable=unused-import,wrong-import-position
 
 # Import model-specific components
-# Always use absolute imports for better compatibility
-from config import get_dataset_config, get_evaluation_config, get_model_config
-from constants import ALL_EXPERIMENTS, MODEL_NAME
-from model import Perceptron
+# Always use absolute imports for better compatibility  
+try:
+    from .config import get_dataset_config, get_evaluation_config, get_model_config
+    from .constants import ALL_EXPERIMENTS, MODEL_NAME
+    from .model import Perceptron
+except ImportError:
+    # Fallback for direct execution
+    from config import get_dataset_config, get_evaluation_config, get_model_config
+    from constants import ALL_EXPERIMENTS, MODEL_NAME
+    from model import Perceptron
 
 from data_utils import load_dataset
 from engine.evaluator import Evaluator

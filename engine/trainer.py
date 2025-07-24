@@ -595,12 +595,12 @@ class Trainer:
             model_architecture=self.config.model_name,
             dataset_name=self.config.dataset_name,
             hyperparameters=self.config.__dict__.copy(),
-            final_loss=float("in"),
+            final_loss=float("inf"),
             final_train_accuracy=0.0,
         )
 
         # Training state
-        best_loss = float("in")
+        best_loss = float("inf")
         patience_counter = 0
         start_time = time.time()
 

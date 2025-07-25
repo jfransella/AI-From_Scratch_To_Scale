@@ -1,6 +1,3 @@
-# pylint: skip-file
-# flake8: noqa
-# mypy: skip-file
 # Requirements template for AI From Scratch to Scale models
 # 
 # This template shows common dependencies needed for different types of models.
@@ -18,12 +15,15 @@
 # =============================================================================
 
 # Core Python packages
-numpy>=1.21.0
+numpy>=1.21.0,<2.0.0
 matplotlib>=3.5.0
 scipy>=1.7.0
 
 # Progress bars and utilities
 tqdm>=4.64.0
+
+# JSON and configuration handling
+pyyaml>=6.0
 
 # =============================================================================
 # FRAMEWORK DEPENDENCIES (Uncomment based on model complexity)

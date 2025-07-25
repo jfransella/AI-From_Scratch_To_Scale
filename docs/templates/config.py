@@ -1,6 +1,3 @@
-# pylint: skip-file
-# flake8: noqa
-# type: ignore
 """
 Template for config.py - Configuration Management
 
@@ -17,8 +14,7 @@ Replace MODEL_NAME with the actual model name (e.g., "Perceptron", "MLP", etc.)
 
 import os
 import json
-import torch
-import logging
+import importlib.util
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional, Union
 from dataclasses import dataclass, field, asdict
@@ -31,8 +27,33 @@ try:
 except ImportError:
     HAS_ENGINE = False
 
-# Import constants
-from constants import MODEL_NAME, ALL_EXPERIMENTS
+# Handle PyTorch imports gracefully
+try:
+    import torch
+    HAS_TORCH = True
+except ImportError:
+    HAS_TORCH = False
+
+# Import constants using explicit module loading for compatibility
+def load_constants():
+    """Load constants module with explicit path handling."""
+    try:
+        # Try direct import first
+        from constants import MODEL_NAME, ALL_EXPERIMENTS
+        return MODEL_NAME, ALL_EXPERIMENTS
+    except ImportError:
+        # Use explicit module loading as fallback
+        constants_path = Path(__file__).parent / "constants.py"
+        if constants_path.exists():
+            spec = importlib.util.spec_from_file_location("constants", constants_path)
+            if spec and spec.loader:
+                constants_module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(constants_module)
+                return getattr(constants_module, "MODEL_NAME", "Template"), getattr(constants_module, "ALL_EXPERIMENTS", [])
+        # Final fallback
+        return "Template", ["debug", "quick_test", "standard", "production"]
+
+MODEL_NAME, ALL_EXPERIMENTS = load_constants()
 
 
 # =============================================================================
@@ -170,18 +191,29 @@ if HAS_ENGINE:
                 "log_freq": 1,
                 "verbose": True,
                 "patience": 10,
+                "batch_size": 16,
             },
             "quick_test": {
                 "max_epochs": 50,
                 "learning_rate": 0.1,
                 "log_freq": 5,
                 "patience": 20,
+                "batch_size": 32,
             },
             "standard": {
                 "max_epochs": 100,
                 "learning_rate": 0.01,
                 "convergence_threshold": 1e-6,
                 "patience": 30,
+                "batch_size": 32,
+            },
+            "production": {
+                "max_epochs": 200,
+                "learning_rate": 0.001,
+                "convergence_threshold": 1e-8,
+                "patience": 50,
+                "batch_size": 64,
+                "use_wandb": True,
             },
         }
         
@@ -278,27 +310,69 @@ def get_experiment_info(experiment_name: str) -> Dict[str, str]:
     }
 
 
-def apply_environment_overrides(config: SimpleExperimentConfig, environment: str = "default") -> SimpleExperimentConfig:
+def apply_wandb_defaults(config: Union[SimpleExperimentConfig, TrainingConfig], wandb_sweep_config: Optional[Dict[str, Any]] = None) -> Union[SimpleExperimentConfig, TrainingConfig]:
     """
-    Apply environment-specific overrides to configuration.
+    Apply W&B sweep configuration overrides.
+    
+    This function follows the pattern from successful implementations
+    to integrate with W&B hyperparameter sweeps.
     
     Args:
-        config: Base configuration
-        environment: Environment name ("default", "debug", "production")
+        config: Base configuration object
+        wandb_sweep_config: W&B sweep configuration dictionary
         
     Returns:
-        Modified configuration
+        Updated configuration object
     """
-    if environment == "debug":
-        config.max_epochs = min(config.max_epochs, 20)
-        config.verbose = True
-        config.log_freq = 1
-    elif environment == "production":
-        config.verbose = False
-        config.save_plots = False
-        config.save_history = True
+    if wandb_sweep_config is None:
+        return config
+    
+    # Apply sweep overrides based on config type
+    if isinstance(config, SimpleExperimentConfig):
+        # Update dataclass fields directly
+        for key, value in wandb_sweep_config.items():
+            if hasattr(config, key):
+                setattr(config, key, value)
+    elif HAS_ENGINE and isinstance(config, TrainingConfig):
+        # For TrainingConfig, create new instance with updates
+        config_dict = config.__dict__.copy()
+        config_dict.update(wandb_sweep_config)
+        config = TrainingConfig(**config_dict)
     
     return config
+
+
+def validate_config(config: Union[SimpleExperimentConfig, TrainingConfig]) -> bool:
+    """
+    Validate configuration parameters.
+    
+    Args:
+        config: Configuration object to validate
+        
+    Returns:
+        True if valid, raises ValueError if invalid
+    """
+    if isinstance(config, SimpleExperimentConfig):
+        # Validation is handled in __post_init__
+        return True
+    elif HAS_ENGINE and isinstance(config, TrainingConfig):
+        # Add engine-specific validation
+        assert config.learning_rate > 0, "Learning rate must be positive"
+        assert config.max_epochs > 0, "Max epochs must be positive"
+        assert 0 <= config.convergence_threshold <= 1, "Convergence threshold must be between 0 and 1"
+        return True
+    else:
+        raise ValueError(f"Unknown config type: {type(config)}")
+
+
+def get_device_config() -> str:
+    """Get the appropriate device configuration."""
+    if HAS_TORCH:
+        if torch.cuda.is_available():
+            return "cuda"
+        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            return "mps"
+    return "cpu"
 
 
 def get_config(experiment_name: str, env: str = "default") -> Dict[str, Any]:
